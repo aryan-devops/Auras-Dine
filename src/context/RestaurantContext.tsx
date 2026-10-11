@@ -17,6 +17,8 @@ import {
   BillingInvoice,
   AuditLogEvent,
   PlatformGlobalSettings,
+  StaffMember,
+  StaffRole,
 } from '../types';
 import {
   INITIAL_TENANTS,
@@ -29,9 +31,10 @@ import {
   INITIAL_INVOICES,
   INITIAL_AUDIT_LOGS,
   INITIAL_PLATFORM_SETTINGS,
+  INITIAL_STAFF_MEMBERS,
 } from '../data/initialData';
 import { getConflictingCartItems } from '../lib/filterUtils';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 interface RestaurantContextType {
@@ -158,9 +161,20 @@ interface RestaurantContextType {
   platformSettings: PlatformGlobalSettings;
   updatePlatformSettings: (updates: Partial<PlatformGlobalSettings>) => void;
 
+  // Staff Management
+  staffMembers: StaffMember[];
+  scopedStaffMembers: StaffMember[];
+  addStaff: (
+    staffDataOrUsername: string | (Partial<StaffMember> & { username: string; role: StaffRole; password?: string; name?: string }),
+    legacyPassword?: string,
+    legacyRole?: StaffRole
+  ) => Promise<void>;
+  resetStaffPassword: (staffId: string, newPassword: string) => Promise<boolean>;
+  toggleStaffStatus: (staffId: string) => void;
+  deleteStaff: (staffId: string) => void;
+
   // Utilities
   resetDemoData: () => void;
-  addStaff: (username: string, password: string, role: 'waiter' | 'kitchen') => Promise<void>;
 }
 
 const RestaurantContext = createContext<RestaurantContextType | undefined>(undefined);
@@ -306,6 +320,12 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     return saved ? JSON.parse(saved) : INITIAL_PLATFORM_SETTINGS;
   });
 
+  // 13. Staff Members
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}staffMembers`);
+    return saved ? JSON.parse(saved) : INITIAL_STAFF_MEMBERS;
+  });
+
   // Sync to local storage
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY_PREFIX}tenants`, JSON.stringify(tenants));
@@ -350,6 +370,10 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY_PREFIX}platformSettings`, JSON.stringify(platformSettings));
   }, [platformSettings]);
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}staffMembers`, JSON.stringify(staffMembers));
+  }, [staffMembers]);
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY_PREFIX}cart_${currentTenantId}`, JSON.stringify(cart));
@@ -1070,24 +1094,155 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     setBillingInvoices(INITIAL_INVOICES);
     setAuditLogs(INITIAL_AUDIT_LOGS);
     setPlatformSettings(INITIAL_PLATFORM_SETTINGS);
+    setStaffMembers(INITIAL_STAFF_MEMBERS);
     setCart([]);
     setDietaryFilter('all');
   };
 
-  const addStaff = async (username: string, password: string, role: 'waiter' | 'kitchen') => {
+  const addStaff = async (
+    staffDataOrUsername: string | (Partial<StaffMember> & { username: string; role: StaffRole; password?: string; name?: string }),
+    legacyPassword?: string,
+    legacyRole?: StaffRole
+  ) => {
+    let name = '';
+    let username = '';
+    let password = legacyPassword || 'password123';
+    let role: StaffRole = legacyRole || 'waiter';
+    let station = '';
+    let phone = '';
+    let email = '';
+
+    if (typeof staffDataOrUsername === 'string') {
+      username = staffDataOrUsername;
+      name = staffDataOrUsername;
+      password = legacyPassword || 'password123';
+      role = legacyRole || 'waiter';
+    } else {
+      username = staffDataOrUsername.username;
+      name = staffDataOrUsername.name || staffDataOrUsername.username;
+      password = staffDataOrUsername.password || 'password123';
+      role = staffDataOrUsername.role || 'waiter';
+      station = staffDataOrUsername.station || '';
+      phone = staffDataOrUsername.phone || '';
+      email = staffDataOrUsername.email || '';
+    }
+
+    const newStaffMember: StaffMember = {
+      id: `staff-${Date.now()}`,
+      tenantId: currentTenantId,
+      name,
+      username,
+      password,
+      role,
+      station: station || (role === 'waiter' ? 'Dining Floor' : role === 'kitchen' ? 'Kitchen Line' : 'Admin Operations'),
+      status: 'active',
+      phone,
+      email,
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+    };
+
+    setStaffMembers((prev) => [newStaffMember, ...prev]);
+
     try {
       await addDoc(collection(db, 'staffCredentials'), {
+        id: newStaffMember.id,
+        name,
         username,
         password,
         role,
+        station: newStaffMember.station,
+        phone,
+        email,
         tenantId: currentTenantId,
-        restaurantName: currentTenant.name
+        restaurantName: currentTenant.name,
+        createdAt: newStaffMember.createdAt,
       });
-      alert('Staff added successfully!');
     } catch (error) {
-      console.error('Error adding staff:', error);
-      alert('Failed to add staff');
+      console.warn('Notice: Firestore staff credential sync (offline or restricted):', error);
     }
+
+    logAuditEvent(
+      'STAFF_MEMBER_ADDED',
+      `Registered new ${role} team member: ${name} (@${username})`,
+      currentTenant.name,
+      'info'
+    );
+  };
+
+  const resetStaffPassword = async (staffId: string, newPassword: string): Promise<boolean> => {
+    const staff = staffMembers.find((s) => s.id === staffId);
+    if (!staff) return false;
+
+    setStaffMembers((prev) =>
+      prev.map((s) => (s.id === staffId ? { ...s, password: newPassword } : s))
+    );
+
+    try {
+      const q = query(
+        collection(db, 'staffCredentials'),
+        where('username', '==', staff.username),
+        where('tenantId', '==', staff.tenantId)
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        for (const docSnap of querySnapshot.docs) {
+          await updateDoc(docSnap.ref, {
+            password: newPassword,
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      } else {
+        await addDoc(collection(db, 'staffCredentials'), {
+          id: staff.id,
+          name: staff.name,
+          username: staff.username,
+          password: newPassword,
+          role: staff.role,
+          tenantId: staff.tenantId,
+          restaurantName: currentTenant.name,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.warn('Notice: Firestore password sync note:', error);
+    }
+
+    logAuditEvent(
+      'STAFF_PASSWORD_RESET',
+      `Password successfully reset for staff member ${staff.name} (@${staff.username})`,
+      currentTenant.name,
+      'warning'
+    );
+
+    return true;
+  };
+
+  const toggleStaffStatus = (staffId: string) => {
+    const target = staffMembers.find((s) => s.id === staffId);
+    if (!target) return;
+    const nextStatus = target.status === 'active' ? 'inactive' : 'active';
+    setStaffMembers((prev) =>
+      prev.map((s) => (s.id === staffId ? { ...s, status: nextStatus } : s))
+    );
+    logAuditEvent(
+      'STAFF_STATUS_UPDATED',
+      `Status for ${target.name} set to ${nextStatus}`,
+      currentTenant.name,
+      'info'
+    );
+  };
+
+  const deleteStaff = (staffId: string) => {
+    const target = staffMembers.find((s) => s.id === staffId);
+    if (!target) return;
+    setStaffMembers((prev) => prev.filter((s) => s.id !== staffId));
+    logAuditEvent(
+      'STAFF_MEMBER_DELETED',
+      `Removed staff member ${target.name} (@${target.username})`,
+      currentTenant.name,
+      'warning'
+    );
   };
 
   const scopedCategories = useMemo(() => {
@@ -1103,6 +1258,10 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
   const scopedTables = useMemo(() => {
     return tables.filter((t) => t.tenantId === currentTenantId);
   }, [tables, currentTenantId]);
+
+  const scopedStaffMembers = useMemo(() => {
+    return staffMembers.filter((s) => s.tenantId === currentTenantId);
+  }, [staffMembers, currentTenantId]);
 
   return (
     <RestaurantContext.Provider
@@ -1183,7 +1342,12 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         platformSettings,
         updatePlatformSettings,
         resetDemoData,
+        staffMembers,
+        scopedStaffMembers,
         addStaff,
+        resetStaffPassword,
+        toggleStaffStatus,
+        deleteStaff,
       }}
     >
       {children}

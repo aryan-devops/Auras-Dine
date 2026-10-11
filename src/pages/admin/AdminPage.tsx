@@ -28,8 +28,20 @@ import {
   Tag,
   AlertCircle,
   Users,
+  KeyRound,
+  ChefHat,
+  UserCheck,
+  UserX,
+  ShieldCheck,
+  EyeOff,
+  Search,
+  Phone,
+  Mail,
+  CheckCircle2,
+  Lock,
+  Shuffle,
 } from 'lucide-react';
-import { FoodType, MenuItem } from '../../types';
+import { FoodType, MenuItem, StaffMember, StaffRole } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { TableQrCard } from '../../components/qr/TableQrCard';
 import { FoodImageStudioModal } from '../../components/admin/FoodImageStudioModal';
@@ -56,15 +68,46 @@ export const AdminPage: React.FC = () => {
     deleteTable,
     orders,
     setCurrentRole,
+    scopedStaffMembers,
     addStaff,
+    resetStaffPassword,
+    toggleStaffStatus,
+    deleteStaff,
   } = useRestaurant();
 
   const [activeTab, setActiveTab] = useState<'menu' | 'categories' | 'tables' | 'analytics' | 'settings' | 'staff'>('menu');
 
-  // Staff creation form state
-  const [staffUsername, setStaffUsername] = useState('');
-  const [staffPassword, setStaffPassword] = useState('');
-  const [staffRole, setStaffRole] = useState<'waiter' | 'kitchen'>('waiter');
+  // Staff Management state
+  const [staffSearchQuery, setStaffSearchQuery] = useState('');
+  const [staffRoleFilter, setStaffRoleFilter] = useState<'all' | StaffRole>('all');
+  const [staffStatusFilter, setStaffStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+
+  // Add staff modal state
+  const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
+  const [newStaffName, setNewStaffName] = useState('');
+  const [newStaffUsername, setNewStaffUsername] = useState('');
+  const [newStaffRole, setNewStaffRole] = useState<StaffRole>('waiter');
+  const [newStaffStation, setNewStaffStation] = useState('');
+  const [newStaffPhone, setNewStaffPhone] = useState('');
+  const [newStaffEmail, setNewStaffEmail] = useState('');
+  const [newStaffPassword, setNewStaffPassword] = useState('');
+  const [showNewStaffPassword, setShowNewStaffPassword] = useState(false);
+
+  // Reset password modal state
+  const [resetPasswordStaff, setResetPasswordStaff] = useState<StaffMember | null>(null);
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetSuccessMessage, setResetSuccessMessage] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
+
+  const generateSecurePassword = () => {
+    const prefixes = ['Bistro', 'Chef', 'Table', 'Aura', 'Dining', 'Kitchen', 'Grand', 'Green'];
+    const pfx = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const num = Math.floor(1000 + Math.random() * 9000);
+    const symbols = ['!', '@', '#', '$'];
+    const sym = symbols[Math.floor(Math.random() * symbols.length)];
+    return `${pfx}${num}${sym}`;
+  };
 
   // Filter & Search in menu
   const [menuFilter, setMenuFilter] = useState<'all' | 'available' | 'sold_out' | 'specials' | 'must_try' | 'recommended'>('all');
@@ -1103,44 +1146,710 @@ export const AdminPage: React.FC = () => {
         {/* TAB STAFF MANAGEMENT */}
         {activeTab === 'staff' && (
           <div className="space-y-6">
-            <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
-              Staff Access Credentials
-            </h2>
-            <div className="p-4 bg-white rounded-xl border border-neutral-200">
-               <p className="text-sm text-neutral-500 mb-4">Create access for Kitchen and Waiter staff.</p>
-               <form onSubmit={(e) => {
-                 e.preventDefault();
-                 addStaff(staffUsername, staffPassword, staffRole);
-                 setStaffUsername('');
-                 setStaffPassword('');
-               }} className="space-y-4">
-                 <input 
-                    type="text" 
-                    placeholder="Username" 
-                    value={staffUsername}
-                    onChange={(e) => setStaffUsername(e.target.value)}
-                    className="w-full p-2 border rounded" 
-                    required 
-                 />
-                 <input 
-                    type="password" 
-                    placeholder="Password" 
-                    value={staffPassword}
-                    onChange={(e) => setStaffPassword(e.target.value)}
-                    className="w-full p-2 border rounded" 
-                    required 
-                 />
-                 <select 
-                    value={staffRole}
-                    onChange={(e) => setStaffRole(e.target.value as 'waiter' | 'kitchen')}
-                    className="w-full p-2 border rounded" 
-                    required
-                 >
-                   <option value="waiter">Waiter</option>
-                   <option value="kitchen">Kitchen</option>
-                 </select>
-                 <button type="submit" className="px-4 py-2 bg-[#30673A] text-white rounded">Add Staff</button>
-               </form>
+            {/* Top Bar with Title, Subtitle, and Add Staff Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-black text-[#1E231F] glinster-font">
+                    Staff & Operations Management
+                  </h2>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-[#30673A]/10 text-[#30673A]">
+                    {scopedStaffMembers.length} Members
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Manage active restaurant personnel, station assignments, and reset secure staff credentials.
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setNewStaffName('');
+                  setNewStaffUsername('');
+                  setNewStaffRole('waiter');
+                  setNewStaffStation('');
+                  setNewStaffPhone('');
+                  setNewStaffEmail('');
+                  setNewStaffPassword(generateSecurePassword());
+                  setShowNewStaffPassword(false);
+                  setIsAddStaffOpen(true);
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Staff Member</span>
+              </button>
+            </div>
+
+            {/* Quick Metrics KPI cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white p-3.5 rounded-2xl border border-neutral-200/80 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-neutral-500">Total Roster</span>
+                  <div className="w-7 h-7 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-700">
+                    <Users className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 text-2xl font-black text-[#1E231F] glinster-font">
+                  {scopedStaffMembers.length}
+                </div>
+                <span className="text-[10px] text-neutral-400">Scoped to {currentTenant.name}</span>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-2xl border border-neutral-200/80 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-neutral-500">Dining Waiters</span>
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#30673A] flex items-center justify-center">
+                    <UserCheck className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 text-2xl font-black text-[#30673A] glinster-font">
+                  {scopedStaffMembers.filter((s) => s.role === 'waiter').length}
+                </div>
+                <span className="text-[10px] text-emerald-600/80 font-medium">Floor & Table Service</span>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-2xl border border-neutral-200/80 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-neutral-500">Kitchen Brigade</span>
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+                    <ChefHat className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 text-2xl font-black text-amber-700 glinster-font">
+                  {scopedStaffMembers.filter((s) => s.role === 'kitchen').length}
+                </div>
+                <span className="text-[10px] text-amber-600/80 font-medium">Line Chefs & Prep</span>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-2xl border border-neutral-200/80 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-neutral-500">Active Now</span>
+                  <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 text-2xl font-black text-[#1E231F] glinster-font">
+                  {scopedStaffMembers.filter((s) => s.status === 'active').length}
+                </div>
+                <span className="text-[10px] text-teal-600/80 font-medium">Ready for duty</span>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="bg-white p-3 rounded-2xl border border-neutral-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="relative flex-1 min-w-[220px]">
+                <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search staff by name, @username, or station..."
+                  value={staffSearchQuery}
+                  onChange={(e) => setStaffSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A] transition-all"
+                />
+                {staffSearchQuery && (
+                  <button
+                    onClick={() => setStaffSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-xs"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Role Filter Pills */}
+                <div className="flex items-center bg-[#FAF8F2] p-1 rounded-xl border border-neutral-200/80 text-xs">
+                  <button
+                    onClick={() => setStaffRoleFilter('all')}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      staffRoleFilter === 'all'
+                        ? 'bg-white shadow-2xs text-[#1E231F] font-bold'
+                        : 'text-neutral-500 hover:text-neutral-900'
+                    }`}
+                  >
+                    All Roles ({scopedStaffMembers.length})
+                  </button>
+                  <button
+                    onClick={() => setStaffRoleFilter('waiter')}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      staffRoleFilter === 'waiter'
+                        ? 'bg-white shadow-2xs text-[#30673A] font-bold'
+                        : 'text-neutral-500 hover:text-neutral-900'
+                    }`}
+                  >
+                    Waiters ({scopedStaffMembers.filter((s) => s.role === 'waiter').length})
+                  </button>
+                  <button
+                    onClick={() => setStaffRoleFilter('kitchen')}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      staffRoleFilter === 'kitchen'
+                        ? 'bg-white shadow-2xs text-amber-700 font-bold'
+                        : 'text-neutral-500 hover:text-neutral-900'
+                    }`}
+                  >
+                    Kitchen ({scopedStaffMembers.filter((s) => s.role === 'kitchen').length})
+                  </button>
+                  <button
+                    onClick={() => setStaffRoleFilter('admin')}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      staffRoleFilter === 'admin'
+                        ? 'bg-white shadow-2xs text-purple-700 font-bold'
+                        : 'text-neutral-500 hover:text-neutral-900'
+                    }`}
+                  >
+                    Admins ({scopedStaffMembers.filter((s) => s.role === 'admin').length})
+                  </button>
+                </div>
+
+                {/* Status Filter */}
+                <select
+                  value={staffStatusFilter}
+                  onChange={(e) => setStaffStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                  className="px-2.5 py-1.5 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200/80 text-neutral-700 font-medium focus:outline-none focus:border-[#30673A]"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active Only</option>
+                  <option value="inactive">Inactive Only</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Staff Members List */}
+            {scopedStaffMembers.filter((staff) => {
+              const query = staffSearchQuery.toLowerCase();
+              const matchesSearch =
+                staff.name.toLowerCase().includes(query) ||
+                staff.username.toLowerCase().includes(query) ||
+                (staff.station && staff.station.toLowerCase().includes(query)) ||
+                (staff.phone && staff.phone.includes(query)) ||
+                (staff.email && staff.email.toLowerCase().includes(query));
+              const matchesRole = staffRoleFilter === 'all' || staff.role === staffRoleFilter;
+              const matchesStatus = staffStatusFilter === 'all' || staff.status === staffStatusFilter;
+              return matchesSearch && matchesRole && matchesStatus;
+            }).length === 0 ? (
+              <div className="bg-white rounded-2xl border border-neutral-200/80 p-12 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-400 mx-auto flex items-center justify-center mb-3">
+                  <Users className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-bold text-[#1E231F]">No staff members found</h3>
+                <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
+                  {staffSearchQuery || staffRoleFilter !== 'all' || staffStatusFilter !== 'all'
+                    ? 'No staff members match your active filters. Try adjusting your search query or reset the filters.'
+                    : 'Get started by creating your first restaurant staff credential.'}
+                </p>
+                {(staffSearchQuery || staffRoleFilter !== 'all' || staffStatusFilter !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setStaffSearchQuery('');
+                      setStaffRoleFilter('all');
+                      setStaffStatusFilter('all');
+                    }}
+                    className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-[#30673A] bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
+                {scopedStaffMembers
+                  .filter((staff) => {
+                    const query = staffSearchQuery.toLowerCase();
+                    const matchesSearch =
+                      staff.name.toLowerCase().includes(query) ||
+                      staff.username.toLowerCase().includes(query) ||
+                      (staff.station && staff.station.toLowerCase().includes(query)) ||
+                      (staff.phone && staff.phone.includes(query)) ||
+                      (staff.email && staff.email.toLowerCase().includes(query));
+                    const matchesRole = staffRoleFilter === 'all' || staff.role === staffRoleFilter;
+                    const matchesStatus = staffStatusFilter === 'all' || staff.status === staffStatusFilter;
+                    return matchesSearch && matchesRole && matchesStatus;
+                  })
+                  .map((staff) => {
+                    const roleBadgeConfig =
+                      staff.role === 'kitchen'
+                        ? {
+                            label: 'Kitchen & Chef',
+                            bg: 'bg-amber-50 text-amber-800 border-amber-200/80',
+                            icon: ChefHat,
+                            avatarBg: 'bg-gradient-to-br from-amber-400 to-amber-600 text-white',
+                          }
+                        : staff.role === 'admin'
+                        ? {
+                            label: 'Restaurant Admin',
+                            bg: 'bg-purple-50 text-purple-800 border-purple-200/80',
+                            icon: ShieldCheck,
+                            avatarBg: 'bg-gradient-to-br from-purple-500 to-purple-700 text-white',
+                          }
+                        : {
+                            label: 'Floor Waiter',
+                            bg: 'bg-emerald-50 text-[#30673A] border-emerald-200/80',
+                            icon: UtensilsCrossed,
+                            avatarBg: 'bg-gradient-to-br from-emerald-600 to-[#204828] text-white',
+                          };
+
+                    const RoleIcon = roleBadgeConfig.icon;
+                    const initials = staff.name
+                      ? staff.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()
+                          .slice(0, 2)
+                      : staff.username.slice(0, 2).toUpperCase();
+
+                    return (
+                      <div
+                        key={staff.id}
+                        className={`bg-white rounded-2xl border transition-all p-4 flex flex-col justify-between shadow-2xs hover:shadow-sm ${
+                          staff.status === 'active' ? 'border-neutral-200/90' : 'border-neutral-200/50 opacity-75'
+                        }`}
+                      >
+                        {/* Member Header */}
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-sm tracking-wide shadow-2xs shrink-0 ${roleBadgeConfig.avatarBg}`}
+                              >
+                                {initials}
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="text-sm font-bold text-[#1E231F] truncate leading-tight">
+                                  {staff.name}
+                                </h3>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[11px] font-mono text-neutral-500 truncate">
+                                    @{staff.username}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Status badge toggle */}
+                            <button
+                              onClick={() => toggleStaffStatus(staff.id)}
+                              title={`Click to ${staff.status === 'active' ? 'deactivate' : 'activate'}`}
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer transition-colors shrink-0 ${
+                                staff.status === 'active'
+                                  ? 'bg-emerald-50 text-[#30673A] border border-emerald-200/80 hover:bg-emerald-100'
+                                  : 'bg-neutral-100 text-neutral-500 border border-neutral-200 hover:bg-neutral-200'
+                              }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${
+                                  staff.status === 'active' ? 'bg-[#30673A] animate-pulse' : 'bg-neutral-400'
+                                }`}
+                              />
+                              <span className="capitalize">{staff.status}</span>
+                            </button>
+                          </div>
+
+                          {/* Role and Station details */}
+                          <div className="mt-3.5 space-y-2">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg border ${roleBadgeConfig.bg}`}
+                              >
+                                <RoleIcon className="w-3 h-3" />
+                                {roleBadgeConfig.label}
+                              </span>
+                            </div>
+
+                            {staff.station && (
+                              <div className="text-xs text-neutral-600 bg-[#FAF8F2] px-2.5 py-1.5 rounded-xl border border-neutral-200/60 flex items-center gap-1.5">
+                                <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider shrink-0">
+                                  Station:
+                                </span>
+                                <span className="font-medium text-neutral-800 truncate">{staff.station}</span>
+                              </div>
+                            )}
+
+                            {/* Contact Info (if available) */}
+                            {(staff.phone || staff.email) && (
+                              <div className="text-[11px] text-neutral-500 space-y-0.5 pt-0.5">
+                                {staff.phone && (
+                                  <div className="flex items-center gap-1.5 truncate">
+                                    <Phone className="w-3 h-3 text-neutral-400 shrink-0" />
+                                    <span>{staff.phone}</span>
+                                  </div>
+                                )}
+                                {staff.email && (
+                                  <div className="flex items-center gap-1.5 truncate">
+                                    <Mail className="w-3 h-3 text-neutral-400 shrink-0" />
+                                    <span className="truncate">{staff.email}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Actions footer */}
+                        <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between gap-2">
+                          <button
+                            onClick={() => {
+                              setResetPasswordStaff(staff);
+                              setNewPasswordInput(generateSecurePassword());
+                              setShowResetPassword(false);
+                              setResetSuccessMessage('');
+                              setIsCopied(false);
+                            }}
+                            className="flex-1 py-1.5 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+                          >
+                            <KeyRound className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Reset Password</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              if (confirm(`Remove staff member "${staff.name}" (@${staff.username})?`)) {
+                                deleteStaff(staff.id);
+                              }
+                            }}
+                            title="Remove Staff"
+                            className="p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODAL: RESET STAFF PASSWORD */}
+        {resetPasswordStaff && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                    <KeyRound className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                      Reset Staff Password
+                    </h3>
+                    <p className="text-xs text-neutral-500">
+                      Configure fresh access credentials for {resetPasswordStaff.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setResetPasswordStaff(null)}
+                  className="text-neutral-400 hover:text-neutral-600 p-1 rounded-lg cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Staff preview chip */}
+              <div className="p-3 bg-[#FAF8F2] rounded-xl border border-neutral-200/80 flex items-center justify-between text-xs">
+                <div>
+                  <div className="font-bold text-neutral-800">{resetPasswordStaff.name}</div>
+                  <div className="text-neutral-500 font-mono text-[11px]">@{resetPasswordStaff.username}</div>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-neutral-200 text-neutral-700">
+                    {resetPasswordStaff.role}
+                  </span>
+                  <div className="text-[10px] text-neutral-400 mt-0.5">{resetPasswordStaff.station || 'General'}</div>
+                </div>
+              </div>
+
+              {/* Success notification banner */}
+              {resetSuccessMessage && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{resetSuccessMessage}</span>
+                </div>
+              )}
+
+              {/* Password Input & Generator */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-neutral-700">
+                    New Security Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const pass = generateSecurePassword();
+                      setNewPasswordInput(pass);
+                      setIsCopied(false);
+                    }}
+                    className="text-[11px] font-bold text-[#30673A] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Shuffle className="w-3 h-3" />
+                    <span>Auto-Generate</span>
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type={showResetPassword ? 'text' : 'password'}
+                    value={newPasswordInput}
+                    onChange={(e) => {
+                      setNewPasswordInput(e.target.value);
+                      setIsCopied(false);
+                    }}
+                    placeholder="Enter new password (min 6 characters)"
+                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetPassword(!showResetPassword)}
+                      className="p-1 text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                      title={showResetPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showResetPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newPasswordInput) {
+                          navigator.clipboard.writeText(newPasswordInput);
+                          setIsCopied(true);
+                          setTimeout(() => setIsCopied(false), 2000);
+                        }
+                      }}
+                      className="p-1 text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                      title="Copy password to clipboard"
+                    >
+                      {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-neutral-400">
+                  Password will synchronize with the staff access database. Share this password with the employee.
+                </p>
+              </div>
+
+              {/* Action buttons */}
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setResetPasswordStaff(null)}
+                  className="px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={!newPasswordInput.trim() || newPasswordInput.length < 4}
+                  onClick={async () => {
+                    if (!resetPasswordStaff || !newPasswordInput.trim()) return;
+                    await resetStaffPassword(resetPasswordStaff.id, newPasswordInput.trim());
+                    setResetSuccessMessage(`Password updated for ${resetPasswordStaff.name}!`);
+                    setTimeout(() => {
+                      setResetPasswordStaff(null);
+                      setResetSuccessMessage('');
+                    }, 1200);
+                  }}
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#30673A] hover:bg-[#204828] disabled:opacity-50 rounded-xl transition-all shadow-xs cursor-pointer"
+                >
+                  Save & Update Password
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: ADD NEW STAFF MEMBER */}
+        {isAddStaffOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+            <div className="bg-white rounded-2xl max-w-lg w-full p-6 border border-neutral-200 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-[#30673A]">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                      Add New Staff Member
+                    </h3>
+                    <p className="text-xs text-neutral-500">
+                      Create operational credentials for {currentTenant.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsAddStaffOpen(false)}
+                  className="text-neutral-400 hover:text-neutral-600 p-1 rounded-lg cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!newStaffUsername.trim() || !newStaffPassword.trim()) return;
+                  await addStaff({
+                    name: newStaffName.trim() || newStaffUsername.trim(),
+                    username: newStaffUsername.trim().toLowerCase().replace(/\s+/g, '.'),
+                    password: newStaffPassword.trim(),
+                    role: newStaffRole,
+                    station: newStaffStation.trim(),
+                    phone: newStaffPhone.trim(),
+                    email: newStaffEmail.trim(),
+                  });
+                  setIsAddStaffOpen(false);
+                }}
+                className="space-y-3.5"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-neutral-700 block mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. David Miller"
+                      value={newStaffName}
+                      onChange={(e) => {
+                        setNewStaffName(e.target.value);
+                        if (!newStaffUsername) {
+                          setNewStaffUsername(
+                            e.target.value.toLowerCase().replace(/\s+/g, '.')
+                          );
+                        }
+                      }}
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-neutral-700 block mb-1">
+                      Username / Login ID *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. david.server"
+                      value={newStaffUsername}
+                      onChange={(e) => setNewStaffUsername(e.target.value.toLowerCase().replace(/\s+/g, '.'))}
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-neutral-700 block mb-1">
+                      Staff Role *
+                    </label>
+                    <select
+                      value={newStaffRole}
+                      onChange={(e) => setNewStaffRole(e.target.value as StaffRole)}
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                    >
+                      <option value="waiter">Floor Waiter / Server</option>
+                      <option value="kitchen">Kitchen Staff / Chef</option>
+                      <option value="admin">Restaurant Admin / Floor Manager</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-neutral-700 block mb-1">
+                      Floor / Station Assignment
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Main Dining Floor (Tables 1-5)"
+                      value={newStaffStation}
+                      onChange={(e) => setNewStaffStation(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-neutral-700 block mb-1">
+                      Contact Phone
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="+1 (555) 000-0000"
+                      value={newStaffPhone}
+                      onChange={(e) => setNewStaffPhone(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-neutral-700 block mb-1">
+                      Contact Email
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="staff@restaurant.com"
+                      value={newStaffEmail}
+                      onChange={(e) => setNewStaffEmail(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                    />
+                  </div>
+                </div>
+
+                {/* Password field */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-neutral-700">
+                      Initial Access Password *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setNewStaffPassword(generateSecurePassword())}
+                      className="text-[11px] font-bold text-[#30673A] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <Shuffle className="w-3 h-3" />
+                      <span>Auto-Generate</span>
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showNewStaffPassword ? 'text' : 'password'}
+                      placeholder="Password"
+                      value={newStaffPassword}
+                      onChange={(e) => setNewStaffPassword(e.target.value)}
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewStaffPassword(!showNewStaffPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                    >
+                      {showNewStaffPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-neutral-100 flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddStaffOpen(false)}
+                    className="px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 text-xs font-bold text-white bg-[#30673A] hover:bg-[#204828] rounded-xl transition-all shadow-xs cursor-pointer"
+                  >
+                    Register Staff Member
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

@@ -212,3 +212,21 @@ export interface PlatformGlobalSettings {
   maintenanceMode: boolean;
   announcement: PlatformAnnouncement;
 }
+
+export type StaffRole = 'waiter' | 'kitchen' | 'admin';
+
+export interface StaffMember {
+  id: string;
+  tenantId: string;
+  name: string;
+  username: string;
+  password?: string;
+  role: StaffRole;
+  station?: string;
+  status: 'active' | 'inactive';
+  phone?: string;
+  email?: string;
+  createdAt: string;
+  lastLogin?: string;
+}
+
