@@ -15,6 +15,17 @@ import {
   ShoppingBag,
   Camera,
   Image as ImageIcon,
+  Copy,
+  Layers,
+  Eye,
+  CheckSquare,
+  Square,
+  Clock,
+  Flame,
+  Star,
+  FolderPlus,
+  Tag,
+  AlertCircle,
 } from 'lucide-react';
 import { FoodType, MenuItem } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
@@ -29,9 +40,15 @@ export const RestaurantAdminView: React.FC = () => {
     addMenuItem,
     updateMenuItem,
     deleteMenuItem,
+    duplicateMenuItem,
+    bulkUpdateMenuItems,
+    bulkDeleteMenuItems,
     toggleItemAvailability,
     toggleItemFlag,
     categories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
     tables,
     addTable,
     deleteTable,
@@ -39,7 +56,16 @@ export const RestaurantAdminView: React.FC = () => {
     setCurrentRole,
   } = useRestaurant();
 
-  const [activeTab, setActiveTab] = useState<'menu' | 'tables' | 'analytics' | 'settings'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'categories' | 'tables' | 'analytics' | 'settings'>('menu');
+
+  // Filter & Search in menu
+  const [menuFilter, setMenuFilter] = useState<'all' | 'available' | 'sold_out' | 'specials' | 'must_try' | 'recommended'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Bulk Selection
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkCategoryTarget, setBulkCategoryTarget] = useState(categories[0]?.id || '');
 
   // Menu Creation Form State
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -56,6 +82,22 @@ export const RestaurantAdminView: React.FC = () => {
   const [formAllergens, setFormAllergens] = useState('');
   const [formIsRecommended, setFormIsRecommended] = useState(false);
   const [formIsMustTry, setFormIsMustTry] = useState(false);
+  const [formIsTodaySpecial, setFormIsTodaySpecial] = useState(false);
+  const [formSpecialStartDate, setFormSpecialStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [formSpecialEndDate, setFormSpecialEndDate] = useState(
+    new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10)
+  );
+  const [formIsBestseller, setFormIsBestseller] = useState(false);
+
+  // Inline Category Creator Modal/Popover
+  const [isInlineCategoryOpen, setIsInlineCategoryOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatDesc, setNewCatDesc] = useState('');
+
+  // Category Tab state
+  const [catNameInput, setCatNameInput] = useState('');
+  const [catDescInput, setCatDescInput] = useState('');
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
 
   // Food Photo Studio Modal State
   const [isImageStudioOpen, setIsImageStudioOpen] = useState(false);
@@ -72,6 +114,21 @@ export const RestaurantAdminView: React.FC = () => {
   const [serviceCharge, setServiceCharge] = useState(String(currentTenant.serviceChargePercent));
   const [isOpen, setIsOpen] = useState(currentTenant.isOpen);
   const [settingsSaved, setSettingsSaved] = useState(false);
+
+  // Filtered menu items
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (categoryFilter !== 'all' && item.categoryId !== categoryFilter) return false;
+    if (menuFilter === 'available' && !item.isAvailable) return false;
+    if (menuFilter === 'sold_out' && item.isAvailable) return false;
+    if (menuFilter === 'specials' && !item.isTodaySpecial) return false;
+    if (menuFilter === 'must_try' && !item.isMustTry) return false;
+    if (menuFilter === 'recommended' && !item.isRecommended) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q);
+    }
+    return true;
+  });
 
   // Analytics calculation
   const tenantOrders = orders.filter((o) => o.tenantId === currentTenant.id);
@@ -96,6 +153,10 @@ export const RestaurantAdminView: React.FC = () => {
         allergenInformation: formAllergens.trim() || undefined,
         isRecommended: formIsRecommended,
         isMustTry: formIsMustTry,
+        isTodaySpecial: formIsTodaySpecial,
+        specialStartDate: formIsTodaySpecial ? formSpecialStartDate : undefined,
+        specialEndDate: formIsTodaySpecial ? formSpecialEndDate : undefined,
+        isBestseller: formIsBestseller,
       });
       setEditingItemId(null);
     } else {
@@ -110,6 +171,10 @@ export const RestaurantAdminView: React.FC = () => {
         isAvailable: true,
         isRecommended: formIsRecommended,
         isMustTry: formIsMustTry,
+        isTodaySpecial: formIsTodaySpecial,
+        specialStartDate: formIsTodaySpecial ? formSpecialStartDate : undefined,
+        specialEndDate: formIsTodaySpecial ? formSpecialEndDate : undefined,
+        isBestseller: formIsBestseller,
         displayOrder: menuItems.length + 1,
         prepTimeMinutes: parseInt(formPrepTime) || 15,
         calories: parseInt(formCalories) || 400,
@@ -137,7 +202,83 @@ export const RestaurantAdminView: React.FC = () => {
     setFormAllergens(item.allergenInformation || '');
     setFormIsRecommended(item.isRecommended);
     setFormIsMustTry(item.isMustTry);
+    setFormIsTodaySpecial(Boolean(item.isTodaySpecial));
+    setFormSpecialStartDate(item.specialStartDate || new Date().toISOString().slice(0, 10));
+    setFormSpecialEndDate(item.specialEndDate || new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
+    setFormIsBestseller(Boolean(item.isBestseller));
     setIsAddingItem(true);
+  };
+
+  const handleInlineAddCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    const created = addCategory({
+      name: newCatName.trim(),
+      slug: newCatName.toLowerCase().replace(/\s+/g, '-'),
+      description: newCatDesc.trim() || undefined,
+      displayOrder: categories.length + 1,
+      isActive: true,
+    });
+    setFormCategory(created.id);
+    setNewCatName('');
+    setNewCatDesc('');
+    setIsInlineCategoryOpen(false);
+  };
+
+  const handleAddCategoryTabSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!catNameInput.trim()) return;
+    if (editingCatId) {
+      updateCategory(editingCatId, {
+        name: catNameInput.trim(),
+        description: catDescInput.trim() || undefined,
+      });
+      setEditingCatId(null);
+    } else {
+      addCategory({
+        name: catNameInput.trim(),
+        slug: catNameInput.toLowerCase().replace(/\s+/g, '-'),
+        description: catDescInput.trim() || undefined,
+        displayOrder: categories.length + 1,
+        isActive: true,
+      });
+    }
+    setCatNameInput('');
+    setCatDescInput('');
+  };
+
+  const handleDuplicate = (id: string) => {
+    duplicateMenuItem(id);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredMenuItems.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredMenuItems.map((m) => m.id));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+  };
+
+  const handleBulkAvailability = (available: boolean) => {
+    bulkUpdateMenuItems(selectedIds, { isAvailable: available });
+    setSelectedIds([]);
+  };
+
+  const handleBulkChangeCategory = () => {
+    if (!bulkCategoryTarget) return;
+    bulkUpdateMenuItems(selectedIds, { categoryId: bulkCategoryTarget });
+    setSelectedIds([]);
+  };
+
+  const handleBulkDelete = () => {
+    if (confirm(`Delete ${selectedIds.length} selected dishes?`)) {
+      bulkDeleteMenuItems(selectedIds);
+      setSelectedIds([]);
+    }
   };
 
   const handleAddTableSubmit = (e: React.FormEvent) => {

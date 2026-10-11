@@ -103,8 +103,16 @@ interface RestaurantContextType {
   addMenuItem: (item: Omit<MenuItem, 'id' | 'tenantId'>) => void;
   updateMenuItem: (id: string, updates: Partial<MenuItem>) => void;
   deleteMenuItem: (id: string) => void;
+  duplicateMenuItem: (id: string) => MenuItem | null;
+  bulkUpdateMenuItems: (ids: string[], updates: Partial<MenuItem>) => void;
+  bulkDeleteMenuItems: (ids: string[]) => void;
   toggleItemAvailability: (id: string) => void;
-  toggleItemFlag: (id: string, flag: 'isRecommended' | 'isMustTry') => void;
+  toggleItemFlag: (id: string, flag: 'isRecommended' | 'isMustTry' | 'isTodaySpecial' | 'isBestseller') => void;
+
+  // Category management
+  addCategory: (categoryData: Omit<MenuCategory, 'id' | 'tenantId'>) => MenuCategory;
+  updateCategory: (id: string, updates: Partial<MenuCategory>) => void;
+  deleteCategory: (id: string) => boolean;
 
   // Admin tables & QR
   tables: RestaurantTable[];
@@ -624,16 +632,71 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     setMenuItems((prev) => prev.filter((mi) => mi.id !== id));
   };
 
+  const duplicateMenuItem = (id: string): MenuItem | null => {
+    const source = menuItems.find((mi) => mi.id === id);
+    if (!source) return null;
+    const duplicated: MenuItem = {
+      ...source,
+      id: `item-${Date.now()}`,
+      name: `${source.name} (Copy)`,
+      slug: `${source.slug}-copy-${Date.now()}`,
+      displayOrder: menuItems.length + 1,
+    };
+    setMenuItems((prev) => [...prev, duplicated]);
+    return duplicated;
+  };
+
+  const bulkUpdateMenuItems = (ids: string[], updates: Partial<MenuItem>) => {
+    const idSet = new Set(ids);
+    setMenuItems((prev) => prev.map((mi) => (idSet.has(mi.id) ? { ...mi, ...updates } : mi)));
+  };
+
+  const bulkDeleteMenuItems = (ids: string[]) => {
+    const idSet = new Set(ids);
+    setMenuItems((prev) => prev.filter((mi) => !idSet.has(mi.id)));
+  };
+
   const toggleItemAvailability = (id: string) => {
     setMenuItems((prev) =>
       prev.map((mi) => (mi.id === id ? { ...mi, isAvailable: !mi.isAvailable } : mi))
     );
   };
 
-  const toggleItemFlag = (id: string, flag: 'isRecommended' | 'isMustTry') => {
+  const toggleItemFlag = (
+    id: string,
+    flag: 'isRecommended' | 'isMustTry' | 'isTodaySpecial' | 'isBestseller'
+  ) => {
     setMenuItems((prev) =>
       prev.map((mi) => (mi.id === id ? { ...mi, [flag]: !mi[flag] } : mi))
     );
+  };
+
+  // Category management CRUD
+  const addCategory = (categoryData: Omit<MenuCategory, 'id' | 'tenantId'>): MenuCategory => {
+    const newCat: MenuCategory = {
+      ...categoryData,
+      id: `cat-${Date.now()}`,
+      tenantId: currentTenantId,
+      isActive: categoryData.isActive !== false,
+      displayOrder: categoryData.displayOrder || categories.length + 1,
+    };
+    setCategories((prev) => [...prev, newCat]);
+    return newCat;
+  };
+
+  const updateCategory = (id: string, updates: Partial<MenuCategory>) => {
+    setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+  };
+
+  const deleteCategory = (id: string): boolean => {
+    const otherCat = categories.find((c) => c.id !== id && c.tenantId === currentTenantId);
+    if (otherCat) {
+      setMenuItems((prev) =>
+        prev.map((m) => (m.categoryId === id ? { ...m, categoryId: otherCat.id } : m))
+      );
+    }
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    return true;
   };
 
   // Table operations
@@ -1067,8 +1130,14 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         addMenuItem,
         updateMenuItem,
         deleteMenuItem,
+        duplicateMenuItem,
+        bulkUpdateMenuItems,
+        bulkDeleteMenuItems,
         toggleItemAvailability,
         toggleItemFlag,
+        addCategory,
+        updateCategory,
+        deleteCategory,
         tables: scopedTables,
         addTable,
         deleteTable,

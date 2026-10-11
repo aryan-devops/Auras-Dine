@@ -25,6 +25,7 @@ import {
   ArrowUpRight,
   Clock,
   Sparkles,
+  Monitor,
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { MembershipPlan } from '../../types';
@@ -45,6 +46,7 @@ export const SuperAdminView: React.FC = () => {
     updatePlatformSettings,
     resetDemoData,
     orders,
+    setCurrentRole,
   } = useRestaurant();
 
   // Active view tab in super admin console
@@ -215,7 +217,54 @@ export const SuperAdminView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#1E231F] text-[#FAF8F2] p-4 sm:p-6 pb-28">
-      <div className="max-w-7xl mx-auto space-y-6">
+      {/* Viewport restriction (< 1024px): Desktop-Only Experience Guard (Requirement 5.C) */}
+      <div className="lg:hidden flex flex-col items-center justify-center min-h-[75vh] p-6 text-center max-w-md mx-auto my-auto animate-in fade-in">
+        <div className="w-16 h-16 rounded-3xl bg-[#E3792F]/20 border border-[#E3792F]/40 flex items-center justify-center text-[#E3792F] mb-6 shadow-xl">
+          <Monitor className="w-8 h-8" />
+        </div>
+        <span className="text-[11px] uppercase tracking-widest font-mono font-bold text-[#E3792F] bg-[#E3792F]/10 px-3 py-1 rounded-full border border-[#E3792F]/30 mb-3">
+          1024px+ Viewport Required
+        </span>
+        <h2 className="text-2xl font-bold font-heading glinster-font text-white mb-2">
+          Desktop Screen Required
+        </h2>
+        <p className="text-xs text-neutral-400 leading-relaxed mb-6">
+          The AuraDine Platform Super Admin portal is designed exclusively for desktop workstations and laptops (1024px and wider) to display multi-tenant matrix tables, real-time telemetry, and financial audit logs.
+        </p>
+        <div className="p-3.5 rounded-2xl bg-neutral-900 border border-neutral-800 text-xs text-neutral-400 space-y-2 w-full mb-6 text-left">
+          <div className="flex justify-between items-center">
+            <span>Minimum Screen Width:</span>
+            <span className="font-mono text-white font-bold">1024px (Desktop)</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span>Access Security:</span>
+            <span className="text-[#30673A] font-bold">Enforced by Server-Side RLS</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span>Mobile Management:</span>
+            <span className="text-[#FAF8F2] font-semibold">Restaurant Admin Available</span>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+          <button
+            type="button"
+            onClick={() => setCurrentRole('restaurant_admin')}
+            className="w-full py-2.5 px-4 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+          >
+            Open Restaurant Admin
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentRole('customer')}
+            className="w-full py-2.5 px-4 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-semibold transition-all cursor-pointer"
+          >
+            View Customer Menu
+          </button>
+        </div>
+      </div>
+
+      {/* Full Desktop Super Admin Console (>= 1024px) */}
+      <div className="hidden lg:block max-w-7xl mx-auto space-y-6">
         
         {/* 1. Header Bar */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-neutral-800">

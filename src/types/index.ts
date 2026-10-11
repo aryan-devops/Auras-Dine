@@ -32,6 +32,11 @@ export interface MenuItem {
   isAvailable: boolean;
   isRecommended: boolean;
   isMustTry: boolean;
+  isTodaySpecial?: boolean;
+  specialStartDate?: string;
+  specialEndDate?: string;
+  isBestseller?: boolean;
+  isTemporarilyUnavailable?: boolean;
   displayOrder: number;
   prepTimeMinutes: number;
   allergenInformation?: string;
@@ -48,6 +53,8 @@ export interface MenuCategory {
   description?: string;
   displayOrder: number;
   iconName?: string;
+  isActive?: boolean;
+  imageUrl?: string;
 }
 
 export interface RestaurantTable {

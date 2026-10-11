@@ -337,7 +337,7 @@ export const CustomerMenuView: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
                 {searchedItems.map((item) => (
                   <MenuItemCard key={item.id} item={item} />
                 ))}
@@ -375,7 +375,7 @@ export const CustomerMenuView: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
                 {dietaryFilteredItems
                   .filter((i) => favorites.includes(i.id))
                   .map((item) => (
@@ -409,7 +409,7 @@ export const CustomerMenuView: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
                     {items.map((item) => (
                       <MenuItemCard key={item.id} item={item} />
                     ))}

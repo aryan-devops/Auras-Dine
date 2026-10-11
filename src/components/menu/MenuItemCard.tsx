@@ -380,7 +380,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
       <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between w-full max-w-full min-w-0 overflow-hidden">
         <div>
           {/* Top Big Food Image (Same signature design as Chef's Recommendations) */}
-          <div className="relative w-full aspect-[16/10] max-h-48 rounded-xl overflow-hidden bg-[#FAF8F2] mb-3">
+          <div className="relative w-full aspect-[16/9] max-h-56 rounded-xl overflow-hidden bg-[#FAF8F2] mb-3">
             <FoodIllustration
               itemId={item.id}
               name={item.name}
