@@ -93,6 +93,25 @@ export const CustomerPage: React.FC = () => {
   // Inner Menu Content Component (used both in full view and inside Phone frame)
   const MenuContent = () => (
     <div className="flex flex-col min-h-full w-full max-w-full min-w-0 overflow-x-hidden">
+      {/* Hotel Header Banner */}
+      <div className="bg-white border-b border-[#30673A]/15 py-4 px-4 sm:px-6 shadow-xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-[#1E231F] glinster-font tracking-tight">
+              {currentTenant.name}
+            </h1>
+            <p className="text-xs text-neutral-500 mt-0.5">
+              {currentTenant.tagline} {currentTable ? `· Seated at ${currentTable.tableNumber}` : ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-[#30673A]/10 text-[#30673A] text-xs font-bold border border-[#30673A]/20">
+              {currentTenant.isOpen ? 'Open Now' : 'Closed'}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* 2. Re-aligned Slim Sticky Filter & Search Bar */}
       <div className="sticky top-14 sm:top-16 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2 w-full max-w-full overflow-hidden">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 w-full min-w-0">

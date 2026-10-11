@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Sparkles } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 interface HeaderProps {
@@ -10,19 +10,25 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart }) => {
   const { currentTenant, cartCount, currentRole, setCurrentRole } = useRestaurant();
 
   return (
-    <header className="sticky top-0 z-40 bg-[#FAF8F2]/90 backdrop-blur-md border-b border-[#30673A]/15 w-full max-w-full overflow-hidden">
+    <header className="sticky top-0 z-40 bg-[#FAF8F2]/90 backdrop-blur-md border-b border-[#30673A]/15 w-full max-w-full overflow-hidden shadow-xs">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-8 w-full min-w-0">
         
-        {/* Zone 1: Single text element wordmark in display font */}
+        {/* Zone 1: Hotel Name + Powered by AuraDine */}
         <a
           href="#"
           onClick={(e) => {
             e.preventDefault();
             setCurrentRole('customer');
           }}
-          className="text-base sm:text-2xl font-bold tracking-tight text-[#1E231F] glinster-font truncate min-w-0 hover:text-[#30673A] transition-colors"
+          className="flex items-center gap-2 sm:gap-3 min-w-0 group cursor-pointer"
         >
-          AuraDine · <span className="font-normal italic text-[#30673A] truncate">{currentTenant.name}</span>
+          <span className="text-base sm:text-xl font-bold tracking-tight text-[#1E231F] glinster-font truncate group-hover:text-[#30673A] transition-colors">
+            {currentTenant.name}
+          </span>
+          <span className="hidden xs:inline-flex items-center gap-1 text-[10px] sm:text-xs font-medium text-[#30673A] bg-[#30673A]/10 px-2 py-0.5 rounded-full border border-[#30673A]/20 whitespace-nowrap shadow-2xs">
+            <Sparkles className="w-3 h-3 text-[#30673A]" />
+            Powered by AuraDine
+          </span>
         </a>
 
         {/* Zone 2: Clean single-line text navigation links */}
@@ -114,3 +120,4 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart }) => {
     </header>
   );
 };
+

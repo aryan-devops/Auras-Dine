@@ -310,11 +310,39 @@ export const AdminPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] p-4 sm:p-6 pb-24">
-      <div className="max-w-7xl mx-auto space-y-6">
-        
-        {/* Navigation Tabs */}
-        <div className="flex items-center justify-between bg-white p-1 rounded-2xl border border-neutral-200/80 shadow-2xs">
+    <div className="min-h-screen bg-[#FAF8F2] flex flex-col justify-between">
+      <div className="p-4 sm:p-6 pb-24 flex-1">
+        <div className="max-w-7xl mx-auto space-y-6">
+          
+          {/* Hotel Admin Header Banner */}
+          <div className="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#30673A] text-white">
+                  Hotel Admin Portal
+                </span>
+                <span className="text-xs text-neutral-400">· {currentTenant.slug}</span>
+              </div>
+              <h1 className="text-2xl font-black text-[#1E231F] glinster-font">
+                {currentTenant.name}
+              </h1>
+              <p className="text-xs text-neutral-500">{currentTenant.tagline} ({currentTenant.address})</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCurrentRole('customer')}
+                className="py-2 px-3.5 rounded-xl bg-[#FAF8F2] hover:bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>View Customer Menu</span>
+              </button>
+              <LogoutButton />
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="flex items-center justify-between bg-white p-1 rounded-2xl border border-neutral-200/80 shadow-2xs">
           <div className="flex items-center gap-1">
           <button
             onClick={() => setActiveTab('menu')}
@@ -1136,5 +1164,6 @@ export const AdminPage: React.FC = () => {
 
       </div>
     </div>
+  </div>
   );
 };

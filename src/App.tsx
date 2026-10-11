@@ -12,6 +12,7 @@ import { SuperAdminView } from './components/superadmin/SuperAdminView';
 import { TableStandStudio } from './components/stand/TableStandStudio';
 import { OnboardingFlow } from './components/auth/OnboardingFlow';
 import { RestaurantAdminLogin } from './pages/auth/RestaurantAdminLogin';
+import { Layout } from './components/common/Layout';
 
 const MainAppContent: React.FC = () => {
   const {
@@ -22,6 +23,7 @@ const MainAppContent: React.FC = () => {
     setCurrentRole,
     tenants,
     platformSettings,
+    setIsCartDrawerOpen,
   } = useRestaurant();
 
   // Handle URL query parameters for simulated QR scans
@@ -43,7 +45,7 @@ const MainAppContent: React.FC = () => {
 
   return (
     <ThemeInjector>
-      <div className="min-h-screen flex flex-col bg-[#FAF8F2] w-full max-w-full overflow-x-hidden">
+      <Layout onOpenCart={() => setIsCartDrawerOpen(true)}>
         {/* 2b. Broadcast Announcement Banner if enabled by Super Admin */}
         {platformSettings.announcement.enabled && platformSettings.announcement.message && (
           <div className="bg-[#E3792F] text-white text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2 shadow-xs animate-in fade-in w-full max-w-full">
@@ -54,24 +56,21 @@ const MainAppContent: React.FC = () => {
           </div>
         )}
 
-        {/* 3. Role Viewport */}
-        <main className="flex-1 w-full max-w-full min-w-0">
-          <Routes>
-            <Route path="/admin-login" element={<RestaurantAdminLogin />} />
-            <Route path="/:tenantSlug/:tableId/auth" element={<CustomerAuthPage />} />
-            <Route path="/:tenantSlug/menu" element={<CustomerPage />} />
-            <Route path="/restaurant/:tenantSlug/table/:tableId/auth" element={<CustomerAuthPage />} />
-            <Route path="/restaurant/:tenantSlug/menu" element={<CustomerPage />} />
-            <Route path="/customer" element={<CustomerPage />} />
-            <Route path="/kitchen" element={<KitchenPage />} />
-            <Route path="/waiter" element={<WaiterPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/superadmin" element={<SuperAdminView />} />
-            <Route path="/qr-stand" element={<TableStandStudio />} />
-            <Route path="/" element={<Dashboard />} />
-          </Routes>
-        </main>
-      </div>
+        <Routes>
+          <Route path="/admin-login" element={<RestaurantAdminLogin />} />
+          <Route path="/:tenantSlug/:tableId/auth" element={<CustomerAuthPage />} />
+          <Route path="/:tenantSlug/menu" element={<CustomerPage />} />
+          <Route path="/restaurant/:tenantSlug/table/:tableId/auth" element={<CustomerAuthPage />} />
+          <Route path="/restaurant/:tenantSlug/menu" element={<CustomerPage />} />
+          <Route path="/customer" element={<CustomerPage />} />
+          <Route path="/kitchen" element={<KitchenPage />} />
+          <Route path="/waiter" element={<WaiterPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/superadmin" element={<SuperAdminView />} />
+          <Route path="/qr-stand" element={<TableStandStudio />} />
+          <Route path="/" element={<Dashboard />} />
+        </Routes>
+      </Layout>
     </ThemeInjector>
   );
 };
