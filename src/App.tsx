@@ -56,7 +56,6 @@ const MainAppContent: React.FC = () => {
         {/* 3. Role Viewport */}
         <main className="flex-1 w-full max-w-full min-w-0">
           <Routes>
-            <Route path="/onboarding" element={<OnboardingFlow />} />
             <Route path="/admin-login" element={<RestaurantAdminLogin />} />
             <Route path="/customer" element={<CustomerPage />} />
             <Route path="/kitchen" element={<KitchenPage />} />

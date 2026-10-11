@@ -41,7 +41,7 @@ export const CustomerPage: React.FC = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  const [isTableAuthModalOpen, setIsTableAuthModalOpen] = useState(false);
+  const [isTableAuthModalOpen, setIsTableAuthModalOpen] = useState(!isTableAuthorized);
 
   // Active placed order for this table/session if any
   const latestOrder = useMemo(() => {

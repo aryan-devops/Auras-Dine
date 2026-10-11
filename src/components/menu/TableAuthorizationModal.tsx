@@ -23,6 +23,8 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
   const [inputTableNumber, setInputTableNumber] = useState(
     currentTable?.tableNumber || 'Table 4'
   );
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   // Update input when table changes
@@ -119,10 +121,31 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
                 className="w-full px-4 py-3 rounded-xl bg-white border border-[#30673A]/25 text-[#1E231F] font-bold text-base focus:outline-none focus:ring-2 focus:ring-[#30673A] focus:border-transparent shadow-inner"
               />
             </div>
-            {errorMsg && (
-              <p className="text-xs text-red-600 mt-1.5 font-medium">{errorMsg}</p>
-            )}
           </div>
+
+          {/* Name & Phone */}
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Name"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white border border-[#30673A]/25 text-[#1E231F] text-base focus:outline-none focus:ring-2 focus:ring-[#30673A] shadow-inner"
+              required
+            />
+            <input
+              type="tel"
+              placeholder="Phone"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white border border-[#30673A]/25 text-[#1E231F] text-base focus:outline-none focus:ring-2 focus:ring-[#30673A] shadow-inner"
+              required
+            />
+          </div>
+
+          {errorMsg && (
+            <p className="text-xs text-red-600 mt-1.5 font-medium">{errorMsg}</p>
+          )}
 
           {/* Quick Select Preset Tables */}
           <div>

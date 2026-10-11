@@ -56,9 +56,15 @@ export const AdminPage: React.FC = () => {
     deleteTable,
     orders,
     setCurrentRole,
+    addStaff,
   } = useRestaurant();
 
   const [activeTab, setActiveTab] = useState<'menu' | 'categories' | 'tables' | 'analytics' | 'settings' | 'staff'>('menu');
+
+  // Staff creation form state
+  const [staffUsername, setStaffUsername] = useState('');
+  const [staffPassword, setStaffPassword] = useState('');
+  const [staffRole, setStaffRole] = useState<'waiter' | 'kitchen'>('waiter');
 
   // Filter & Search in menu
   const [menuFilter, setMenuFilter] = useState<'all' | 'available' | 'sold_out' | 'specials' | 'must_try' | 'recommended'>('all');
@@ -1074,7 +1080,39 @@ export const AdminPage: React.FC = () => {
             </h2>
             <div className="p-4 bg-white rounded-xl border border-neutral-200">
                <p className="text-sm text-neutral-500 mb-4">Create access for Kitchen and Waiter staff.</p>
-               {/* Staff creation form would go here */}
+               <form onSubmit={(e) => {
+                 e.preventDefault();
+                 addStaff(staffUsername, staffPassword, staffRole);
+                 setStaffUsername('');
+                 setStaffPassword('');
+               }} className="space-y-4">
+                 <input 
+                    type="text" 
+                    placeholder="Username" 
+                    value={staffUsername}
+                    onChange={(e) => setStaffUsername(e.target.value)}
+                    className="w-full p-2 border rounded" 
+                    required 
+                 />
+                 <input 
+                    type="password" 
+                    placeholder="Password" 
+                    value={staffPassword}
+                    onChange={(e) => setStaffPassword(e.target.value)}
+                    className="w-full p-2 border rounded" 
+                    required 
+                 />
+                 <select 
+                    value={staffRole}
+                    onChange={(e) => setStaffRole(e.target.value as 'waiter' | 'kitchen')}
+                    className="w-full p-2 border rounded" 
+                    required
+                 >
+                   <option value="waiter">Waiter</option>
+                   <option value="kitchen">Kitchen</option>
+                 </select>
+                 <button type="submit" className="px-4 py-2 bg-[#30673A] text-white rounded">Add Staff</button>
+               </form>
             </div>
           </div>
         )}

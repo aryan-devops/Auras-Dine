@@ -16,7 +16,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
   // Generate QR code data URL using qrcode library
   useEffect(() => {
     // URL includes token param for real verification
-    const scanUrl = `${window.location.origin}?tenant=${currentTenant.slug}&table=${table.id}&token=${table.qrToken}`;
+    const scanUrl = `${window.location.origin}/customer?tenant=${currentTenant.slug}&table=${table.id}&token=${table.qrToken}`;
     QRCode.toDataURL(scanUrl, {
       width: 256,
       margin: 2,

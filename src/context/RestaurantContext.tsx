@@ -31,6 +31,8 @@ import {
   INITIAL_PLATFORM_SETTINGS,
 } from '../data/initialData';
 import { getConflictingCartItems } from '../lib/filterUtils';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface RestaurantContextType {
   // Tenant state
@@ -158,6 +160,7 @@ interface RestaurantContextType {
 
   // Utilities
   resetDemoData: () => void;
+  addStaff: (username: string, password: string, role: 'waiter' | 'kitchen') => Promise<void>;
 }
 
 const RestaurantContext = createContext<RestaurantContextType | undefined>(undefined);
@@ -1071,6 +1074,22 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     setDietaryFilter('all');
   };
 
+  const addStaff = async (username: string, password: string, role: 'waiter' | 'kitchen') => {
+    try {
+      await addDoc(collection(db, 'staffCredentials'), {
+        username,
+        password,
+        role,
+        tenantId: currentTenantId,
+        restaurantName: currentTenant.name
+      });
+      alert('Staff added successfully!');
+    } catch (error) {
+      console.error('Error adding staff:', error);
+      alert('Failed to add staff');
+    }
+  };
+
   const scopedCategories = useMemo(() => {
     return categories
       .filter((c) => c.tenantId === currentTenantId)
@@ -1164,6 +1183,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         platformSettings,
         updatePlatformSettings,
         resetDemoData,
+        addStaff,
       }}
     >
       {children}
