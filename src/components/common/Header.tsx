@@ -11,7 +11,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart }) => {
 
   return (
     <header className="sticky top-0 z-40 bg-[#FAF8F2]/90 backdrop-blur-md border-b border-[#30673A]/15">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4 sm:gap-8">
         
         {/* Zone 1: Single text element wordmark in display font */}
         <a
@@ -20,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart }) => {
             e.preventDefault();
             setCurrentRole('customer');
           }}
-          className="text-xl sm:text-2xl font-bold tracking-tight text-[#1E231F] glinster-font whitespace-nowrap shrink-0 hover:text-[#30673A] transition-colors"
+          className="text-lg sm:text-2xl font-bold tracking-tight text-[#1E231F] glinster-font whitespace-nowrap shrink-0 hover:text-[#30673A] transition-colors"
         >
           AuraDine · <span className="font-normal italic text-[#30673A]">{currentTenant.name}</span>
         </a>

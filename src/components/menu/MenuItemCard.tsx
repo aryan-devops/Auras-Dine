@@ -70,10 +70,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
   if (variant === 'highlight') {
     return (
       <>
-        <div className="w-[230px] sm:w-[250px] shrink-0 snap-start bg-white rounded-2xl p-3 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+        <div className="w-[195px] xs:w-[215px] sm:w-[240px] shrink-0 snap-start bg-white rounded-2xl p-2.5 sm:p-3 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
           <div>
             {/* Highlight image */}
-            <div className="relative w-full h-32 rounded-xl overflow-hidden bg-[#FAF8F2] mb-2.5">
+            <div className="relative w-full aspect-[16/10] max-h-28 rounded-xl overflow-hidden bg-[#FAF8F2] mb-2">
               <FoodIllustration
                 itemId={item.id}
                 name={item.name}
@@ -326,8 +326,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
       {/* =========================================================================
           MOBILE VIEW (< 768px): Spacious, Clean Swiggy / Zomato Food Card
           ========================================================================= */}
-      <div className="md:hidden bg-white rounded-2xl p-3.5 sm:p-4 border border-[#30673A]/10 shadow-xs flex items-start justify-between gap-3 sm:gap-4 relative">
-        {/* Left Side: Dish Details */}
+      <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/10 shadow-xs flex items-start justify-between gap-2.5 sm:gap-3.5 relative">
+        {/* Left Side: Dish Details (Broad, breathable text container) */}
         <div className="flex-1 min-w-0 pr-1 flex flex-col justify-between self-stretch">
           <div>
             {/* Top row: Dietary Symbol & Badges */}
@@ -349,23 +349,23 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
             </div>
 
             {/* Dish Name: Full readability, line-clamp-2 */}
-            <h3 className="text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug line-clamp-2 mt-1">
+            <h3 className="text-[14px] xs:text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug line-clamp-2 mt-1">
               {item.name}
             </h3>
 
             {/* Price */}
-            <div className="text-[14px] font-bold text-[#1E231F] tabular-nums font-heading mt-0.5">
+            <div className="text-[13px] xs:text-[14px] font-bold text-[#1E231F] tabular-nums font-heading mt-0.5">
               {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
             </div>
 
             {/* Description: 2-line clamp with pleasant line-height */}
-            <p className="text-xs text-[#1E231F]/65 line-clamp-2 leading-relaxed mt-1">
+            <p className="text-[11px] xs:text-xs text-[#1E231F]/65 line-clamp-2 leading-relaxed mt-1">
               {item.description}
             </p>
           </div>
 
           {/* Clean Metadata Row */}
-          <div className="flex items-center gap-2 text-[11px] text-neutral-400 mt-2.5">
+          <div className="flex items-center gap-2 text-[10.5px] xs:text-[11px] text-neutral-400 mt-2">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3 text-neutral-400" />
               {item.prepTimeMinutes} mins
@@ -382,9 +382,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
           </div>
         </div>
 
-        {/* Right Side: Food Image + Docked Action Button */}
-        <div className="w-[106px] sm:w-[116px] shrink-0 flex flex-col items-center">
-          <div className="relative w-full h-[92px] sm:h-[100px] rounded-2xl overflow-hidden bg-[#FAF8F2] border border-neutral-100 shadow-2xs">
+        {/* Right Side: Controlled 4:3 Food Thumbnail + Docked Action Button */}
+        <div className="w-[84px] xs:w-[92px] sm:w-[98px] max-w-[98px] shrink-0 flex flex-col items-center">
+          <div className="relative w-full aspect-[4/3] max-h-[70px] xs:max-h-[76px] rounded-xl overflow-hidden bg-[#FAF8F2] border border-neutral-100 shadow-2xs">
             <FoodIllustration
               itemId={item.id}
               name={item.name}
@@ -395,8 +395,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
 
             {/* Sold out overlay */}
             {!isAvailable && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-1 text-center">
-                <span className="text-[10px] font-bold text-white uppercase tracking-tight">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-0.5 text-center">
+                <span className="text-[9px] font-bold text-white uppercase tracking-tight">
                   Sold Out
                 </span>
               </div>
@@ -407,10 +407,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               type="button"
               onClick={handleFavoriteToggle}
               aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-400 hover:text-[#E3792F] shadow-xs cursor-pointer z-10 active:scale-90 transition-transform"
+              className="absolute top-1 right-1 w-5.5 h-5.5 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-400 hover:text-[#E3792F] shadow-xs cursor-pointer z-10 active:scale-90 transition-transform"
             >
               <Heart
-                className={`w-3.5 h-3.5 ${
+                className={`w-3 h-3 ${
                   isFavorited ? 'fill-[#E3792F] text-[#E3792F]' : ''
                 }`}
               />
@@ -418,46 +418,46 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
           </div>
 
           {/* Floating Swiggy-style Add Button */}
-          <div className="-mt-3.5 relative z-10 w-full flex flex-col items-center">
+          <div className="-mt-2.5 xs:-mt-3 relative z-10 w-full flex flex-col items-center">
             {!isAvailable ? (
-              <span className="py-1 px-3 rounded-lg bg-neutral-200 text-neutral-500 text-[10px] font-bold shadow-xs select-none">
+              <span className="py-0.5 px-2 rounded-md bg-neutral-200 text-neutral-500 text-[10px] font-bold shadow-xs select-none">
                 Unavailable
               </span>
             ) : totalInCart > 0 ? (
-              <div className="flex items-center justify-between w-[90px] sm:w-[98px] bg-[#30673A] text-white rounded-xl py-1 px-2 shadow-md">
+              <div className="flex items-center justify-between w-[74px] xs:w-[80px] sm:w-[86px] bg-[#30673A] text-white rounded-lg py-1 px-1.5 shadow-md">
                 <button
                   type="button"
                   onClick={handleDecrement}
-                  className="w-5 h-5 flex items-center justify-center hover:bg-black/20 rounded-md active:scale-95 transition-transform cursor-pointer"
+                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 transition-transform cursor-pointer"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="w-3 h-3" />
+                  <Minus className="w-2.5 h-2.5" />
                 </button>
-                <span className="text-xs font-bold tabular-nums">
+                <span className="text-xs font-bold tabular-nums min-w-[14px] text-center">
                   {totalInCart}
                 </span>
                 <button
                   type="button"
                   onClick={handleIncrement}
-                  className="w-5 h-5 flex items-center justify-center hover:bg-black/20 rounded-md active:scale-95 transition-transform cursor-pointer"
+                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 transition-transform cursor-pointer"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="w-2.5 h-2.5" />
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={handleAddClick}
-                className="w-[90px] sm:w-[98px] py-1.5 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-extrabold shadow-md flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer uppercase tracking-wider"
+                className="w-[74px] xs:w-[80px] sm:w-[86px] py-1 rounded-lg bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-[11px] font-extrabold shadow-sm flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer uppercase tracking-wider"
               >
                 <span>Add</span>
-                <Plus className="w-3 h-3" />
+                <Plus className="w-2.5 h-2.5" />
               </button>
             )}
 
             {isAvailable && hasCustomizations && totalInCart === 0 && (
-              <span className="text-[9px] text-neutral-400 font-medium mt-0.5">
+              <span className="text-[9px] text-neutral-400 font-medium mt-0.5 leading-none">
                 Customisable
               </span>
             )}

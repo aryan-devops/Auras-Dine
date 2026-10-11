@@ -159,10 +159,10 @@ export const CustomerMenuView: React.FC = () => {
       </div>
 
       {/* 2. Re-aligned Slim Sticky Filter & Search Bar */}
-      <div className="sticky top-0 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2">
+      <div className="sticky top-14 sm:top-16 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           
-          {/* Clean Search Input */}
+          {/* Clean Search Input with 16px font on mobile to prevent iOS auto-zoom */}
           <div className="relative flex-1">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
             <input
@@ -170,7 +170,7 @@ export const CustomerMenuView: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search dishes or drinks..."
-              className="w-full pl-8.5 pr-7 py-1.5 text-xs rounded-full bg-white border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#30673A] shadow-2xs"
+              className="w-full pl-8.5 pr-7 py-1.5 text-base sm:text-xs rounded-full bg-white border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#30673A] shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -252,7 +252,7 @@ export const CustomerMenuView: React.FC = () => {
       </div>
 
       {/* 4. Menu Dishes Section */}
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-24 space-y-6 sm:space-y-8 flex-1">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-32 sm:pb-36 space-y-6 sm:space-y-8 flex-1">
         
         {/* Signatures & Recommendations (when browsing all) */}
         {!searchQuery && selectedCategoryId === 'all' && (
@@ -425,23 +425,81 @@ export const CustomerMenuView: React.FC = () => {
         )}
       </main>
 
-      {/* 5. Sticky Floating Bottom Cart Bar */}
-      {cartCount > 0 && (
-        <div className="fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-40 max-w-md mx-auto">
+      {/* 5. Sticky Floating Bottom Action Dock (when not in simulated phone frame) */}
+      {!phoneFrameMode && renderFloatingDock(false)}
+    </div>
+  );
+
+  // Floating Action Dock (Live Order Progress & Cart Summary)
+  const renderFloatingDock = (isInsidePhoneFrame = false) => {
+    const hasLiveOrder =
+      latestOrder &&
+      !isTrackingModalOpen &&
+      latestOrder.status !== 'completed' &&
+      latestOrder.status !== 'cancelled';
+    const hasCart = cartCount > 0;
+
+    if (!hasLiveOrder && !hasCart) return null;
+
+    return (
+      <div
+        className={`${
+          isInsidePhoneFrame
+            ? 'absolute bottom-6 left-3 right-3 z-30'
+            : 'fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-40 max-w-md mx-auto pointer-events-auto'
+        } space-y-2 animate-in slide-in-from-bottom-2 duration-300`}
+      >
+        {/* 1. Live Order Progress Bar */}
+        {hasLiveOrder && (
+          <div className="bg-[#1E231F] text-white p-2.5 sm:p-3 rounded-2xl shadow-xl border border-[#30673A]/40 flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-[#30673A] text-white flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4 h-4 text-[#E9E9C7] animate-pulse" />
+              </div>
+              <div className="min-w-0 text-xs">
+                <div className="font-bold flex items-center gap-1.5 truncate">
+                  <span className="text-[#E9E9C7] font-mono font-bold">{latestOrder.orderNumber}</span>
+                  <span className="opacity-40">·</span>
+                  <span className="capitalize text-[#E3792F] font-bold">
+                    {latestOrder.status === 'pending'
+                      ? 'Order Received'
+                      : latestOrder.status === 'preparing'
+                      ? 'Chef Preparing'
+                      : 'Ready to Serve'}
+                  </span>
+                </div>
+                <p className="text-[10.5px] text-neutral-400 truncate">
+                  Dishes cooking for {latestOrder.tableNumber}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsTrackingModalOpen(true)}
+              className="py-1.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white font-bold text-xs shrink-0 cursor-pointer transition-all active:scale-95 shadow-xs"
+            >
+              Live Track
+            </button>
+          </div>
+        )}
+
+        {/* 2. Dining Order Cart Bar */}
+        {hasCart && (
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-2xl bg-[#30673A] hover:bg-[#204828] text-white shadow-xl flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full py-2.5 px-3.5 sm:py-3.5 sm:px-5 rounded-2xl bg-[#30673A] hover:bg-[#204828] text-white shadow-xl flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">
                 {cartCount}
               </div>
               <div className="text-left">
                 <span className="text-xs uppercase font-bold tracking-wider block opacity-95">
                   View Dining Order
                 </span>
-                <span className="text-[11px] opacity-80">
+                <span className="text-[10.5px] opacity-80">
                   {currentTable?.tableNumber || 'Table Session'}
                 </span>
               </div>
@@ -451,13 +509,13 @@ export const CustomerMenuView: React.FC = () => {
               <span className="font-mono tabular-nums text-sm font-bold">
                 {currentTenant.currencySymbol}{cartTotal.toFixed(2)}
               </span>
-              <ShoppingBag className="w-4 h-4 ml-1" />
+              <ShoppingBag className="w-4 h-4 ml-0.5" />
             </div>
           </button>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF8F2]">
@@ -515,6 +573,9 @@ export const CustomerMenuView: React.FC = () => {
               <MenuContent />
             </div>
 
+            {/* Pinned Bottom Dock in Simulated Phone Frame */}
+            {renderFloatingDock(true)}
+
             {/* Phone Home Bar */}
             <div className="h-4 bg-white flex items-center justify-center shrink-0 border-t border-neutral-100">
               <div className="w-32 h-1 bg-neutral-400 rounded-full" />
@@ -524,43 +585,6 @@ export const CustomerMenuView: React.FC = () => {
       ) : (
         /* Fullscreen responsive layout */
         <MenuContent />
-      )}
-
-      {/* Floating Live Order Bar (visible when tracking modal is closed so diner can freely browse menu) */}
-      {latestOrder && !isTrackingModalOpen && latestOrder.status !== 'completed' && latestOrder.status !== 'cancelled' && (
-        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 w-full max-w-md px-4 pointer-events-auto">
-          <div className="bg-[#1E231F] text-white p-3 rounded-2xl shadow-xl border border-[#30673A]/40 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-[#30673A] text-white flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-4 h-4 text-[#E9E9C7] animate-pulse" />
-              </div>
-              <div className="min-w-0 text-xs">
-                <div className="font-bold flex items-center gap-1.5 truncate">
-                  <span className="text-[#E9E9C7] font-mono">{latestOrder.orderNumber}</span>
-                  <span className="opacity-40">·</span>
-                  <span className="capitalize text-[#E3792F]">
-                    {latestOrder.status === 'pending'
-                      ? 'Received'
-                      : latestOrder.status === 'preparing'
-                      ? 'Chef Preparing'
-                      : 'Ready to Serve'}
-                  </span>
-                </div>
-                <p className="text-[10px] text-neutral-400 truncate">
-                  Dishes cooking for {latestOrder.tableNumber}
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsTrackingModalOpen(true)}
-              className="py-1.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white font-bold text-xs shrink-0 cursor-pointer transition-colors shadow-xs"
-            >
-              Live Track
-            </button>
-          </div>
-        </div>
       )}
 
       {/* Modals */}

@@ -25,13 +25,13 @@ export const RoleSwitcher: React.FC = () => {
   ];
 
   return (
-    <div className="bg-[#1E231F] text-white border-b border-neutral-800 px-4 py-2 text-xs">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+    <div className="bg-[#1E231F] text-white border-b border-neutral-800 px-3 sm:px-4 py-1.5 sm:py-2 text-xs select-none">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
         
         {/* Role Segmented Buttons */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider mr-1 hidden lg:inline">
-            Simulate Role:
+            Role:
           </span>
           {roles.map((r) => {
             const Icon = r.icon;
@@ -41,13 +41,13 @@ export const RoleSwitcher: React.FC = () => {
                 key={r.role}
                 type="button"
                 onClick={() => setCurrentRole(r.role)}
-                className={`min-h-[30px] px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                className={`min-h-[26px] sm:min-h-[30px] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                   isSelected
                     ? 'bg-[#30673A] text-white font-bold shadow-xs'
                     : 'bg-neutral-800/80 text-neutral-300 hover:text-white hover:bg-neutral-800'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>{r.label}</span>
               </button>
             );
@@ -55,7 +55,7 @@ export const RoleSwitcher: React.FC = () => {
         </div>
 
         {/* Tenant & Table Quick Selectors */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* Tenant Switcher */}
           <div className="flex items-center gap-1.5">
             <Building2 className="w-3.5 h-3.5 text-[#E3792F]" />
