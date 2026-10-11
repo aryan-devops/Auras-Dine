@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
   Search,
-  ShoppingBag,
+  ShoppingCart,
   Bell,
   Sparkles,
   CheckCircle2,
@@ -97,6 +97,10 @@ export const CustomerPage: React.FC = () => {
       <div className="bg-white border-b border-[#30673A]/15 py-4 px-4 sm:px-6 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div>
+            <div className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-[#30673A] bg-[#30673A]/10 px-2.5 py-0.5 rounded-full border border-[#30673A]/20 mb-1.5 shadow-2xs">
+              <Sparkles className="w-3 h-3 text-[#30673A]" />
+              Powered by Aurasdine
+            </div>
             <h1 className="text-xl sm:text-2xl font-black text-[#1E231F] glinster-font tracking-tight">
               {currentTenant.name}
             </h1>
@@ -104,10 +108,24 @@ export const CustomerPage: React.FC = () => {
               {currentTenant.tagline} {currentTable ? `· Seated at ${currentTable.tableNumber}` : ''}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             <span className="px-3 py-1 rounded-full bg-[#30673A]/10 text-[#30673A] text-xs font-bold border border-[#30673A]/20">
               {currentTenant.isOpen ? 'Open Now' : 'Closed'}
             </span>
+            <button
+              type="button"
+              onClick={() => setIsCartDrawerOpen(true)}
+              title="Open Cart"
+              aria-label="Open Cart"
+              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full text-white bg-[#30673A] hover:bg-[#204828] active:scale-95 transition-all flex items-center justify-center shadow-xs shrink-0 cursor-pointer"
+            >
+              <ShoppingCart className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-5 px-1 rounded-full bg-[#E3792F] text-white font-bold flex items-center justify-center text-[10px] shadow-xs border-2 border-white">
+                  {cartCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -457,7 +475,7 @@ export const CustomerPage: React.FC = () => {
               <span className="font-mono tabular-nums text-sm font-bold">
                 {currentTenant.currencySymbol}{cartTotal.toFixed(2)}
               </span>
-              <ShoppingBag className="w-4 h-4 ml-0.5" />
+              <ShoppingCart className="w-4 h-4 ml-0.5" />
             </div>
           </button>
         )}
