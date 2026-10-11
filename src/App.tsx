@@ -39,7 +39,7 @@ const MainAppContent: React.FC = () => {
   }, [simulateQrScan, tenants, setCurrentTenantId, setCurrentTableId, setCurrentRole]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F2]">
+    <div className="min-h-screen flex flex-col bg-[#FAF8F2] w-full max-w-full overflow-x-hidden">
       {/* 1. Developer / Tester Role Switcher Strip */}
       <RoleSwitcher />
 
@@ -48,16 +48,16 @@ const MainAppContent: React.FC = () => {
 
       {/* 2b. Broadcast Announcement Banner if enabled by Super Admin */}
       {platformSettings.announcement.enabled && platformSettings.announcement.message && (
-        <div className="bg-[#E3792F] text-white text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2 shadow-xs animate-in fade-in">
+        <div className="bg-[#E3792F] text-white text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2 shadow-xs animate-in fade-in w-full max-w-full">
           <span className="font-bold uppercase tracking-wider text-[10px] bg-black/20 px-1.5 py-0.5 rounded">
             Platform Notice
           </span>
-          <span>{platformSettings.announcement.message}</span>
+          <span className="truncate">{platformSettings.announcement.message}</span>
         </div>
       )}
 
       {/* 3. Role Viewport */}
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full min-w-0">
         {currentRole === 'customer' && <CustomerMenuView />}
         {currentRole === 'qr_stand' && <TableStandStudio />}
         {currentRole === 'kitchen' && <KitchenKdsView />}
@@ -67,7 +67,7 @@ const MainAppContent: React.FC = () => {
       </main>
 
       {/* 4. Elegant Footer */}
-      <footer className="bg-[#1E231F] text-neutral-400 text-xs py-8 px-4 border-t border-neutral-800">
+      <footer className="bg-[#1E231F] text-neutral-400 text-xs py-8 px-4 border-t border-neutral-800 w-full max-w-full overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-white glinster-font text-base">AuraDine</span>

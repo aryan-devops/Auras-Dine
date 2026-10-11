@@ -25,8 +25,8 @@ export const RoleSwitcher: React.FC = () => {
   ];
 
   return (
-    <div className="bg-[#1E231F] text-white border-b border-neutral-800 px-3 sm:px-4 py-1.5 sm:py-2 text-xs select-none">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
+    <div className="bg-[#1E231F] text-white border-b border-neutral-800 px-3 sm:px-4 py-1.5 sm:py-2 text-xs select-none w-full max-w-full overflow-hidden">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-3 overflow-x-auto no-scrollbar w-full min-w-0">
         
         {/* Role Segmented Buttons */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">

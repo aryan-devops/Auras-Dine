@@ -99,114 +99,114 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
   // If used inside the horizontal carousel highlight tray on mobile:
   if (variant === 'highlight') {
     return (
-      <>
-        <div className="w-[215px] xs:w-[235px] sm:w-[250px] shrink-0 snap-start bg-white rounded-2xl p-2.5 sm:p-3 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
-          <div>
-            {/* Highlight image */}
-            <div className="relative w-full aspect-[16/10] max-h-28 rounded-xl overflow-hidden bg-[#FAF8F2] mb-2">
-              <FoodIllustration
-                itemId={item.id}
-                name={item.name}
-                foodType={item.foodType}
-                imagePath={item.imagePath}
-                className="w-full h-full object-cover"
+      <div className="w-[215px] xs:w-[235px] sm:w-[250px] max-w-[85vw] shrink-0 snap-start bg-white rounded-2xl p-2.5 sm:p-3 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+        <div>
+          {/* Highlight image */}
+          <div className="relative w-full aspect-[16/10] max-h-28 rounded-xl overflow-hidden bg-[#FAF8F2] mb-2">
+            <FoodIllustration
+              itemId={item.id}
+              name={item.name}
+              foodType={item.foodType}
+              imagePath={item.imagePath}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-2 left-2 flex items-center gap-1">
+              <DietaryBadge foodType={item.foodType} size="sm" />
+              <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${getItemSpecialtyBadge(item).bg}`}>
+                {getItemSpecialtyBadge(item).label}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleFavoriteToggle}
+              aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+              className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-400 hover:text-[#E3792F] shadow-xs cursor-pointer"
+            >
+              <Heart
+                className={`w-3.5 h-3.5 ${
+                  isFavorited ? 'fill-[#E3792F] text-[#E3792F]' : ''
+                }`}
               />
-              <div className="absolute top-2 left-2 flex items-center gap-1">
-                <DietaryBadge foodType={item.foodType} size="sm" />
-                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${getItemSpecialtyBadge(item).bg}`}>
-                  {getItemSpecialtyBadge(item).label}
+            </button>
+          </div>
+
+          <h4 className="text-sm font-bold text-[#1E231F] font-heading glinster-font line-clamp-1 leading-snug">
+            {item.name}
+          </h4>
+          <p className="text-[11px] text-[#1E231F]/65 line-clamp-1 mt-0.5">
+            {item.description}
+          </p>
+
+          {/* Metadata row */}
+          <div className="flex items-center flex-wrap gap-1.5 text-[10px] text-neutral-500 mt-1.5">
+            <span className="flex items-center gap-0.5">
+              <Clock className="w-2.5 h-2.5 text-neutral-400" />
+              {item.prepTimeMinutes} mins
+            </span>
+            {item.calories && (
+              <>
+                <span aria-hidden="true" className="text-neutral-300">·</span>
+                <span className="flex items-center gap-0.5 text-neutral-600 font-medium">
+                  <Flame className="w-2.5 h-2.5 text-[#E3792F]" />
+                  {item.calories} kcal
                 </span>
-              </div>
-              <button
-                type="button"
-                onClick={handleFavoriteToggle}
-                aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-400 hover:text-[#E3792F] shadow-xs cursor-pointer"
-              >
-                <Heart
-                  className={`w-3.5 h-3.5 ${
-                    isFavorited ? 'fill-[#E3792F] text-[#E3792F]' : ''
-                  }`}
-                />
-              </button>
-            </div>
-
-            <h4 className="text-sm font-bold text-[#1E231F] font-heading glinster-font line-clamp-1 leading-snug">
-              {item.name}
-            </h4>
-            <p className="text-[11px] text-[#1E231F]/65 line-clamp-1 mt-0.5">
-              {item.description}
-            </p>
-
-            {/* Metadata row */}
-            <div className="flex items-center flex-wrap gap-1.5 text-[10px] text-neutral-500 mt-1.5">
-              <span className="flex items-center gap-0.5">
-                <Clock className="w-2.5 h-2.5 text-neutral-400" />
-                {item.prepTimeMinutes} mins
-              </span>
-              {item.calories && (
-                <>
-                  <span aria-hidden="true" className="text-neutral-300">·</span>
-                  <span className="flex items-center gap-0.5 text-neutral-600 font-medium">
-                    <Flame className="w-2.5 h-2.5 text-[#E3792F]" />
-                    {item.calories} kcal
-                  </span>
-                </>
-              )}
-            </div>
-            {item.allergenInformation && (
-              <div className="text-[9.5px] text-[#30673A] font-semibold truncate mt-0.5">
+              </>
+            )}
+          </div>
+          {item.allergenInformation && (
+            <div className="mt-1">
+              <span className="text-[#30673A] bg-[#30673A]/8 px-1.5 py-0.5 rounded font-semibold text-[9.5px] truncate inline-block max-w-full">
                 {item.allergenInformation}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-2 pt-2 border-t border-neutral-100 flex items-center justify-between">
-            <div className="flex items-baseline gap-1">
-              <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">
-                Price
-              </span>
-              <span className="text-sm font-bold text-[#1E231F] tabular-nums font-heading">
-                {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
               </span>
             </div>
+          )}
+        </div>
 
-            {totalInCart > 0 ? (
-              <div className="flex items-center gap-1.5 bg-[#30673A] text-white rounded-lg py-1 px-2 shadow-xs">
-                <button
-                  type="button"
-                  onClick={handleDecrement}
-                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 cursor-pointer"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="w-3 h-3" />
-                </button>
-                <span className="text-xs font-bold tabular-nums min-w-[14px] text-center">
-                  {totalInCart}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleIncrement}
-                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 cursor-pointer"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
-              </div>
-            ) : (
+        <div className="mt-3 pt-2.5 border-t border-neutral-100 flex items-center justify-between gap-2">
+          <div className="flex flex-col">
+            <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">
+              Price
+            </span>
+            <span className="text-sm xs:text-base font-bold text-[#1E231F] tabular-nums font-heading glinster-font">
+              {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
+            </span>
+          </div>
+
+          {totalInCart > 0 ? (
+            <div className="flex items-center gap-1.5 bg-[#30673A] text-white rounded-xl py-1 px-2 shadow-xs">
               <button
                 type="button"
-                onClick={handleAddClick}
-                className="py-1 px-2.5 rounded-lg bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-bold shadow-2xs flex items-center gap-1 active:scale-95 transition-colors cursor-pointer"
+                onClick={handleDecrement}
+                className="w-4 h-4 rounded flex items-center justify-center hover:bg-black/20 active:scale-95 cursor-pointer"
+                aria-label="Decrease quantity"
               >
-                <span>Add</span>
-                <Plus className="w-3 h-3" />
-                {hasCustomizations && (
-                  <span className="text-[9px] font-normal ml-0.5">• Custom</span>
-                )}
+                <Minus className="w-3 h-3" />
               </button>
-            )}
-          </div>
+              <span className="text-xs font-bold tabular-nums min-w-[14px] text-center">
+                {totalInCart}
+              </span>
+              <button
+                type="button"
+                onClick={handleIncrement}
+                className="w-4 h-4 rounded flex items-center justify-center hover:bg-black/20 active:scale-95 cursor-pointer"
+                aria-label="Increase quantity"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAddClick}
+              className="py-1 px-2.5 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-bold shadow-2xs flex items-center gap-1 active:scale-95 transition-colors cursor-pointer"
+            >
+              <span>Add</span>
+              <Plus className="w-3 h-3" />
+              {hasCustomizations && (
+                <span className="text-[9px] font-normal opacity-85 ml-0.5">• Custom</span>
+              )}
+            </button>
+          )}
         </div>
 
         {isCustomizeOpen && (
@@ -215,16 +215,16 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
             onClose={() => setIsCustomizeOpen(false)}
           />
         )}
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="w-full min-w-0 max-w-full">
       {/* =========================================================================
           DESKTOP & TABLET VIEW (md: 768px+): Large Image-Focused Card
           ========================================================================= */}
-      <div className="hidden md:flex group relative bg-white rounded-3xl p-4 border border-[#30673A]/12 hover:border-[#30673A]/30 transition-all duration-300 shadow-xs hover:shadow-lg flex-col justify-between overflow-hidden">
+      <div className="hidden md:flex group relative bg-white rounded-3xl p-4 border border-[#30673A]/12 hover:border-[#30673A]/30 transition-all duration-300 shadow-xs hover:shadow-lg flex-col justify-between overflow-hidden h-full">
         <div>
           {/* Top image & badges container */}
           <div className="relative mb-3.5 rounded-2xl overflow-hidden bg-[#FAF8F2]">
@@ -375,72 +375,12 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
       </div>
 
       {/* =========================================================================
-          MOBILE VIEW (< 768px): Spacious, Clean Swiggy / Zomato Food Card
+          MOBILE VIEW (< 768px): Ultra-Professional, Large-Image Card (Matching Chef's Recommendations)
           ========================================================================= */}
-      <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/10 shadow-xs flex items-start justify-between gap-2.5 sm:gap-3.5 relative w-full max-w-full overflow-hidden">
-        {/* Left Side: Dish Details (Broad, breathable text container) */}
-        <div className="flex-1 min-w-0 pr-1 flex flex-col justify-between self-stretch">
-          <div>
-            {/* Top row: Dietary Symbol & Badges */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <DietaryBadge foodType={item.foodType} size="sm" />
-
-              <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${getItemSpecialtyBadge(item).bg}`}>
-                {item.isMustTry && <Sparkles className="w-2.5 h-2.5" />}
-                {getItemSpecialtyBadge(item).label}
-              </span>
-            </div>
-
-            {/* Dish Name: Full readability, line-clamp-2 */}
-            <h3 className="text-[14px] xs:text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug line-clamp-2 mt-1 break-words">
-              {item.name}
-            </h3>
-
-            {/* Description: 2-line clamp with pleasant line-height */}
-            <p className="text-[11px] xs:text-xs text-[#1E231F]/65 line-clamp-2 leading-relaxed mt-1 break-words">
-              {item.description}
-            </p>
-          </div>
-
-          {/* Clean Metadata Row with prep time, calories, and allergen information */}
-          <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-[10.5px] xs:text-[11px] text-neutral-500 mt-2">
-            <span className="flex items-center gap-1 font-medium text-neutral-600">
-              <Clock className="w-3 h-3 text-neutral-400 shrink-0" />
-              {item.prepTimeMinutes} mins
-            </span>
-            {item.calories && (
-              <>
-                <span aria-hidden="true" className="text-neutral-300">·</span>
-                <span className="flex items-center gap-0.5 text-neutral-600 font-medium">
-                  <Flame className="w-3 h-3 text-[#E3792F] shrink-0" />
-                  {item.calories} kcal
-                </span>
-              </>
-            )}
-            {item.allergenInformation && (
-              <>
-                <span aria-hidden="true" className="text-neutral-300">·</span>
-                <span className="text-[#30673A] font-semibold text-[10px] xs:text-[10.5px]">
-                  {item.allergenInformation}
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Price Row */}
-          <div className="flex items-baseline gap-1 mt-2">
-            <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
-              Price
-            </span>
-            <span className="text-[13px] xs:text-[15px] font-bold text-[#1E231F] tabular-nums font-heading">
-              {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
-            </span>
-          </div>
-        </div>
-
-        {/* Right Side: Controlled 4:3 Food Thumbnail + Docked Action Button */}
-        <div className="w-[84px] xs:w-[92px] sm:w-[98px] max-w-[98px] shrink-0 flex flex-col items-center">
-          <div className="relative w-full aspect-[4/3] max-h-[70px] xs:max-h-[76px] rounded-xl overflow-hidden bg-[#FAF8F2] border border-neutral-100 shadow-2xs">
+      <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between w-full max-w-full min-w-0 overflow-hidden">
+        <div>
+          {/* Top Big Food Image (Same signature design as Chef's Recommendations) */}
+          <div className="relative w-full aspect-[16/10] max-h-48 rounded-xl overflow-hidden bg-[#FAF8F2] mb-3">
             <FoodIllustration
               itemId={item.id}
               name={item.name}
@@ -449,68 +389,124 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               className="w-full h-full object-cover"
             />
 
-            {/* Sold out overlay */}
-            {!isAvailable && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-0.5 text-center">
-                <span className="text-[9px] font-bold text-white uppercase tracking-tight">
-                  Sold Out
-                </span>
-              </div>
-            )}
+            {/* Top-left Badges: Dietary & Specialty (Must Try / Chef's Pick / Signature) */}
+            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap z-10">
+              <DietaryBadge foodType={item.foodType} size="sm" />
+              <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs ${getItemSpecialtyBadge(item).bg}`}>
+                {item.isMustTry && <Sparkles className="w-2.5 h-2.5" />}
+                {getItemSpecialtyBadge(item).label}
+              </span>
+            </div>
 
-            {/* Favorite button top-right */}
+            {/* Top-right Favorite Heart Button */}
             <button
               type="button"
               onClick={handleFavoriteToggle}
               aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-              className="absolute top-1 right-1 w-5.5 h-5.5 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-400 hover:text-[#E3792F] shadow-xs cursor-pointer z-10 active:scale-90 transition-transform"
+              className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-400 hover:text-[#E3792F] shadow-xs cursor-pointer z-10 active:scale-90 transition-transform"
             >
               <Heart
-                className={`w-3 h-3 ${
+                className={`w-3.5 h-3.5 ${
                   isFavorited ? 'fill-[#E3792F] text-[#E3792F]' : ''
                 }`}
               />
             </button>
+
+            {/* Sold Out Overlay if unavailable */}
+            {!isAvailable && (
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 text-center z-20">
+                <span className="text-xs font-bold text-white uppercase tracking-wider bg-black/40 px-3 py-1 rounded-full border border-white/20">
+                  Sold Out
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* Floating Swiggy-style Add Button */}
-          <div className="-mt-2.5 xs:-mt-3 relative z-10 w-full flex flex-col items-center">
+          {/* Dish Details */}
+          <div className="space-y-1.5">
+            <h3 className="text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug break-words">
+              {item.name}
+            </h3>
+
+            <p className="text-xs text-[#1E231F]/70 line-clamp-2 leading-relaxed break-words">
+              {item.description}
+            </p>
+
+            {/* Clean Metadata Row with prep time, calories, and allergen information */}
+            <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-[11px] text-neutral-500 pt-1">
+              <span className="flex items-center gap-1 font-medium text-neutral-600">
+                <Clock className="w-3 h-3 text-neutral-400 shrink-0" />
+                {item.prepTimeMinutes} mins
+              </span>
+              {item.calories && (
+                <>
+                  <span aria-hidden="true" className="text-neutral-300">·</span>
+                  <span className="flex items-center gap-0.5 text-neutral-600 font-medium">
+                    <Flame className="w-3 h-3 text-[#E3792F] shrink-0" />
+                    {item.calories} kcal
+                  </span>
+                </>
+              )}
+              {item.allergenInformation && (
+                <>
+                  <span aria-hidden="true" className="text-neutral-300">·</span>
+                  <span className="text-[#30673A] bg-[#30673A]/8 px-1.5 py-0.5 rounded font-semibold text-[10.5px] break-words">
+                    {item.allergenInformation}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Price & Add-To-Cart Row (Ultra-clean, professional alignment) */}
+        <div className="mt-3.5 pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">
+          <div className="flex flex-col">
+            <span className="text-[9.5px] text-neutral-400 font-bold uppercase tracking-wider">
+              Price
+            </span>
+            <span className="text-base sm:text-lg font-bold text-[#1E231F] tabular-nums font-heading glinster-font">
+              {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
+            </span>
+          </div>
+
+          <div>
             {!isAvailable ? (
-              <span className="py-0.5 px-2 rounded-md bg-neutral-200 text-neutral-500 text-[10px] font-bold shadow-xs select-none">
+              <span className="py-1.5 px-3 rounded-xl bg-neutral-200 text-neutral-500 text-xs font-bold shadow-2xs select-none">
                 Unavailable
               </span>
             ) : totalInCart > 0 ? (
-              <div className="flex items-center justify-between w-[74px] xs:w-[80px] sm:w-[86px] bg-[#30673A] text-white rounded-lg py-1 px-1.5 shadow-md">
+              <div className="flex items-center gap-2 bg-[#30673A] text-white rounded-xl py-1.5 px-2.5 shadow-sm">
                 <button
                   type="button"
                   onClick={handleDecrement}
-                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 transition-transform cursor-pointer"
+                  className="w-5 h-5 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-95 transition-transform cursor-pointer"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="w-2.5 h-2.5" />
+                  <Minus className="w-3 h-3" />
                 </button>
-                <span className="text-xs font-bold tabular-nums min-w-[14px] text-center">
+                <span className="text-xs font-bold tabular-nums min-w-[16px] text-center">
                   {totalInCart}
                 </span>
                 <button
                   type="button"
                   onClick={handleIncrement}
-                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 transition-transform cursor-pointer"
+                  className="w-5 h-5 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-95 transition-transform cursor-pointer"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="w-2.5 h-2.5" />
+                  <Plus className="w-3 h-3" />
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={handleAddClick}
-                className="w-[74px] xs:w-[80px] sm:w-[86px] py-1 px-1 rounded-lg bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-[11px] font-extrabold shadow-sm flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer uppercase tracking-wider"
+                className="py-1.5 px-3.5 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-bold shadow-2xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
               >
                 <span>Add</span>
-                <Plus className="w-2.5 h-2.5" />
+                <Plus className="w-3 h-3" />
                 {hasCustomizations && (
-                  <span className="text-[8.5px] lowercase opacity-80 font-medium ml-0.5">• custom</span>
+                  <span className="text-[10px] font-normal opacity-85 ml-0.5">• Custom</span>
                 )}
               </button>
             )}
@@ -525,6 +521,6 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
           onClose={() => setIsCustomizeOpen(false)}
         />
       )}
-    </>
+    </div>
   );
 };

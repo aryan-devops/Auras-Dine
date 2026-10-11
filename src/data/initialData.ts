@@ -709,7 +709,7 @@ export const INITIAL_AUDIT_LOGS: import('../types').AuditLogEvent[] = [
     actor: 'Super Admin (system)',
     action: 'PLAN_RENEWED',
     tenantName: 'The Green Table',
-    details: 'Renewed 6-Month Growth tier ($279.00 processed via Stripe).',
+    details: 'Renewed 6-Month Growth tier (₹279.00 processed via Stripe).',
     timestamp: '2026-08-01T09:00:00Z',
     severity: 'info',
   },

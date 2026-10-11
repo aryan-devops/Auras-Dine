@@ -83,10 +83,10 @@ export const CustomerMenuView: React.FC = () => {
 
   // Inner Menu Content Component (used both in full view and inside Phone frame)
   const MenuContent = () => (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full w-full max-w-full min-w-0 overflow-x-hidden">
       {/* 1. Re-aligned Clean Restaurant Header */}
-      <div className="bg-white border-b border-[#30673A]/15 py-2.5 sm:py-3.5 px-3 sm:px-4 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2.5 sm:gap-3">
+      <div className="bg-white border-b border-[#30673A]/15 py-2.5 sm:py-3.5 px-3 sm:px-4 shadow-2xs w-full max-w-full overflow-hidden">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2.5 sm:gap-3 w-full min-w-0">
           
           {/* Left: Brand Monogram + Name + Table Context */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -154,11 +154,11 @@ export const CustomerMenuView: React.FC = () => {
       </div>
 
       {/* 2. Re-aligned Slim Sticky Filter & Search Bar */}
-      <div className="sticky top-14 sm:top-16 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <div className="sticky top-14 sm:top-16 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2 w-full max-w-full overflow-hidden">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 w-full min-w-0">
           
           {/* Clean Search Input with 16px font on mobile to prevent iOS auto-zoom */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
             <input
               type="text"
@@ -189,7 +189,7 @@ export const CustomerMenuView: React.FC = () => {
         </div>
 
         {/* 3. Category Chips Scroller */}
-        <div className="max-w-6xl mx-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">
+        <div className="max-w-6xl mx-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5 w-full min-w-0">
           <button
             type="button"
             onClick={() => setSelectedCategoryId('all')}
@@ -247,13 +247,13 @@ export const CustomerMenuView: React.FC = () => {
       </div>
 
       {/* 4. Menu Dishes Section */}
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-32 sm:pb-36 space-y-6 sm:space-y-8 flex-1">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-32 sm:pb-36 space-y-6 sm:space-y-8 flex-1 w-full max-w-full min-w-0">
         
         {/* Signatures & Recommendations (when browsing all) */}
         {!searchQuery && selectedCategoryId === 'all' && (
           <>
             {mustTryItems.length > 0 && (
-              <section className="space-y-2.5">
+              <section className="space-y-2.5 w-full max-w-full min-w-0 overflow-hidden">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#E3792F]" />
@@ -267,14 +267,14 @@ export const CustomerMenuView: React.FC = () => {
                 </div>
 
                 {/* Mobile: Horizontal Carousel (No vertical congestion) */}
-                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-0.5 snap-x w-full">
+                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-0.5 snap-x w-full max-w-full min-w-0 overscroll-x-contain">
                   {mustTryItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} variant="highlight" />
                   ))}
                 </div>
 
                 {/* Desktop/Tablet: Multi-column Grid */}
-                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5 w-full min-w-0">
                   {mustTryItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} />
                   ))}
@@ -283,7 +283,7 @@ export const CustomerMenuView: React.FC = () => {
             )}
 
             {recommendedItems.length > 0 && (
-              <section className="space-y-2.5">
+              <section className="space-y-2.5 w-full max-w-full min-w-0 overflow-hidden">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#30673A]" />
@@ -297,14 +297,14 @@ export const CustomerMenuView: React.FC = () => {
                 </div>
 
                 {/* Mobile: Horizontal Carousel */}
-                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-0.5 snap-x w-full">
+                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-0.5 snap-x w-full max-w-full min-w-0 overscroll-x-contain">
                   {recommendedItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} variant="highlight" />
                   ))}
                 </div>
 
                 {/* Desktop/Tablet: Multi-column Grid */}
-                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5 w-full min-w-0">
                   {recommendedItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} />
                   ))}
@@ -316,7 +316,7 @@ export const CustomerMenuView: React.FC = () => {
 
         {/* Categorized Dishes */}
         {searchQuery ? (
-          <section className="space-y-3">
+          <section className="space-y-3 w-full max-w-full min-w-0">
             <h2 className="text-base font-bold text-[#1E231F] font-heading glinster-font">
               Search Results ({searchedItems.length} dishes found)
             </h2>
@@ -337,7 +337,7 @@ export const CustomerMenuView: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
                 {searchedItems.map((item) => (
                   <MenuItemCard key={item.id} item={item} />
                 ))}
@@ -345,7 +345,7 @@ export const CustomerMenuView: React.FC = () => {
             )}
           </section>
         ) : selectedCategoryId === 'favorites' ? (
-          <section className="space-y-3">
+          <section className="space-y-3 w-full max-w-full min-w-0">
             <div className="border-b border-[#30673A]/15 pb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4 fill-[#E3792F] text-[#E3792F]" />
@@ -375,7 +375,7 @@ export const CustomerMenuView: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
                 {dietaryFilteredItems
                   .filter((i) => favorites.includes(i.id))
                   .map((item) => (
@@ -392,7 +392,7 @@ export const CustomerMenuView: React.FC = () => {
               if (items.length === 0) return null;
 
               return (
-                <section key={cat.id} id={`category-${cat.slug}`} className="space-y-2.5 sm:space-y-3">
+                <section key={cat.id} id={`category-${cat.slug}`} className="space-y-2.5 sm:space-y-3 w-full max-w-full min-w-0">
                   <div className="border-b border-[#30673A]/15 pb-1.5 flex items-center justify-between">
                     <div className="min-w-0 pr-2">
                       <h2 className="text-base sm:text-lg font-bold text-[#1E231F] font-heading glinster-font truncate">
@@ -409,7 +409,7 @@ export const CustomerMenuView: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 w-full max-w-full min-w-0">
                     {items.map((item) => (
                       <MenuItemCard key={item.id} item={item} />
                     ))}
