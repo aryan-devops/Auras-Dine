@@ -1,4 +1,4 @@
-# AuraDine · Premium QR Menu & Restaurant Operations SaaS
+# Aurasdine · Premium QR Menu & Restaurant Operations SaaS
 
 A production-grade, multi-tenant restaurant SaaS platform featuring QR contactless ordering, strict dietary Veg/Non-Veg controls with conflict protection, real-time Kitchen Display System (KDS), floor waiter calling bell system, table management, and 3/6/12-month membership SaaS administration.
 

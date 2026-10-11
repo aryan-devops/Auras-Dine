@@ -186,7 +186,7 @@ export const TableStandStudio: React.FC = () => {
       qrMode === 'universal'
         ? 'universal-stand'
         : editableTableNumber.toLowerCase().replace(/\s+/g, '-');
-    a.download = `auradine-table-stand-${label}.png`;
+    a.download = `aurasdine-table-stand-${label}.png`;
     a.click();
   };
 
@@ -245,7 +245,7 @@ export const TableStandStudio: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-bold glinster-font text-white">
-                  AuraDine · Table QR Stand Studio
+                  Aurasdine · Table QR Stand Studio
                 </h1>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#E3792F]/20 text-[#E3792F] border border-[#E3792F]/40 font-mono">
                   Hospitality Print Suite
@@ -802,10 +802,10 @@ export const TableStandStudio: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* 4. BOTTOM SECTION — Powered by AuraDine */}
+                  {/* 4. BOTTOM SECTION — Powered by Aurasdine */}
                   <div className="w-full pt-2 border-t border-[#30673A]/20 z-10 flex items-center justify-center">
                     <span className="text-[11px] font-semibold text-[#30673A] tracking-tight">
-                      Powered by <strong className="font-bold">AuraDine</strong>
+                      Powered by <strong className="font-bold">Aurasdine</strong>
                     </span>
                   </div>
                 </div>
@@ -875,7 +875,7 @@ export const TableStandStudio: React.FC = () => {
 
                     <div className="w-full pt-1.5 border-t border-[#30673A]/20 z-10">
                       <span className="text-[10px] text-[#30673A] font-semibold">
-                        Powered by <strong>AuraDine</strong>
+                        Powered by <strong>Aurasdine</strong>
                       </span>
                     </div>
                   </div>

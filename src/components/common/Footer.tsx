@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
       <div className="flex flex-wrap items-center justify-center gap-3 text-neutral-600">
         <span className="flex items-center gap-1 font-medium">
           <Sparkles className="w-3 h-3 text-[#30673A]" />
-          Powered by <strong>AuraDine</strong>
+          Powered by <strong>Aurasdine</strong>
         </span>
         <span className="text-neutral-300">•</span>
         <a
@@ -29,3 +29,4 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
+

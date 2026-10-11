@@ -1,0 +1,8 @@
+{
+  "firestore": {
+    "databaseId": "ai-studio-auradinepremiumq-c777bd36-a2a2-446c-b313-7400d10a1e73",
+    "rules": "firestore.rules",
+    "edition": "ENTERPRISE",
+    "dataAccessMode": "FIRESTORE_NATIVE"
+  }
+}

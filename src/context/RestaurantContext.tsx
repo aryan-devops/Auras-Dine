@@ -165,7 +165,7 @@ interface RestaurantContextType {
 
 const RestaurantContext = createContext<RestaurantContextType | undefined>(undefined);
 
-const STORAGE_KEY_PREFIX = 'auradine_v3_';
+const STORAGE_KEY_PREFIX = 'aurasdine_v3_';
 
 export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // 1. Tenants

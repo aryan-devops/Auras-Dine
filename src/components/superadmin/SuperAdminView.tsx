@@ -166,9 +166,6 @@ export const SuperAdminView: React.FC = () => {
       planId: newTenantPlan,
       taxRatePercent: parseFloat(newTenantTax) || 6,
       serviceChargePercent: parseFloat(newTenantService) || 5,
-      primaryColor: newPrimaryColor,
-      accentColor: newAccentColor,
-      secondaryColor: newSecondaryColor,
     });
 
     setIsOnboardModalOpen(false);
@@ -232,7 +229,7 @@ export const SuperAdminView: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `auradine-invoices-${Date.now()}.csv`;
+    a.download = `aurasdine-invoices-${Date.now()}.csv`;
     a.click();
   };
 
@@ -250,7 +247,7 @@ export const SuperAdminView: React.FC = () => {
           Desktop Screen Required
         </h2>
         <p className="text-xs text-neutral-400 leading-relaxed mb-6">
-          The AuraDine Platform Super Admin portal is designed exclusively for desktop workstations and laptops (1024px and wider) to display multi-tenant matrix tables, real-time telemetry, and financial audit logs.
+          The Aurasdine Platform Super Admin portal is designed exclusively for desktop workstations and laptops (1024px and wider) to display multi-tenant matrix tables, real-time telemetry, and financial audit logs.
         </p>
         <div className="p-3.5 rounded-2xl bg-neutral-900 border border-neutral-800 text-xs text-neutral-400 space-y-2 w-full mb-6 text-left">
           <div className="flex justify-between items-center">
@@ -296,7 +293,7 @@ export const SuperAdminView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-bold glinster-font text-white">
-                  AuraDine · Platform Super Admin
+                  Aurasdine · Platform Super Admin
                 </h1>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#E3792F]/20 text-[#E3792F] border border-[#E3792F]/40 font-mono">
                   Multi-Tenant Root
