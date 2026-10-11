@@ -163,24 +163,21 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
         </div>
 
         <div className="mt-3 pt-2.5 border-t border-neutral-100 flex items-center justify-between gap-2">
-          <div className="flex flex-col">
-            <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">
-              Price
-            </span>
-            <span className="text-sm xs:text-base font-bold text-[#1E231F] tabular-nums font-heading glinster-font">
+          <div className="flex items-baseline">
+            <span className="text-base font-extrabold text-[#1E231F] tabular-nums font-heading glinster-font tracking-tight">
               {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
             </span>
           </div>
 
           {totalInCart > 0 ? (
-            <div className="flex items-center gap-1.5 bg-[#30673A] text-white rounded-xl py-1 px-2 shadow-xs">
+            <div className="flex items-center gap-1.5 bg-[#30673A] text-white rounded-xl py-1 px-2.5 shadow-sm">
               <button
                 type="button"
                 onClick={handleDecrement}
                 className="w-4 h-4 rounded flex items-center justify-center hover:bg-black/20 active:scale-95 cursor-pointer"
                 aria-label="Decrease quantity"
               >
-                <Minus className="w-3 h-3" />
+                <Minus className="w-3 h-3 stroke-[2.5]" />
               </button>
               <span className="text-xs font-bold tabular-nums min-w-[14px] text-center">
                 {totalInCart}
@@ -191,19 +188,19 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
                 className="w-4 h-4 rounded flex items-center justify-center hover:bg-black/20 active:scale-95 cursor-pointer"
                 aria-label="Increase quantity"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3 h-3 stroke-[2.5]" />
               </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={handleAddClick}
-              className="py-1 px-2.5 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-bold shadow-2xs flex items-center gap-1 active:scale-95 transition-colors cursor-pointer"
+              className="py-1 px-3 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border-2 border-[#30673A] text-xs font-black shadow-xs flex items-center gap-1 active:scale-95 transition-all cursor-pointer uppercase tracking-wider"
             >
               <span>Add</span>
-              <Plus className="w-3 h-3" />
+              <Plus className="w-3 h-3 stroke-[3]" />
               {hasCustomizations && (
-                <span className="text-[9px] font-normal opacity-85 ml-0.5">• Custom</span>
+                <span className="text-[9px] font-normal opacity-85 ml-0.5 lowercase tracking-normal">• custom</span>
               )}
             </button>
           )}
@@ -321,11 +318,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
 
         {/* Bottom Price & Add-To-Cart Row */}
         <div className="mt-4 pt-3.5 border-t border-neutral-100 flex items-center justify-between gap-3">
-          <div>
-            <span className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold block">
-              Price
-            </span>
-            <span className="text-base lg:text-lg font-bold text-[#1E231F] tabular-nums font-heading">
+          <div className="flex items-baseline">
+            <span className="text-lg lg:text-xl font-black text-[#1E231F] tabular-nums font-heading tracking-tight">
               {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
             </span>
           </div>
@@ -336,37 +330,37 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
                 Sold Out
               </span>
             ) : totalInCart > 0 ? (
-              <div className="flex items-center gap-2 bg-[#30673A] text-white rounded-full p-1 shadow-sm">
+              <div className="flex items-center gap-2 bg-[#30673A] text-white rounded-xl py-1.5 px-3 shadow-md shadow-[#30673A]/25">
                 <button
                   type="button"
                   onClick={handleDecrement}
-                  className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/20 active:scale-95 transition-transform cursor-pointer"
+                  className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-90 transition-transform cursor-pointer"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="w-3.5 h-3.5" />
+                  <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
-                <span className="text-xs font-bold tabular-nums min-w-[18px] text-center">
+                <span className="text-xs font-black tabular-nums min-w-[18px] text-center">
                   {totalInCart}
                 </span>
                 <button
                   type="button"
                   onClick={handleIncrement}
-                  className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/20 active:scale-95 transition-transform cursor-pointer"
+                  className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-90 transition-transform cursor-pointer"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={handleAddClick}
-                className="py-2 px-4 rounded-xl bg-[#E9E9C7]/50 hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/25 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
+                className="py-2 px-4 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border-2 border-[#30673A] text-xs font-black tracking-wider uppercase flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
               >
                 <span>Add</span>
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
                 {hasCustomizations && (
-                  <span className="text-[10px] opacity-80 font-normal ml-0.5">• Custom</span>
+                  <span className="text-[10px] font-normal opacity-85 ml-0.5 lowercase tracking-normal">• custom</span>
                 )}
               </button>
             )}
@@ -377,7 +371,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
       {/* =========================================================================
           MOBILE VIEW (< 768px): Ultra-Professional, Large-Image Card (Matching Chef's Recommendations)
           ========================================================================= */}
-      <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between w-full max-w-full min-w-0 overflow-hidden">
+      <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/15 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between w-full max-w-full min-w-0 overflow-hidden">
         <div>
           {/* Top Big Food Image (Same signature design as Chef's Recommendations) */}
           <div className="relative w-full aspect-[16/10] max-h-56 rounded-xl overflow-hidden bg-[#FAF8F2] mb-3">
@@ -392,7 +386,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
             {/* Top-left Badges: Dietary & Specialty (Must Try / Chef's Pick / Signature) */}
             <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap z-10">
               <DietaryBadge foodType={item.foodType} size="sm" />
-              <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs ${getItemSpecialtyBadge(item).bg}`}>
+              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-xs ${getItemSpecialtyBadge(item).bg}`}>
                 {item.isMustTry && <Sparkles className="w-2.5 h-2.5" />}
                 {getItemSpecialtyBadge(item).label}
               </span>
@@ -432,81 +426,72 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               {item.description}
             </p>
 
-            {/* Clean Metadata Row with prep time, calories, and allergen information */}
-            <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-[11px] text-neutral-500 pt-1">
-              <span className="flex items-center gap-1 font-medium text-neutral-600">
+            {/* Clean Metadata Pills */}
+            <div className="flex items-center flex-wrap gap-1.5 pt-1.5">
+              <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-neutral-600 bg-neutral-100/90 px-2 py-0.5 rounded-md">
                 <Clock className="w-3 h-3 text-neutral-400 shrink-0" />
                 {item.prepTimeMinutes} mins
               </span>
               {item.calories && (
-                <>
-                  <span aria-hidden="true" className="text-neutral-300">·</span>
-                  <span className="flex items-center gap-0.5 text-neutral-600 font-medium">
-                    <Flame className="w-3 h-3 text-[#E3792F] shrink-0" />
-                    {item.calories} kcal
-                  </span>
-                </>
+                <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-[#c8631c] bg-[#E3792F]/10 px-2 py-0.5 rounded-md">
+                  <Flame className="w-3 h-3 text-[#E3792F] shrink-0" />
+                  {item.calories} kcal
+                </span>
               )}
               {item.allergenInformation && (
-                <>
-                  <span aria-hidden="true" className="text-neutral-300">·</span>
-                  <span className="text-[#30673A] bg-[#30673A]/8 px-1.5 py-0.5 rounded font-semibold text-[10.5px] truncate max-w-[150px]">
-                    {item.allergenInformation}
-                  </span>
-                </>
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#30673A] bg-[#30673A]/8 px-2 py-0.5 rounded-md truncate max-w-[140px]">
+                  {item.allergenInformation}
+                </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Bottom Price & Add-To-Cart Row (Ultra-clean, professional alignment) */}
+        {/* Bottom Price & Add-To-Cart Row */}
         <div className="mt-3.5 pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">
-          <div className="flex flex-col">
-            <span className="text-[9.5px] text-neutral-400 font-bold uppercase tracking-wider">
-              Price
-            </span>
-            <span className="text-base sm:text-lg font-bold text-[#1E231F] tabular-nums font-heading glinster-font">
+          <div className="flex items-baseline">
+            <span className="text-lg sm:text-xl font-black text-[#1E231F] tabular-nums font-heading glinster-font tracking-tight">
               {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
             </span>
           </div>
 
           <div>
             {!isAvailable ? (
-              <span className="py-1.5 px-3 rounded-xl bg-neutral-200 text-neutral-500 text-xs font-bold shadow-2xs select-none">
+              <span className="py-1.5 px-3 rounded-xl bg-neutral-100 text-neutral-400 text-xs font-bold shadow-2xs select-none">
                 Unavailable
               </span>
             ) : totalInCart > 0 ? (
-              <div className="flex items-center gap-2 bg-[#30673A] text-white rounded-xl py-1.5 px-2.5 shadow-sm">
+              <div className="flex items-center gap-2 bg-[#30673A] text-white rounded-xl py-1.5 px-3 shadow-md shadow-[#30673A]/25">
                 <button
                   type="button"
                   onClick={handleDecrement}
-                  className="w-5 h-5 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-95 transition-transform cursor-pointer"
+                  className="w-5 h-5 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-90 transition-transform cursor-pointer"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="w-3 h-3" />
+                  <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
-                <span className="text-xs font-bold tabular-nums min-w-[16px] text-center">
+                <span className="text-xs font-black tabular-nums min-w-[16px] text-center">
                   {totalInCart}
                 </span>
                 <button
                   type="button"
                   onClick={handleIncrement}
-                  className="w-5 h-5 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-95 transition-transform cursor-pointer"
+                  className="w-5 h-5 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-90 transition-transform cursor-pointer"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={handleAddClick}
-                className="py-1.5 px-3.5 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-bold shadow-2xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                className="py-1.5 px-3.5 rounded-xl bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border-2 border-[#30673A] text-xs font-black shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer uppercase tracking-wider"
               >
                 <span>Add</span>
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
                 {hasCustomizations && (
-                  <span className="text-[10px] font-normal opacity-85 ml-0.5">• Custom</span>
+                  <span className="text-[9.5px] font-normal opacity-85 ml-0.5 lowercase tracking-normal">• custom</span>
                 )}
               </button>
             )}

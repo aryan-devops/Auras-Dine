@@ -414,12 +414,12 @@ export const CustomerPage: React.FC = () => {
     if (!hasLiveOrder && !hasCart) return null;
 
     return (
-      <div className="fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-40 max-w-md mx-auto pointer-events-auto space-y-2 animate-in slide-in-from-bottom-2 duration-300">
+      <div className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-lg mx-auto pointer-events-auto space-y-2.5 animate-in slide-in-from-bottom-3 duration-300">
         {/* 1. Live Order Progress Bar */}
         {hasLiveOrder && (
-          <div className="bg-[#1E231F] text-white p-2.5 sm:p-3 rounded-2xl shadow-xl border border-[#30673A]/40 flex items-center justify-between gap-2.5">
+          <div className="bg-[#1E231F]/95 backdrop-blur-md text-white p-3 rounded-2xl shadow-xl border border-white/10 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-[#30673A] text-white flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#30673A] text-white flex items-center justify-center shrink-0 shadow-xs">
                 <CheckCircle2 className="w-4 h-4 text-[#E9E9C7] animate-pulse" />
               </div>
               <div className="min-w-0 text-xs">
@@ -450,32 +450,44 @@ export const CustomerPage: React.FC = () => {
           </div>
         )}
 
-        {/* 2. Dining Order Cart Bar */}
+        {/* 2. Dining Order Cart Bar (Luxury Capsule Design) */}
         {hasCart && (
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="w-full py-2.5 px-3.5 sm:py-3.5 sm:px-5 rounded-2xl bg-[#30673A] hover:bg-[#204828] text-white shadow-xl flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#17331D] via-[#204828] to-[#17331D] text-white shadow-2xl shadow-[#17331D]/50 border border-[#30673A]/40 flex items-center justify-between transition-all duration-200 active:scale-[0.98] cursor-pointer group hover:border-[#30673A]"
           >
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">
+            {/* Left: Cart Count Badge & Table Info */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-[#E3792F] text-white flex items-center justify-center font-extrabold text-sm shadow-md shadow-[#E3792F]/30 shrink-0">
                 {cartCount}
               </div>
-              <div className="text-left">
-                <span className="text-xs uppercase font-bold tracking-wider block opacity-95">
-                  View Dining Order
-                </span>
-                <span className="text-[10.5px] opacity-80">
-                  {currentTable?.tableNumber || 'Table Session'}
-                </span>
+              <div className="text-left min-w-0">
+                <div className="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-1.5 truncate">
+                  <span>View Dining Order</span>
+                </div>
+                <div className="text-[11px] text-[#FAF8F2]/75 font-medium flex items-center gap-1.5 truncate">
+                  <span>{currentTable?.tableNumber || 'Table Session'}</span>
+                  <span>·</span>
+                  <span>{cartCount} {cartCount === 1 ? 'item' : 'items'} added</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="font-mono tabular-nums text-sm font-bold">
-                {currentTenant.currencySymbol}{cartTotal.toFixed(2)}
-              </span>
-              <ShoppingCart className="w-4 h-4 ml-0.5" />
+            {/* Right: Subtotal & Action Pill */}
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+              <div className="text-right">
+                <span className="text-[9.5px] uppercase tracking-wider text-[#FAF8F2]/60 font-semibold block leading-none">
+                  Total
+                </span>
+                <span className="font-mono tabular-nums text-sm sm:text-base font-black text-[#E9E9C7] leading-tight">
+                  {currentTenant.currencySymbol}{cartTotal.toFixed(2)}
+                </span>
+              </div>
+              <div className="h-8 sm:h-9 px-3 rounded-xl bg-white/15 group-hover:bg-white text-white group-hover:text-[#204828] flex items-center gap-1.5 transition-colors font-bold text-xs shadow-2xs">
+                <span>Cart</span>
+                <ShoppingCart className="w-3.5 h-3.5" />
+              </div>
             </div>
           </button>
         )}
