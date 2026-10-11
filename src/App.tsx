@@ -26,20 +26,30 @@ const MainAppContent: React.FC = () => {
     setIsCartDrawerOpen,
   } = useRestaurant();
 
-  // Handle URL query parameters for simulated QR scans
+  // Handle URL query parameters and pathname for simulated QR scans and direct links
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
-    const tenantSlug = params.get('tenant');
+    const tenantParam = params.get('tenant') || params.get('hotel');
     const tableId = params.get('table');
 
     if (token) {
       simulateQrScan(token);
-    } else if (tenantSlug) {
-      const match = tenants.find((t) => t.slug === tenantSlug);
+    } else if (tenantParam) {
+      const match = tenants.find((t) => t.slug === tenantParam || t.id === tenantParam);
       if (match) setCurrentTenantId(match.id);
       if (tableId) setCurrentTableId(tableId);
       setCurrentRole('customer');
+    } else {
+      // Also detect tenant from URL pathname e.g. /the-green-table/menu or /the-green-table/tbl-4/auth
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      if (pathParts.length > 0) {
+        const potentialSlug = pathParts[0] === 'restaurant' ? pathParts[1] : pathParts[0];
+        const match = tenants.find((t) => t.slug === potentialSlug || t.id === potentialSlug);
+        if (match) {
+          setCurrentTenantId(match.id);
+        }
+      }
     }
   }, [simulateQrScan, tenants, setCurrentTenantId, setCurrentTableId, setCurrentRole]);
 

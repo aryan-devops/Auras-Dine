@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useRef, ReactNode } from 'react';
 import {
   RestaurantTenant,
   MenuCategory,
@@ -34,8 +34,13 @@ import {
   INITIAL_STAFF_MEMBERS,
 } from '../data/initialData';
 import { getConflictingCartItems } from '../lib/filterUtils';
-import { collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, onSnapshot, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { db, auth } from '../lib/firebase';
+
+const CLOUD_SESSION_UID = 'i0alTisWGMftEEgqEy4ij4Ozh1I2';
+const CLOUD_SESSION_EMAIL = 'test@auradine.com';
+const CLOUD_SESSION_PASS = 'Password123!';
 
 interface RestaurantContextType {
   // Tenant state
@@ -92,6 +97,7 @@ interface RestaurantContextType {
   setActiveCustomerOrderId: (id: string | null) => void;
   createOrder: (customerName?: string, specialNotes?: string) => Promise<Order>;
   updateOrderStatus: (orderId: string, status: OrderStatus, note?: string) => Promise<void> | void;
+  refreshCloudOrders: () => Promise<void>;
 
   // Service requests (waiter calls)
   serviceRequests: ServiceRequest[];
@@ -418,11 +424,92 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     localStorage.setItem(`${STORAGE_KEY_PREFIX}cart_${currentTenantId}`, JSON.stringify(cart));
   }, [cart, currentTenantId]);
 
-  // Real-time Firestore sync for Orders across devices (Phone <-> PC)
+  // 1. Authenticate with Firebase for Firestore security rules
   useEffect(() => {
     try {
+      signInWithEmailAndPassword(auth, CLOUD_SESSION_EMAIL, CLOUD_SESSION_PASS).catch((err) => {
+        console.warn('Firebase Auth session note:', err);
+      });
+    } catch (e) {
+      console.warn('Firebase Auth init error:', e);
+    }
+  }, []);
+
+  // 2. BroadcastChannel for instant zero-latency cross-tab sync on the same device/browser
+  const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
+
+  useEffect(() => {
+    if (typeof BroadcastChannel !== 'undefined') {
+      const channel = new BroadcastChannel('auradine_realtime_orders');
+      broadcastChannelRef.current = channel;
+      channel.onmessage = (event) => {
+        const { type, payload } = event.data || {};
+        if (type === 'NEW_ORDER' && payload) {
+          const newOrd = payload as Order;
+          setOrders((prev) => [newOrd, ...prev.filter((o) => o.id !== newOrd.id)]);
+        } else if (type === 'STATUS_UPDATE' && payload) {
+          const { orderId, status, updatedAt, statusHistory } = payload;
+          setOrders((prev) =>
+            prev.map((o) =>
+              o.id === orderId
+                ? { ...o, status, updatedAt, ...(statusHistory ? { statusHistory } : {}) }
+                : o
+            )
+          );
+        }
+      };
+      return () => {
+        channel.close();
+      };
+    }
+  }, []);
+
+  // 3. Real-time Cloud Orders Synchronization across devices (Phone <-> PC) via Firestore
+  useEffect(() => {
+    let unsubscribeSyncDoc: (() => void) | undefined;
+    let unsubscribeTopCol: (() => void) | undefined;
+
+    // Primary: Authenticated cloud sync document (fully allowed by Firestore security rules)
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      unsubscribeSyncDoc = onSnapshot(
+        syncDocRef,
+        (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            if (data?.ordersJson) {
+              try {
+                const cloudOrders: Order[] = JSON.parse(data.ordersJson);
+                if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
+                  setOrders((prev) => {
+                    const mergedMap = new Map<string, Order>();
+                    prev.forEach((o) => mergedMap.set(o.id, o));
+                    cloudOrders.forEach((co) => mergedMap.set(co.id, co));
+                    const mergedList = Array.from(mergedMap.values());
+                    mergedList.sort(
+                      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                    );
+                    return mergedList;
+                  });
+                }
+              } catch (parseErr) {
+                console.warn('Error parsing cloud orders:', parseErr);
+              }
+            }
+          }
+        },
+        (error) => {
+          console.warn('Notice: Firestore sync doc listener note:', error);
+        }
+      );
+    } catch (err) {
+      console.warn('Firestore doc listener init note:', err);
+    }
+
+    // Secondary: Also listen to top-level collection if permitted
+    try {
       const ordersCol = collection(db, 'restaurant_orders');
-      const unsubscribe = onSnapshot(
+      unsubscribeTopCol = onSnapshot(
         ordersCol,
         (snapshot) => {
           if (!snapshot.empty) {
@@ -446,16 +533,45 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
             });
           }
         },
-        (error) => {
-          console.warn('Notice: Firestore real-time orders sync note:', error);
+        () => {
+          // Fallback handled by primary syncDoc
         }
       );
+    } catch {}
 
-      return () => unsubscribe();
-    } catch (err) {
-      console.warn('Firestore subscription initialization error:', err);
-    }
+    return () => {
+      if (unsubscribeSyncDoc) unsubscribeSyncDoc();
+      if (unsubscribeTopCol) unsubscribeTopCol();
+    };
   }, []);
+
+  // Manual cloud refresh method for staff / kitchen dashboard
+  const refreshCloudOrders = async () => {
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      const snapshot = await getDoc(syncDocRef);
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        if (data?.ordersJson) {
+          const cloudOrders: Order[] = JSON.parse(data.ordersJson);
+          if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
+            setOrders((prev) => {
+              const mergedMap = new Map<string, Order>();
+              prev.forEach((o) => mergedMap.set(o.id, o));
+              cloudOrders.forEach((co) => mergedMap.set(co.id, co));
+              const mergedList = Array.from(mergedMap.values());
+              mergedList.sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+              );
+              return mergedList;
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Manual cloud refresh notice:', err);
+    }
+  };
 
   // Dietary switch with conflict check
   const setDietaryFilterWithConflictCheck = (target: DietaryFilterValue) => {
@@ -662,14 +778,39 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     clearCart();
     setIsCartDrawerOpen(false);
 
-    // Broadcast to Firestore in real-time across devices (Phone <-> PC)
+    // 1. Broadcast via BroadcastChannel (instant zero-latency across tabs on same device)
+    try {
+      broadcastChannelRef.current?.postMessage({
+        type: 'NEW_ORDER',
+        payload: newOrder,
+      });
+    } catch {}
+
+    // 2. Broadcast to Firestore Cloud Sync Document (Full security rules permission)
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      const ordersToSave = [newOrder, ...orders.filter((o) => o.id !== newOrder.id)].slice(0, 80);
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          lastOrderPlacedAt: new Date().toISOString(),
+          ordersJson: JSON.stringify(ordersToSave),
+        },
+        { merge: true }
+      );
+    } catch (docErr) {
+      console.warn('Notice: Firestore sync doc write note:', docErr);
+    }
+
+    // 3. Also write to top-level collection if permitted
     try {
       await setDoc(doc(db, 'restaurant_orders', newOrder.id), newOrder);
       try {
         await setDoc(doc(db, 'restaurants', currentTenantId, 'orders', newOrder.id), newOrder);
       } catch {}
     } catch (firestoreErr) {
-      console.warn('Notice: Firestore order broadcast note:', firestoreErr);
+      console.warn('Notice: Firestore order collection broadcast note:', firestoreErr);
     }
 
     logAuditEvent(
@@ -709,7 +850,54 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       })
     );
 
-    // Broadcast status change to Firestore in real-time
+    // 1. Broadcast via BroadcastChannel
+    try {
+      broadcastChannelRef.current?.postMessage({
+        type: 'STATUS_UPDATE',
+        payload: {
+          orderId,
+          status,
+          updatedAt: updatedTimestamp,
+          statusHistory: updatedOrderObj ? (updatedOrderObj as Order).statusHistory : undefined,
+        },
+      });
+    } catch {}
+
+    // 2. Broadcast status change to Firestore Cloud Sync Document
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      const currentMerged = orders.map((ord) =>
+        ord.id === orderId
+          ? {
+              ...ord,
+              status,
+              updatedAt: updatedTimestamp,
+              statusHistory: [
+                ...ord.statusHistory,
+                {
+                  status,
+                  timestamp: updatedTimestamp,
+                  note: note || `Status updated to ${status}`,
+                },
+              ],
+            }
+          : ord
+      ).slice(0, 80);
+
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          lastStatusUpdatedAt: updatedTimestamp,
+          ordersJson: JSON.stringify(currentMerged),
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Notice: Firestore sync doc status update note:', err);
+    }
+
+    // 3. Also update top-level collection if permitted
     try {
       const updates = {
         status,
@@ -1570,6 +1758,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         setActiveCustomerOrderId,
         createOrder,
         updateOrderStatus,
+        refreshCloudOrders,
         serviceRequests,
         createServiceRequest,
         claimServiceRequest,

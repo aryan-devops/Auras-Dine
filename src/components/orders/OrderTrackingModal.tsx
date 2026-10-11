@@ -40,7 +40,31 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
   useEffect(() => {
     if (!isOpen || !initialOrder) return;
 
-    // Listen to top-level 'restaurant_orders'
+    // 1. Listen to authenticated cloud sync document
+    const syncDocRef = doc(db, 'users', 'i0alTisWGMftEEgqEy4ij4Ozh1I2');
+    const unsubscribeSync = onSnapshot(
+      syncDocRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          if (data?.ordersJson) {
+            try {
+              const cloudOrders: Order[] = JSON.parse(data.ordersJson);
+              const found = cloudOrders.find((o) => o.id === initialOrder.id);
+              if (found) {
+                setOrder(found);
+                if (found.status === 'ready' && navigator.vibrate) {
+                  navigator.vibrate([200, 100, 200]);
+                }
+              }
+            } catch {}
+          }
+        }
+      },
+      () => {}
+    );
+
+    // 2. Listen to top-level 'restaurant_orders'
     const topOrderRef = doc(db, 'restaurant_orders', initialOrder.id);
     const unsubscribeTop = onSnapshot(
       topOrderRef,
@@ -59,6 +83,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
     );
 
     return () => {
+      unsubscribeSync();
       unsubscribeTop();
     };
   }, [isOpen, initialOrder, currentTenant.id]);

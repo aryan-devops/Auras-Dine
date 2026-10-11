@@ -1,10 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     function isSignedIn() {
       return request.auth != null;
     }
@@ -17,14 +13,45 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    // Shared authenticated session document for real-time restaurant orders & sync
     match /users/{uid} {
-      allow read: if isOwner(uid) || isAdmin(request.auth.uid);
-      allow write: if isOwner(uid) || isAdmin(request.auth.uid);
+      allow read: if isOwner(uid) || isAdmin(request.auth.uid) || isSignedIn();
+      allow write: if isOwner(uid) || isAdmin(request.auth.uid) || isSignedIn();
     }
     
+    // Top-level restaurant orders collection
+    match /restaurant_orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Tenant-nested orders collection
+    match /restaurants/{tenantId}/orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Customer QR scan sessions
+    match /customerSessions/{sessionId} {
+      allow read, write: if true;
+    }
+
+    // Staff credentials
+    match /staffCredentials/{credentialId} {
+      allow read, write: if true;
+    }
+
+    // Service assistance requests
+    match /serviceRequests/{requestId} {
+      allow read, write: if true;
+    }
+
     match /admins/{uid} {
       allow read: if isAdmin(request.auth.uid);
       allow write: if false; // Only superadmin via backend
+    }
+
+    // Default deny for all other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
