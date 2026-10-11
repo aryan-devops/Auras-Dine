@@ -25,27 +25,42 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
   onClose,
   onRequestAssistance,
 }) => {
-  const { currentTenant } = useRestaurant();
+  const { currentTenant, orders } = useRestaurant();
   const [order, setOrder] = useState<Order | null>(initialOrder);
 
-  // Subscribe to real-time updates
+  // Sync with prop and context updates
+  useEffect(() => {
+    if (initialOrder) {
+      const liveInContext = orders.find((o) => o.id === initialOrder.id);
+      setOrder(liveInContext || initialOrder);
+    }
+  }, [initialOrder, orders]);
+
+  // Subscribe to real-time Firestore updates
   useEffect(() => {
     if (!isOpen || !initialOrder) return;
 
-    const orderRef = doc(db, 'restaurants', currentTenant.id, 'orders', initialOrder.id);
-    
-    const unsubscribe = onSnapshot(orderRef, 
+    // Listen to top-level 'restaurant_orders'
+    const topOrderRef = doc(db, 'restaurant_orders', initialOrder.id);
+    const unsubscribeTop = onSnapshot(
+      topOrderRef,
       (docSnapshot) => {
         if (docSnapshot.exists()) {
-          setOrder(docSnapshot.data() as Order);
+          const data = docSnapshot.data() as Order;
+          setOrder(data);
+          if (data.status === 'ready' && navigator.vibrate) {
+            navigator.vibrate([200, 100, 200]);
+          }
         }
       },
       (error) => {
-        console.error('Firestore order tracking error:', error);
+        console.warn('Firestore real-time tracking note:', error);
       }
     );
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeTop();
+    };
   }, [isOpen, initialOrder, currentTenant.id]);
 
   // Listen for Escape key

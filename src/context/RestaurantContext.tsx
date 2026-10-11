@@ -34,7 +34,7 @@ import {
   INITIAL_STAFF_MEMBERS,
 } from '../data/initialData';
 import { getConflictingCartItems } from '../lib/filterUtils';
-import { collection, addDoc, getDocs, query, where, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 interface RestaurantContextType {
@@ -91,7 +91,7 @@ interface RestaurantContextType {
   activeCustomerOrderId: string | null;
   setActiveCustomerOrderId: (id: string | null) => void;
   createOrder: (customerName?: string, specialNotes?: string) => Promise<Order>;
-  updateOrderStatus: (orderId: string, status: OrderStatus, note?: string) => void;
+  updateOrderStatus: (orderId: string, status: OrderStatus, note?: string) => Promise<void> | void;
 
   // Service requests (waiter calls)
   serviceRequests: ServiceRequest[];
@@ -295,7 +295,18 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
 
-  const [activeCustomerOrderId, setActiveCustomerOrderId] = useState<string | null>(null);
+  const [activeCustomerOrderId, setActiveCustomerOrderId] = useState<string | null>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}activeCustomerOrderId`);
+    return saved || null;
+  });
+
+  useEffect(() => {
+    if (activeCustomerOrderId) {
+      localStorage.setItem(`${STORAGE_KEY_PREFIX}activeCustomerOrderId`, activeCustomerOrderId);
+    } else {
+      localStorage.removeItem(`${STORAGE_KEY_PREFIX}activeCustomerOrderId`);
+    }
+  }, [activeCustomerOrderId]);
 
   // 8. Service Requests
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>(() => {
@@ -406,6 +417,45 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY_PREFIX}cart_${currentTenantId}`, JSON.stringify(cart));
   }, [cart, currentTenantId]);
+
+  // Real-time Firestore sync for Orders across devices (Phone <-> PC)
+  useEffect(() => {
+    try {
+      const ordersCol = collection(db, 'restaurant_orders');
+      const unsubscribe = onSnapshot(
+        ordersCol,
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const firestoreOrders: Order[] = snapshot.docs.map((docSnap) => {
+              const data = docSnap.data();
+              return {
+                id: docSnap.id,
+                ...data,
+              } as Order;
+            });
+
+            setOrders((prev) => {
+              const mergedMap = new Map<string, Order>();
+              prev.forEach((o) => mergedMap.set(o.id, o));
+              firestoreOrders.forEach((fo) => mergedMap.set(fo.id, fo));
+              const mergedList = Array.from(mergedMap.values());
+              mergedList.sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+              );
+              return mergedList;
+            });
+          }
+        },
+        (error) => {
+          console.warn('Notice: Firestore real-time orders sync note:', error);
+        }
+      );
+
+      return () => unsubscribe();
+    } catch (err) {
+      console.warn('Firestore subscription initialization error:', err);
+    }
+  }, []);
 
   // Dietary switch with conflict check
   const setDietaryFilterWithConflictCheck = (target: DietaryFilterValue) => {
@@ -607,34 +657,81 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       specialNotes,
     };
 
-    setOrders((prev) => [newOrder, ...prev]);
+    setOrders((prev) => [newOrder, ...prev.filter((o) => o.id !== newOrder.id)]);
     setActiveCustomerOrderId(newOrder.id);
     clearCart();
     setIsCartDrawerOpen(false);
 
+    // Broadcast to Firestore in real-time across devices (Phone <-> PC)
+    try {
+      await setDoc(doc(db, 'restaurant_orders', newOrder.id), newOrder);
+      try {
+        await setDoc(doc(db, 'restaurants', currentTenantId, 'orders', newOrder.id), newOrder);
+      } catch {}
+    } catch (firestoreErr) {
+      console.warn('Notice: Firestore order broadcast note:', firestoreErr);
+    }
+
+    logAuditEvent(
+      'ORDER_CREATED',
+      `Order ${newOrder.orderNumber} placed for ${newOrder.tableNumber} (Total: ${currentTenant.currencySymbol}${newOrder.grandTotal})`,
+      currentTenant.name,
+      'info'
+    );
+
     return newOrder;
   };
 
-  const updateOrderStatus = (orderId: string, status: OrderStatus, note?: string) => {
+  const updateOrderStatus = async (orderId: string, status: OrderStatus, note?: string) => {
+    const updatedTimestamp = new Date().toISOString();
+    let updatedOrderObj: Order | null = null;
+
     setOrders((prev) =>
       prev.map((ord) => {
         if (ord.id === orderId) {
-          return {
+          const updated: Order = {
             ...ord,
             status,
-            updatedAt: new Date().toISOString(),
+            updatedAt: updatedTimestamp,
             statusHistory: [
               ...ord.statusHistory,
               {
                 status,
-                timestamp: new Date().toISOString(),
+                timestamp: updatedTimestamp,
                 note: note || `Status updated to ${status}`,
               },
             ],
           };
+          updatedOrderObj = updated;
+          return updated;
         }
         return ord;
       })
+    );
+
+    // Broadcast status change to Firestore in real-time
+    try {
+      const updates = {
+        status,
+        updatedAt: updatedTimestamp,
+        ...(updatedOrderObj ? { statusHistory: (updatedOrderObj as Order).statusHistory } : {}),
+      };
+
+      await updateDoc(doc(db, 'restaurant_orders', orderId), updates);
+
+      const tenant = updatedOrderObj ? (updatedOrderObj as Order).tenantId : currentTenantId;
+      try {
+        await updateDoc(doc(db, 'restaurants', tenant, 'orders', orderId), updates);
+      } catch {}
+    } catch (err) {
+      console.warn('Notice: Firestore status broadcast note:', err);
+    }
+
+    logAuditEvent(
+      'ORDER_STATUS_CHANGED',
+      `Order ${orderId} updated to "${status}"`,
+      currentTenant.name,
+      'info'
     );
   };
 

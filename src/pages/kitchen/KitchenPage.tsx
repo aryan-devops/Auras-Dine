@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChefHat, Clock, CheckCircle2, Play, AlertTriangle, Volume2, VolumeX, Eye, UserCheck, ArrowRight } from 'lucide-react';
-import { OrderStatus } from '../../types';
+import { ChefHat, Clock, CheckCircle2, Play, AlertTriangle, Volume2, VolumeX, Eye, UserCheck, ArrowRight, BellRing, Sparkles, X, Bell } from 'lucide-react';
+import { Order, OrderStatus } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { LogoutButton } from '../../components/auth/LogoutButton';
+import { kitchenAlert } from '../../lib/audioAlert';
 
 export const KitchenPage: React.FC = () => {
   const { orders, updateOrderStatus, currentTenant, currentStaffUser } = useRestaurant();
@@ -11,10 +12,64 @@ export const KitchenPage: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<string | null>(null);
 
+  // Incoming order alert banner state
+  const [incomingAlert, setIncomingAlert] = useState<{ order: Order; timestamp: number } | null>(null);
+  const seenOrderIdsRef = useRef<Set<string>>(new Set());
+  const initialLoadedRef = useRef<boolean>(false);
+
   // Filter orders for the active tenant
   const tenantOrders = useMemo(() => {
     return orders.filter((o) => o.tenantId === currentTenant.id);
   }, [orders, currentTenant.id]);
+
+  // Unlock audio on initial user touch/click
+  useEffect(() => {
+    const handleInteraction = () => {
+      kitchenAlert.init();
+    };
+    window.addEventListener('click', handleInteraction, { once: true });
+    window.addEventListener('touchstart', handleInteraction, { once: true });
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+  }, []);
+
+  // Listen for incoming pending orders in real-time and trigger kitchen bell
+  useEffect(() => {
+    if (!initialLoadedRef.current) {
+      tenantOrders.forEach((o) => seenOrderIdsRef.current.add(o.id));
+      initialLoadedRef.current = true;
+      return;
+    }
+
+    const pendingOrders = tenantOrders.filter((o) => o.status === 'pending');
+    const newPendingOrders: Order[] = [];
+
+    pendingOrders.forEach((ord) => {
+      if (!seenOrderIdsRef.current.has(ord.id)) {
+        seenOrderIdsRef.current.add(ord.id);
+        newPendingOrders.push(ord);
+      }
+    });
+
+    if (newPendingOrders.length > 0) {
+      // New order received in real-time from customer phone!
+      if (soundEnabled) {
+        kitchenAlert.init();
+        kitchenAlert.playKitchenBell();
+        if (navigator.vibrate) {
+          navigator.vibrate([300, 150, 300]);
+        }
+      }
+
+      const latest = newPendingOrders[0];
+      setIncomingAlert({
+        order: latest,
+        timestamp: Date.now(),
+      });
+    }
+  }, [tenantOrders, soundEnabled]);
 
   const displayedOrders = useMemo(() => {
     if (filterStatus === 'all') {
@@ -71,10 +126,28 @@ export const KitchenPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Test Bell button */}
             <button
               type="button"
-              onClick={() => setSoundEnabled(!soundEnabled)}
+              onClick={() => {
+                kitchenAlert.init();
+                kitchenAlert.playKitchenBell();
+              }}
+              className="px-2.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-semibold text-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Test Kitchen Service Bell"
+            >
+              <BellRing className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Test Bell</span>
+            </button>
+
+            {/* Sound toggle button */}
+            <button
+              type="button"
+              onClick={() => {
+                kitchenAlert.init();
+                setSoundEnabled(!soundEnabled);
+              }}
               className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               {soundEnabled ? (
@@ -89,9 +162,57 @@ export const KitchenPage: React.FC = () => {
                 </>
               )}
             </button>
+
             <LogoutButton label="Sign Out" className="py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white border border-neutral-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0" />
           </div>
         </div>
+
+        {/* Incoming Order Flash Alert Banner */}
+        {incomingAlert && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#E3792F]/20 to-amber-500/20 border-2 border-[#E3792F] shadow-lg shadow-[#E3792F]/10 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-[#E3792F] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 animate-bounce">
+                <BellRing className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#E3792F] bg-black/40 px-2 py-0.5 rounded">
+                    New Incoming Ticket
+                  </span>
+                  <span className="text-xs font-mono font-bold text-white">
+                    {incomingAlert.order.orderNumber}
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-200 font-semibold mt-0.5 truncate">
+                  {incomingAlert.order.tableNumber} · {incomingAlert.order.items.length} items (
+                  {incomingAlert.order.items.map((i) => `${i.quantity}x ${i.itemName}`).join(', ')}
+                  )
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  updateOrderStatus(incomingAlert.order.id, 'preparing');
+                  setIncomingAlert(null);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Start Cooking</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIncomingAlert(null)}
+                className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
           {/* Quick Filter Tabs */}
           <div className="flex items-center gap-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
             <button
