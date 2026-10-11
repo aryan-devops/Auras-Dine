@@ -94,6 +94,11 @@ interface RestaurantContextType {
   claimServiceRequest: (requestId: string, staffName: string) => void;
   resolveServiceRequest: (requestId: string) => void;
 
+  // Customer Favorites
+  favorites: string[];
+  toggleFavorite: (itemId: string) => void;
+  isFavorite: (itemId: string) => boolean;
+
   // Admin menu management
   addMenuItem: (item: Omit<MenuItem, 'id' | 'tenantId'>) => void;
   updateMenuItem: (id: string, updates: Partial<MenuItem>) => void;
@@ -200,6 +205,24 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}menuItems`);
     return saved ? JSON.parse(saved) : INITIAL_MENU_ITEMS;
   });
+
+  // Customer Favorites state
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}favorites_${currentTenantId}`);
+    return saved ? JSON.parse(saved) : ['item-honey-glazed-chicken', 'item-paneer-tikka'];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}favorites_${currentTenantId}`, JSON.stringify(favorites));
+  }, [favorites, currentTenantId]);
+
+  const toggleFavorite = (itemId: string) => {
+    setFavorites((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+    );
+  };
+
+  const isFavorite = (itemId: string) => favorites.includes(itemId);
 
   // 5. Dietary filter & Conflict modal state
   const [dietaryFilter, setDietaryFilter] = useState<DietaryFilterValue>('all');
@@ -1018,6 +1041,9 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         createServiceRequest,
         claimServiceRequest,
         resolveServiceRequest,
+        favorites,
+        toggleFavorite,
+        isFavorite,
         addMenuItem,
         updateMenuItem,
         deleteMenuItem,

@@ -4,29 +4,34 @@ import { DietaryFilterValue } from '../../types';
 interface DietaryFilterProps {
   value: DietaryFilterValue;
   onChange: (value: DietaryFilterValue) => void;
+  size?: 'sm' | 'md';
   className?: string;
 }
 
 const options: {
   value: DietaryFilterValue;
   label: string;
+  shortLabel: string;
   icon?: string;
   activeColor: string;
 }[] = [
   {
     value: 'all',
     label: 'All Items',
+    shortLabel: 'All',
     activeColor: 'bg-[#1E231F] text-[#FAF8F2]',
   },
   {
     value: 'veg',
     label: 'Veg Only',
+    shortLabel: 'Veg',
     icon: '●',
     activeColor: 'bg-[#30673A] text-white',
   },
   {
     value: 'non_veg',
     label: 'Non-Veg',
+    shortLabel: 'Non-Veg',
     icon: '▲',
     activeColor: 'bg-[#E3792F] text-white',
   },
@@ -35,15 +40,19 @@ const options: {
 export const DietaryFilter: React.FC<DietaryFilterProps> = ({
   value,
   onChange,
+  size = 'md',
   className = '',
 }) => {
   const groupId = useId();
+  const isSm = size === 'sm';
 
   return (
     <div
       role="group"
       aria-label="Filter dishes by dietary classification"
-      className={`inline-flex items-center p-1 rounded-full bg-[#E9E9C7]/40 border border-[#30673A]/15 backdrop-blur-sm shadow-xs ${className}`}
+      className={`inline-flex items-center ${
+        isSm ? 'p-0.5' : 'p-1'
+      } rounded-full bg-[#E9E9C7]/40 border border-[#30673A]/15 backdrop-blur-sm shadow-xs ${className}`}
     >
       {options.map((option) => {
         const isSelected = value === option.value;
@@ -56,7 +65,11 @@ export const DietaryFilter: React.FC<DietaryFilterProps> = ({
             type="button"
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30673A] focus-visible:ring-offset-1 select-none ${
+            className={`${
+              isSm
+                ? 'min-h-[30px] px-2.5 py-1 text-xs'
+                : 'min-h-[34px] sm:min-h-[38px] px-3 sm:px-3.5 py-1 sm:py-1.5 text-xs sm:text-sm'
+            } rounded-full font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30673A] focus-visible:ring-offset-1 select-none ${
               isSelected
                 ? `${option.activeColor} shadow-sm font-semibold scale-[1.02]`
                 : 'text-[#1E231F]/80 hover:text-[#1E231F] hover:bg-white/50'
@@ -74,7 +87,9 @@ export const DietaryFilter: React.FC<DietaryFilterProps> = ({
                 {option.icon}
               </span>
             )}
-            <span className="whitespace-nowrap">{option.label}</span>
+            <span className="whitespace-nowrap">
+              {isSm ? option.shortLabel : option.label}
+            </span>
           </button>
         );
       })}

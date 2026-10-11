@@ -11,8 +11,6 @@ export function filterMenuItems(
   filter: DietaryFilterValue
 ): MenuItem[] {
   return items.filter((item) => {
-    if (!item.isAvailable) return false;
-
     if (filter === 'all') return true;
 
     if (filter === 'veg') {

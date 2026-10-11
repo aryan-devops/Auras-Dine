@@ -9,6 +9,7 @@ import {
   Maximize2,
   Wifi,
   Battery,
+  Heart,
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { DietaryFilter } from './DietaryFilter';
@@ -34,6 +35,7 @@ export const CustomerMenuView: React.FC = () => {
     orders,
     activeCustomerOrderId,
     isTableAuthorized,
+    favorites,
   } = useRestaurant();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,29 +90,30 @@ export const CustomerMenuView: React.FC = () => {
   const MenuContent = () => (
     <div className="flex flex-col min-h-full">
       {/* 1. Re-aligned Clean Restaurant Header */}
-      <div className="bg-white border-b border-[#30673A]/15 py-3.5 px-4 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+      <div className="bg-white border-b border-[#30673A]/15 py-2.5 sm:py-3.5 px-3 sm:px-4 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2.5 sm:gap-3">
           
           {/* Left: Brand Monogram + Name + Table Context */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 rounded-2xl bg-[#30673A] text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0 glinster-font border border-[#FAF8F2]">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-[#30673A] text-white flex items-center justify-center font-bold text-base sm:text-xl shadow-xs shrink-0 font-heading glinster-font border border-[#FAF8F2]">
               {currentTenant.name.charAt(0)}
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold text-[#1E231F] glinster-font tracking-tight truncate">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className="text-sm sm:text-lg font-bold text-[#1E231F] font-heading glinster-font tracking-tight truncate">
                   {currentTenant.name}
                 </h1>
-                <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-[#30673A] bg-[#30673A]/10 px-2 py-0.5 rounded-full">
+                <span className="shrink-0 inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold text-[#30673A] bg-[#30673A]/10 px-1.5 sm:px-2 py-0.5 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#30673A]" />
-                  {currentTenant.isOpen ? 'Kitchen Open' : 'Closed'}
+                  <span className="hidden xs:inline">{currentTenant.isOpen ? 'Kitchen Open' : 'Closed'}</span>
+                  <span className="xs:hidden">{currentTenant.isOpen ? 'Open' : 'Closed'}</span>
                 </span>
               </div>
               <div className="flex items-center gap-2 text-xs text-neutral-500 mt-0.5">
                 <button
                   type="button"
                   onClick={() => setIsTableAuthModalOpen(true)}
-                  className="font-bold text-[#30673A] bg-[#E9E9C7]/60 hover:bg-[#E9E9C7] px-2.5 py-0.5 rounded-md border border-[#30673A]/25 shrink-0 flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs group"
+                  className="font-bold text-[#30673A] bg-[#E9E9C7]/60 hover:bg-[#E9E9C7] px-2 py-0.5 rounded-md border border-[#30673A]/25 shrink-0 flex items-center gap-1 cursor-pointer transition-colors shadow-2xs group text-[11px] sm:text-xs"
                   title="Click to write or change table number"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#30673A]" />
@@ -119,7 +122,7 @@ export const CustomerMenuView: React.FC = () => {
                     change
                   </span>
                 </button>
-                <span className="truncate text-[11px] text-neutral-400 hidden xs:inline">
+                <span className="truncate text-[11px] text-neutral-400 hidden sm:inline">
                   {currentTenant.cuisine}
                 </span>
               </div>
@@ -127,16 +130,16 @@ export const CustomerMenuView: React.FC = () => {
           </div>
 
           {/* Right: Quick Actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Call Server Bell */}
             <button
               type="button"
               onClick={() => setIsServiceModalOpen(true)}
-              className="min-h-[38px] px-3 rounded-xl bg-[#FAF8F2] hover:bg-[#E9E9C7]/60 text-[#1E231F] border border-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              className="min-h-[34px] sm:min-h-[38px] px-2.5 sm:px-3 rounded-xl bg-[#FAF8F2] hover:bg-[#E9E9C7]/60 text-[#1E231F] border border-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
               title="Call Waiter"
             >
               <Bell className="w-3.5 h-3.5 text-[#E3792F]" />
-              <span className="hidden xs:inline">Call Server</span>
+              <span className="hidden sm:inline">Call Server</span>
             </button>
 
             {/* Live Order Track button */}
@@ -144,10 +147,10 @@ export const CustomerMenuView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsTrackingModalOpen(true)}
-                className="min-h-[38px] px-3 rounded-xl bg-[#30673A] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#204828] transition-colors cursor-pointer animate-pulse"
+                className="min-h-[34px] sm:min-h-[38px] px-2.5 sm:px-3 rounded-xl bg-[#30673A] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#204828] transition-colors cursor-pointer animate-pulse"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Track Order</span>
+                <span className="hidden xs:inline">Track</span>
               </button>
             )}
           </div>
@@ -155,36 +158,37 @@ export const CustomerMenuView: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Re-aligned Sticky Filter & Search Bar */}
-      <div className="sticky top-0 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2.5 px-4 shadow-2xs space-y-2.5">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+      {/* 2. Re-aligned Slim Sticky Filter & Search Bar */}
+      <div className="sticky top-0 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           
-          {/* Centered Segmented Dietary Switch */}
-          <div className="flex justify-center sm:justify-start">
-            <DietaryFilter
-              value={dietaryFilter}
-              onChange={setDietaryFilterWithConflictCheck}
-            />
-          </div>
-
           {/* Clean Search Input */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search dishes, ingredients, or drinks..."
-              className="w-full pl-8.5 pr-4 py-1.5 text-xs rounded-full bg-white border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#30673A] shadow-2xs"
+              placeholder="Search dishes or drinks..."
+              className="w-full pl-8.5 pr-7 py-1.5 text-xs rounded-full bg-white border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#30673A] shadow-2xs"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 hover:text-neutral-700"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] text-neutral-400 hover:text-neutral-700"
               >
-                Clear
+                ✕
               </button>
             )}
+          </div>
+
+          {/* Segmented Dietary Switch (compact on mobile) */}
+          <div className="shrink-0">
+            <DietaryFilter
+              value={dietaryFilter}
+              onChange={setDietaryFilterWithConflictCheck}
+              size="sm"
+            />
           </div>
 
         </div>
@@ -194,14 +198,35 @@ export const CustomerMenuView: React.FC = () => {
           <button
             type="button"
             onClick={() => setSelectedCategoryId('all')}
-            className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+            className={`min-h-[28px] sm:min-h-[32px] px-3 sm:px-3.5 py-0.5 sm:py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               selectedCategoryId === 'all'
-                ? 'bg-[#1E231F] text-white font-semibold'
+                ? 'bg-[#1E231F] text-white font-semibold shadow-2xs'
                 : 'bg-white hover:bg-neutral-100 text-neutral-600 border border-neutral-200'
             }`}
           >
             All Items
           </button>
+
+          {favorites.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedCategoryId('favorites')}
+              className={`min-h-[28px] sm:min-h-[32px] px-3 sm:px-3.5 py-0.5 sm:py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer ${
+                selectedCategoryId === 'favorites'
+                  ? 'bg-[#E3792F] text-white font-semibold shadow-xs'
+                  : 'bg-white hover:bg-neutral-100 text-neutral-600 border border-neutral-200'
+              }`}
+            >
+              <Heart
+                className={`w-3 h-3 ${
+                  selectedCategoryId === 'favorites' ? 'fill-white text-white' : 'text-[#E3792F]'
+                }`}
+              />
+              <span>Favorites</span>
+              <span className="text-[10px] opacity-80 tabular-nums">({favorites.length})</span>
+            </button>
+          )}
+
           {categories.map((cat) => {
             const isSelected = selectedCategoryId === cat.id;
             const count = dietaryFilteredItems.filter((i) => i.categoryId === cat.id).length;
@@ -212,7 +237,7 @@ export const CustomerMenuView: React.FC = () => {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategoryId(cat.id)}
-                className={`min-h-[32px] px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`min-h-[28px] sm:min-h-[32px] px-3 sm:px-3.5 py-0.5 sm:py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer ${
                   isSelected
                     ? 'bg-[#30673A] text-white font-semibold shadow-xs'
                     : 'bg-white hover:bg-neutral-100 text-neutral-600 border border-neutral-200'
@@ -227,17 +252,17 @@ export const CustomerMenuView: React.FC = () => {
       </div>
 
       {/* 4. Menu Dishes Section */}
-      <main className="max-w-6xl mx-auto px-4 pt-5 pb-24 space-y-8 flex-1">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-24 space-y-6 sm:space-y-8 flex-1">
         
         {/* Signatures & Recommendations (when browsing all) */}
         {!searchQuery && selectedCategoryId === 'all' && (
           <>
             {mustTryItems.length > 0 && (
-              <section className="space-y-3">
+              <section className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#E3792F]" />
-                    <h2 className="text-lg sm:text-xl font-bold text-[#1E231F] glinster-font tracking-tight">
+                    <h2 className="text-base sm:text-xl font-bold text-[#1E231F] font-heading glinster-font tracking-tight">
                       Must-Try Signatures
                     </h2>
                   </div>
@@ -246,8 +271,16 @@ export const CustomerMenuView: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {mustTryItems.slice(0, 3).map((item) => (
+                {/* Mobile: Horizontal Carousel (No vertical congestion) */}
+                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar -mx-3 px-3 pb-2 pt-0.5 snap-x">
+                  {mustTryItems.map((item) => (
+                    <MenuItemCard key={item.id} item={item} variant="highlight" />
+                  ))}
+                </div>
+
+                {/* Desktop/Tablet: Multi-column Grid */}
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+                  {mustTryItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} />
                   ))}
                 </div>
@@ -255,15 +288,28 @@ export const CustomerMenuView: React.FC = () => {
             )}
 
             {recommendedItems.length > 0 && (
-              <section className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#30673A]" />
-                  <h2 className="text-lg sm:text-xl font-bold text-[#1E231F] glinster-font tracking-tight">
-                    Chef&apos;s Recommendations
-                  </h2>
+              <section className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#30673A]" />
+                    <h2 className="text-base sm:text-xl font-bold text-[#1E231F] font-heading glinster-font tracking-tight">
+                      Chef&apos;s Recommendations
+                    </h2>
+                  </div>
+                  <span className="text-[11px] text-[#30673A] font-bold">
+                    Curated
+                  </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {/* Mobile: Horizontal Carousel */}
+                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar -mx-3 px-3 pb-2 pt-0.5 snap-x">
+                  {recommendedItems.map((item) => (
+                    <MenuItemCard key={item.id} item={item} variant="highlight" />
+                  ))}
+                </div>
+
+                {/* Desktop/Tablet: Multi-column Grid */}
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
                   {recommendedItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} />
                   ))}
@@ -276,13 +322,13 @@ export const CustomerMenuView: React.FC = () => {
         {/* Categorized Dishes */}
         {searchQuery ? (
           <section className="space-y-3">
-            <h2 className="text-base font-bold text-[#1E231F] glinster-font">
+            <h2 className="text-base font-bold text-[#1E231F] font-heading glinster-font">
               Search Results ({searchedItems.length} dishes found)
             </h2>
 
             {searchedItems.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-2xl border border-neutral-200/80 p-8">
-                <p className="text-base font-bold text-[#1E231F] glinster-font mb-1">
+                <p className="text-base font-bold text-[#1E231F] font-heading glinster-font mb-1">
                   No dishes matched &quot;{searchQuery}&quot;
                 </p>
                 <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-4">
@@ -296,10 +342,50 @@ export const CustomerMenuView: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                 {searchedItems.map((item) => (
                   <MenuItemCard key={item.id} item={item} />
                 ))}
+              </div>
+            )}
+          </section>
+        ) : selectedCategoryId === 'favorites' ? (
+          <section className="space-y-3">
+            <div className="border-b border-[#30673A]/15 pb-1.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 fill-[#E3792F] text-[#E3792F]" />
+                <h2 className="text-lg font-bold text-[#1E231F] font-heading glinster-font">
+                  Your Favorite Dishes
+                </h2>
+              </div>
+              <span className="text-xs text-neutral-500">
+                {dietaryFilteredItems.filter((i) => favorites.includes(i.id)).length} saved
+              </span>
+            </div>
+
+            {dietaryFilteredItems.filter((i) => favorites.includes(i.id)).length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-2xl border border-neutral-200/80 p-8">
+                <Heart className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
+                <p className="text-base font-bold text-[#1E231F] font-heading glinster-font mb-1">
+                  No favorites in this dietary view
+                </p>
+                <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-4">
+                  Tap the heart icon on any card to save your favorite dishes here for quick reordering.
+                </p>
+                <button
+                  onClick={() => setSelectedCategoryId('all')}
+                  className="py-2 px-4 rounded-full bg-[#30673A] text-white text-xs font-semibold cursor-pointer"
+                >
+                  Browse All Dishes
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+                {dietaryFilteredItems
+                  .filter((i) => favorites.includes(i.id))
+                  .map((item) => (
+                    <MenuItemCard key={item.id} item={item} />
+                  ))}
               </div>
             )}
           </section>
@@ -311,19 +397,24 @@ export const CustomerMenuView: React.FC = () => {
               if (items.length === 0) return null;
 
               return (
-                <section key={cat.id} id={`category-${cat.slug}`} className="space-y-3">
-                  <div className="border-b border-[#30673A]/15 pb-1.5">
-                    <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
-                      {cat.name}
-                    </h2>
-                    {cat.description && (
-                      <p className="text-[11px] text-neutral-500 mt-0.5">
-                        {cat.description}
-                      </p>
-                    )}
+                <section key={cat.id} id={`category-${cat.slug}`} className="space-y-2.5 sm:space-y-3">
+                  <div className="border-b border-[#30673A]/15 pb-1.5 flex items-center justify-between">
+                    <div className="min-w-0 pr-2">
+                      <h2 className="text-base sm:text-lg font-bold text-[#1E231F] font-heading glinster-font truncate">
+                        {cat.name}
+                      </h2>
+                      {cat.description && (
+                        <p className="text-[11px] text-neutral-500 mt-0.5 line-clamp-1">
+                          {cat.description}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-neutral-400 font-semibold shrink-0">
+                      {items.length} {items.length === 1 ? 'dish' : 'dishes'}
+                    </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                     {items.map((item) => (
                       <MenuItemCard key={item.id} item={item} />
                     ))}
@@ -336,11 +427,11 @@ export const CustomerMenuView: React.FC = () => {
 
       {/* 5. Sticky Floating Bottom Cart Bar */}
       {cartCount > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 max-w-md mx-auto">
+        <div className="fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-40 max-w-md mx-auto">
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="w-full py-3.5 px-5 rounded-2xl bg-[#30673A] hover:bg-[#204828] text-white shadow-xl flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full py-3 px-4 sm:py-3.5 sm:px-5 rounded-2xl bg-[#30673A] hover:bg-[#204828] text-white shadow-xl flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">
