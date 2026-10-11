@@ -42,27 +42,6 @@ export const FoodIllustration: React.FC<FoodIllustrationProps> = ({
 
         {/* Subtle vignette gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
-
-        {/* Iconic Veg / Non-Veg badge on top right */}
-        <div className="absolute top-2.5 right-2.5 flex items-center bg-white/95 backdrop-blur-xs p-1 rounded-md shadow-xs border border-neutral-200">
-          {foodType === 'veg' ? (
-            <span className="w-3.5 h-3.5 border-1.5 border-[#30673A] flex items-center justify-center rounded-xs" title="Vegetarian">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#30673A]" />
-            </span>
-          ) : foodType === 'vegan' ? (
-            <span className="w-3.5 h-3.5 border-1.5 border-[#30673A] flex items-center justify-center rounded-xs text-[10px] text-[#30673A] font-bold" title="100% Plant-Based Vegan">
-              🌱
-            </span>
-          ) : foodType === 'egg' ? (
-            <span className="w-3.5 h-3.5 border-1.5 border-amber-600 flex items-center justify-center rounded-xs text-[10px] text-amber-600 font-bold" title="Egg Dish">
-              🥚
-            </span>
-          ) : (
-            <span className="w-3.5 h-3.5 border-1.5 border-[#852E20] flex items-center justify-center rounded-xs" title="Non-Vegetarian">
-              <span className="w-0 h-0 border-l-[3.5px] border-l-transparent border-r-[3.5px] border-r-transparent border-b-[6px] border-b-[#852E20]" />
-            </span>
-          )}
-        </div>
       </div>
     );
   }

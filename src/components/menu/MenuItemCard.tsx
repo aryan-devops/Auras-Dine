@@ -11,6 +11,36 @@ interface MenuItemCardProps {
   variant?: 'standard' | 'highlight';
 }
 
+const getItemSpecialtyBadge = (item: MenuItem): { label: string; bg: string } => {
+  if (item.isMustTry) {
+    return { label: 'Must Try', bg: 'bg-[#E3792F] text-white shadow-sm' };
+  }
+  if (item.isRecommended) {
+    return { label: "Chef's Pick", bg: 'bg-[#30673A] text-white shadow-sm' };
+  }
+  const name = item.name.toLowerCase();
+  const cat = (item.categoryId || '').toLowerCase();
+  if (cat.includes('pizza') || name.includes('pizza')) {
+    return { label: 'Wood-Fired', bg: 'bg-[#30673A] text-white shadow-xs' };
+  }
+  if (cat.includes('dessert') || name.includes('chocolate') || name.includes('kulfi') || name.includes('skillet')) {
+    return { label: 'House Sweet', bg: 'bg-[#E3792F] text-white shadow-xs' };
+  }
+  if (cat.includes('drink') || name.includes('tonic') || name.includes('soda')) {
+    return { label: 'Craft Pour', bg: 'bg-[#30673A] text-white shadow-xs' };
+  }
+  if (cat.includes('burger') || name.includes('burger') || name.includes('smash')) {
+    return { label: 'Smash Grilled', bg: 'bg-[#E3792F] text-white shadow-xs' };
+  }
+  if (cat.includes('grill') || name.includes('ribs') || name.includes('charcoal')) {
+    return { label: 'Charcoal Pit', bg: 'bg-[#30673A] text-white shadow-xs' };
+  }
+  if (item.foodType === 'vegan') {
+    return { label: '100% Plant', bg: 'bg-[#30673A] text-white shadow-xs' };
+  }
+  return { label: 'Signature', bg: 'bg-[#1E231F] text-white shadow-xs' };
+};
+
 export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'standard' }) => {
   const {
     currentTenant,
@@ -83,11 +113,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               />
               <div className="absolute top-2 left-2 flex items-center gap-1">
                 <DietaryBadge foodType={item.foodType} size="sm" />
-                {item.isMustTry && (
-                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#E3792F] text-white">
-                    Must Try
-                  </span>
-                )}
+                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${getItemSpecialtyBadge(item).bg}`}>
+                  {getItemSpecialtyBadge(item).label}
+                </span>
               </div>
               <button
                 type="button"
@@ -187,19 +215,12 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               </div>
             )}
 
-            {/* Top-left Badges: Must Try / Chef Pick */}
+            {/* Top-left Badges: Must Try / Chef Pick / Signature */}
             <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
-              {item.isMustTry && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight bg-[#E3792F] text-white shadow-sm">
-                  <Sparkles className="w-3 h-3 text-white" />
-                  Must Try
-                </span>
-              )}
-              {item.isRecommended && !item.isMustTry && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight bg-[#30673A] text-white shadow-sm">
-                  Chef&apos;s Pick
-                </span>
-              )}
+              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight ${getItemSpecialtyBadge(item).bg}`}>
+                {item.isMustTry && <Sparkles className="w-3 h-3 text-white" />}
+                {getItemSpecialtyBadge(item).label}
+              </span>
             </div>
 
             {/* Top-right Controls: Dietary Badge & Favorite Heart */}
@@ -334,18 +355,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
             <div className="flex items-center gap-1.5 flex-wrap">
               <DietaryBadge foodType={item.foodType} size="sm" />
 
-              {item.isMustTry && (
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E3792F] text-white">
-                  <Sparkles className="w-2.5 h-2.5" />
-                  Must Try
-                </span>
-              )}
-
-              {item.isRecommended && !item.isMustTry && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#30673A] text-white">
-                  Chef Pick
-                </span>
-              )}
+              <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${getItemSpecialtyBadge(item).bg}`}>
+                {item.isMustTry && <Sparkles className="w-2.5 h-2.5" />}
+                {getItemSpecialtyBadge(item).label}
+              </span>
             </div>
 
             {/* Dish Name: Full readability, line-clamp-2 */}

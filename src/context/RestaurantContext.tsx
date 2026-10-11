@@ -203,7 +203,19 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}menuItems`);
-    return saved ? JSON.parse(saved) : INITIAL_MENU_ITEMS;
+    if (!saved) return INITIAL_MENU_ITEMS;
+    try {
+      const parsed: MenuItem[] = JSON.parse(saved);
+      return parsed.map((item) => {
+        const initial = INITIAL_MENU_ITEMS.find((i) => i.id === item.id);
+        if (initial && (!item.imagePath || initial.imagePath !== item.imagePath)) {
+          return { ...item, imagePath: initial.imagePath };
+        }
+        return item;
+      });
+    } catch {
+      return INITIAL_MENU_ITEMS;
+    }
   });
 
   // Customer Favorites state
