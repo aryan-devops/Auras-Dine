@@ -11,12 +11,29 @@
         "tenantId": { "type": "string" }
       },
       "required": ["uid", "role"]
+    },
+    "StaffCredential": {
+      "title": "StaffCredential",
+      "description": "Staff login credentials",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "password": { "type": "string" },
+        "role": { "type": "string", "enum": ["waiter", "kitchen"] },
+        "tenantId": { "type": "string" },
+        "restaurantName": { "type": "string" }
+      },
+      "required": ["username", "password", "role", "tenantId", "restaurantName"]
     }
   },
   "firestore": {
     "/users/{uid}": {
       "schema": "User",
       "description": "Stores user roles"
+    },
+    "/staffCredentials/{credentialId}": {
+      "schema": "StaffCredential",
+      "description": "Stores staff login credentials"
     }
   }
 }

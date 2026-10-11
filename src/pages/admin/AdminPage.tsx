@@ -27,6 +27,7 @@ import {
   FolderPlus,
   Tag,
   AlertCircle,
+  Users,
 } from 'lucide-react';
 import { FoodType, MenuItem } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
@@ -57,7 +58,7 @@ export const AdminPage: React.FC = () => {
     setCurrentRole,
   } = useRestaurant();
 
-  const [activeTab, setActiveTab] = useState<'menu' | 'categories' | 'tables' | 'analytics' | 'settings'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'categories' | 'tables' | 'analytics' | 'settings' | 'staff'>('menu');
 
   // Filter & Search in menu
   const [menuFilter, setMenuFilter] = useState<'all' | 'available' | 'sold_out' | 'specials' | 'must_try' | 'recommended'>('all');
@@ -352,6 +353,17 @@ export const AdminPage: React.FC = () => {
           >
             <Settings className="w-3.5 h-3.5" />
             <span>Settings</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('staff')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              activeTab === 'staff'
+                ? 'bg-[#30673A] text-white'
+                : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Staff Management</span>
           </button>
           </div>
           <LogoutButton />
@@ -1054,7 +1066,18 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* Food Image Studio Modal */}
+        {/* TAB STAFF MANAGEMENT */}
+        {activeTab === 'staff' && (
+          <div className="space-y-6">
+            <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
+              Staff Access Credentials
+            </h2>
+            <div className="p-4 bg-white rounded-xl border border-neutral-200">
+               <p className="text-sm text-neutral-500 mb-4">Create access for Kitchen and Waiter staff.</p>
+               {/* Staff creation form would go here */}
+            </div>
+          </div>
+        )}
         <FoodImageStudioModal
           isOpen={isImageStudioOpen}
           onClose={() => {

@@ -1048,7 +1048,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     if (table) {
       setCurrentTenantId(table.tenantId);
       setCurrentTableId(table.id);
-      setCurrentRole('onboarding');
+      setCurrentRole('customer');
       return true;
     }
     return false;
