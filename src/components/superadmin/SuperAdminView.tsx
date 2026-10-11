@@ -79,6 +79,15 @@ export const SuperAdminView: React.FC = () => {
   const [newTenantPlan, setNewTenantPlan] = useState<'3_months' | '6_months' | '12_months'>('6_months');
   const [newTenantTax, setNewTenantTax] = useState('6');
   const [newTenantService, setNewTenantService] = useState('5');
+  const [newPrimaryColor, setNewPrimaryColor] = useState('#30673A');
+  const [newAccentColor, setNewAccentColor] = useState('#E3792F');
+  const [newSecondaryColor, setNewSecondaryColor] = useState('#E9E9C7');
+
+  // Password Management State
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordTenantId, setPasswordTenantId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [roleToReset, setRoleToReset] = useState<'admin' | 'waiter' | 'kitchen'>('admin');
 
   // Health check simulation
   const [healthStatus, setHealthStatus] = useState<{
@@ -157,6 +166,9 @@ export const SuperAdminView: React.FC = () => {
       planId: newTenantPlan,
       taxRatePercent: parseFloat(newTenantTax) || 6,
       serviceChargePercent: parseFloat(newTenantService) || 5,
+      primaryColor: newPrimaryColor,
+      accentColor: newAccentColor,
+      secondaryColor: newSecondaryColor,
     });
 
     setIsOnboardModalOpen(false);
@@ -173,6 +185,15 @@ export const SuperAdminView: React.FC = () => {
     updateTenantSubscription(selectedTenantForRenew, selectedPlanForRenew, 'active');
     setIsRenewModalOpen(false);
     setSelectedTenantForRenew(null);
+  };
+
+  const handlePasswordReset = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwordTenantId || !newPassword) return;
+    // In a real app, this would call a backend function to update Firebase Auth
+    alert(`Password reset for ${roleToReset} in tenant ${passwordTenantId} to: ${newPassword}`);
+    setIsPasswordModalOpen(false);
+    setNewPassword('');
   };
 
   const handlePlanEditSave = (e: React.FormEvent) => {
@@ -662,6 +683,17 @@ export const SuperAdminView: React.FC = () => {
                               </button>
 
                               <button
+                                onClick={() => {
+                                  setPasswordTenantId(t.id);
+                                  setIsPasswordModalOpen(true);
+                                }}
+                                className="px-2 py-1 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-[11px] font-semibold"
+                                title="Reset Staff Password"
+                              >
+                                Password
+                              </button>
+
+                              <button
                                 onClick={() => toggleTenantSuspension(t.id)}
                                 className={`p-1.5 rounded-lg text-xs ${
                                   isSuspended
@@ -1119,6 +1151,36 @@ export const SuperAdminView: React.FC = () => {
                 </select>
               </div>
 
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <div>
+                  <label className="block font-bold text-neutral-300 mb-1">Primary Color</label>
+                  <input
+                    type="color"
+                    value={newPrimaryColor}
+                    onChange={(e) => setNewPrimaryColor(e.target.value)}
+                    className="w-full h-10 rounded-xl bg-neutral-800 border border-neutral-700"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-neutral-300 mb-1">Accent Color</label>
+                  <input
+                    type="color"
+                    value={newAccentColor}
+                    onChange={(e) => setNewAccentColor(e.target.value)}
+                    className="w-full h-10 rounded-xl bg-neutral-800 border border-neutral-700"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-neutral-300 mb-1">Secondary Color</label>
+                  <input
+                    type="color"
+                    value={newSecondaryColor}
+                    onChange={(e) => setNewSecondaryColor(e.target.value)}
+                    className="w-full h-10 rounded-xl bg-neutral-800 border border-neutral-700"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-300 mb-1">
@@ -1301,6 +1363,66 @@ export const SuperAdminView: React.FC = () => {
                   className="py-2 px-4 rounded-xl bg-[#30673A] text-white font-bold"
                 >
                   Save Tier
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: PASSWORD RESET */}
+      {isPasswordModalOpen && passwordTenantId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="relative w-full max-w-sm bg-neutral-900 rounded-2xl p-6 border border-neutral-700 text-white space-y-4">
+            <h3 className="text-base font-bold glinster-font text-white">
+              Reset Staff Password
+            </h3>
+            <p className="text-xs text-neutral-400">
+              Reset for{' '}
+              <strong className="text-white">
+                {tenants.find((t) => t.id === passwordTenantId)?.name}
+              </strong>
+            </p>
+
+            <form onSubmit={handlePasswordReset} className="space-y-4">
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Target Role</label>
+                <select
+                  value={roleToReset}
+                  onChange={(e) => setRoleToReset(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-xs"
+                >
+                  <option value="admin">Restaurant Admin</option>
+                  <option value="waiter">Waiter</option>
+                  <option value="kitchen">Kitchen/KDS</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">New Password</label>
+                <input
+                  type="text"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-xs"
+                  placeholder="Enter new password"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordModalOpen(false)}
+                  className="py-2 px-4 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="py-2 px-5 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold"
+                >
+                  Reset Password
                 </button>
               </div>
             </form>

@@ -380,7 +380,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
       <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between w-full max-w-full min-w-0 overflow-hidden">
         <div>
           {/* Top Big Food Image (Same signature design as Chef's Recommendations) */}
-          <div className="relative w-full aspect-[16/9] max-h-56 rounded-xl overflow-hidden bg-[#FAF8F2] mb-3">
+          <div className="relative w-full aspect-[16/10] max-h-56 rounded-xl overflow-hidden bg-[#FAF8F2] mb-3">
             <FoodIllustration
               itemId={item.id}
               name={item.name}
@@ -423,12 +423,12 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
           </div>
 
           {/* Dish Details */}
-          <div className="space-y-1.5">
-            <h3 className="text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug break-words">
+          <div className="space-y-1.5 min-w-0">
+            <h3 className="text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug truncate">
               {item.name}
             </h3>
 
-            <p className="text-xs text-[#1E231F]/70 line-clamp-2 leading-relaxed break-words">
+            <p className="text-xs text-[#1E231F]/70 line-clamp-2 leading-relaxed">
               {item.description}
             </p>
 
@@ -450,7 +450,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               {item.allergenInformation && (
                 <>
                   <span aria-hidden="true" className="text-neutral-300">·</span>
-                  <span className="text-[#30673A] bg-[#30673A]/8 px-1.5 py-0.5 rounded font-semibold text-[10.5px] break-words">
+                  <span className="text-[#30673A] bg-[#30673A]/8 px-1.5 py-0.5 rounded font-semibold text-[10.5px] truncate max-w-[150px]">
                     {item.allergenInformation}
                   </span>
                 </>

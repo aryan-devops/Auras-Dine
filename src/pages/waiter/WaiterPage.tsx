@@ -1,8 +1,9 @@
 import React from 'react';
 import { Bell, CheckCircle2, Droplets, Receipt, Sparkles, AlertCircle, ChefHat } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
+import { LogoutButton } from '../../components/auth/LogoutButton';
 
-export const WaiterFloorView: React.FC = () => {
+export const WaiterPage: React.FC = () => {
   const {
     currentTenant,
     tables,
@@ -25,27 +26,9 @@ export const WaiterFloorView: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAF8F2] p-4 sm:p-6 pb-20">
       <div className="max-w-7xl mx-auto space-y-6">
-        
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#30673A]/15">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-[#E3792F] text-white flex items-center justify-center shadow-md">
-              <Bell className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-[#1E231F] glinster-font">
-                  Floor Service & Calling Bell System
-                </h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#30673A]/10 text-[#30673A] font-semibold">
-                  {currentTenant.name}
-                </span>
-              </div>
-              <p className="text-xs text-neutral-500">
-                Live customer assistance requests, bill dispatches & table delivery
-              </p>
-            </div>
-          </div>
+        <div className="flex justify-between items-center">
+            <h1 className="text-xl font-bold text-neutral-900">Waiter Portal</h1>
+            <LogoutButton />
         </div>
 
         {/* 1. Urgent Pass: Ready Orders Waiting for Server Delivery */}

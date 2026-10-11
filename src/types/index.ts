@@ -173,7 +173,7 @@ export interface RestaurantTenant {
   subscription: TenantSubscription;
 }
 
-export type UserRole = 'customer' | 'waiter' | 'kitchen' | 'restaurant_admin' | 'super_admin' | 'qr_stand';
+export type UserRole = 'customer' | 'waiter' | 'kitchen' | 'restaurant_admin' | 'super_admin' | 'qr_stand' | 'onboarding';
 
 export interface BillingInvoice {
   id: string;

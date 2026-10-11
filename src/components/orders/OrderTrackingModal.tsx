@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, Clock, UtensilsCrossed, BellRing } from 'lucide-react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import { Order, OrderStatus } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
 
@@ -19,11 +21,32 @@ const STEPS: { status: OrderStatus; label: string; description: string }[] = [
 
 export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
   isOpen,
-  order,
+  order: initialOrder,
   onClose,
   onRequestAssistance,
 }) => {
   const { currentTenant } = useRestaurant();
+  const [order, setOrder] = useState<Order | null>(initialOrder);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    if (!isOpen || !initialOrder) return;
+
+    const orderRef = doc(db, 'restaurants', currentTenant.id, 'orders', initialOrder.id);
+    
+    const unsubscribe = onSnapshot(orderRef, 
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          setOrder(docSnapshot.data() as Order);
+        }
+      },
+      (error) => {
+        console.error('Firestore order tracking error:', error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [isOpen, initialOrder, currentTenant.id]);
 
   // Listen for Escape key
   React.useEffect(() => {

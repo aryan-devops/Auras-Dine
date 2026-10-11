@@ -10,6 +10,9 @@
   }
 
   :root {
+    --primary-color: #30673A;
+    --accent-color: #E3792F;
+    --secondary-color: #E9E9C7;
     --brand-tangerine: #E3792F;
     --brand-pistachio: #E9E9C7;
     --brand-retro-green: #30673A;
@@ -18,6 +21,13 @@
     --brand-cream: #FAF8F2;
     --brand-cream-card: #FFFFFF;
   }
+
+  .bg-theme-primary { background-color: var(--primary-color); }
+  .text-theme-primary { color: var(--primary-color); }
+  .border-theme-primary { border-color: var(--primary-color); }
+  .bg-theme-accent { background-color: var(--accent-color); }
+  .text-theme-accent { color: var(--accent-color); }
+  .border-theme-accent { border-color: var(--accent-color); }
 
   html {
     -webkit-text-size-adjust: 100%;
@@ -81,5 +91,13 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes sub-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+.sub-pulse {
+  animation: sub-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 

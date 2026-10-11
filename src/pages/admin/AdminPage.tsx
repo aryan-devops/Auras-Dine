@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LogoutButton } from '../../components/auth/LogoutButton';
 import {
   UtensilsCrossed,
   QrCode,
@@ -29,10 +30,10 @@ import {
 } from 'lucide-react';
 import { FoodType, MenuItem } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
-import { TableQrCard } from '../qr/TableQrCard';
-import { FoodImageStudioModal } from './FoodImageStudioModal';
+import { TableQrCard } from '../../components/qr/TableQrCard';
+import { FoodImageStudioModal } from '../../components/admin/FoodImageStudioModal';
 
-export const RestaurantAdminView: React.FC = () => {
+export const AdminPage: React.FC = () => {
   const {
     currentTenant,
     updateTenantSettings,
@@ -305,74 +306,55 @@ export const RestaurantAdminView: React.FC = () => {
     <div className="min-h-screen bg-[#FAF8F2] p-4 sm:p-6 pb-24">
       <div className="max-w-7xl mx-auto space-y-6">
         
-        {/* Admin Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#30673A]/15">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#30673A] text-white flex items-center justify-center font-bold text-xl shadow-md glinster-font">
-              {currentTenant.name.charAt(0)}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-[#1E231F] glinster-font">
-                  {currentTenant.name} · Portal
-                </h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#E9E9C7] text-[#30673A] font-semibold border border-[#30673A]/20">
-                  {currentTenant.subscription.planName}
-                </span>
-              </div>
-              <p className="text-xs text-neutral-500">
-                Menu Engineering, Table QR Codes & Operations Hub
-              </p>
-            </div>
+        {/* Navigation Tabs */}
+        <div className="flex items-center justify-between bg-white p-1 rounded-2xl border border-neutral-200/80 shadow-2xs">
+          <div className="flex items-center gap-1">
+          <button
+            onClick={() => setActiveTab('menu')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              activeTab === 'menu'
+                ? 'bg-[#30673A] text-white'
+                : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            <UtensilsCrossed className="w-3.5 h-3.5" />
+            <span>Menu Management</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('tables')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              activeTab === 'tables'
+                ? 'bg-[#30673A] text-white'
+                : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            <span>Tables & QR Codes</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              activeTab === 'analytics'
+                ? 'bg-[#30673A] text-white'
+                : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>Sales & Analytics</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              activeTab === 'settings'
+                ? 'bg-[#30673A] text-white'
+                : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Settings</span>
+          </button>
           </div>
-
-          {/* Navigation Tabs */}
-          <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-neutral-200/80 shadow-2xs">
-            <button
-              onClick={() => setActiveTab('menu')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                activeTab === 'menu'
-                  ? 'bg-[#30673A] text-white'
-                  : 'text-neutral-600 hover:text-neutral-900'
-              }`}
-            >
-              <UtensilsCrossed className="w-3.5 h-3.5" />
-              <span>Menu Management</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('tables')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                activeTab === 'tables'
-                  ? 'bg-[#30673A] text-white'
-                  : 'text-neutral-600 hover:text-neutral-900'
-              }`}
-            >
-              <QrCode className="w-3.5 h-3.5" />
-              <span>Tables & QR Codes</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                activeTab === 'analytics'
-                  ? 'bg-[#30673A] text-white'
-                  : 'text-neutral-600 hover:text-neutral-900'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Sales & Analytics</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                activeTab === 'settings'
-                  ? 'bg-[#30673A] text-white'
-                  : 'text-neutral-600 hover:text-neutral-900'
-              }`}
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span>Settings</span>
-            </button>
-          </div>
+          <LogoutButton />
         </div>
 
         {/* TAB 1: MENU MANAGEMENT */}

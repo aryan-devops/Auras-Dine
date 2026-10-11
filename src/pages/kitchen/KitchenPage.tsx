@@ -2,8 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { ChefHat, Clock, CheckCircle2, Play, AlertTriangle, Volume2, VolumeX, Eye } from 'lucide-react';
 import { OrderStatus } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
+import { LogoutButton } from '../../components/auth/LogoutButton';
 
-export const KitchenKdsView: React.FC = () => {
+export const KitchenPage: React.FC = () => {
   const { orders, updateOrderStatus, currentTenant } = useRestaurant();
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all');
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -28,47 +29,29 @@ export const KitchenKdsView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#1E231F] text-[#FAF8F2] p-4 sm:p-6">
-      {/* KDS Header Bar */}
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-neutral-800">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-[#30673A] text-white flex items-center justify-center shadow-md">
-            <ChefHat className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold glinster-font text-white">
-                Live Kitchen Display System (KDS)
-              </h1>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#30673A]/20 text-[#E9E9C7] border border-[#30673A]/40 font-mono">
-                {currentTenant.name}
-              </span>
-            </div>
-            <p className="text-xs text-neutral-400">
-              Station Pass & Ticket Pipeline · Real-Time Kitchen Dispatch
-            </p>
-          </div>
-        </div>
-
         {/* Audio notification toggle & metric pills */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <button
-            type="button"
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            {soundEnabled ? (
-              <>
-                <Volume2 className="w-3.5 h-3.5 text-[#30673A]" />
-                <span>Ticket Bell: ON</span>
-              </>
-            ) : (
-              <>
-                <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Ticket Bell: OFF</span>
-              </>
-            )}
-          </button>
-
+        <div className="flex items-center justify-between gap-3 flex-wrap pb-6">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              {soundEnabled ? (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-[#30673A]" />
+                  <span>Ticket Bell: ON</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
+                  <span>Ticket Bell: OFF</span>
+                </>
+              )}
+            </button>
+          </div>
+          <LogoutButton />
+        </div>
           {/* Quick Filter Tabs */}
           <div className="flex items-center gap-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
             <button
@@ -121,8 +104,6 @@ export const KitchenKdsView: React.FC = () => {
               </span>
             </button>
           </div>
-        </div>
-      </div>
 
       {/* Main Ticket Grid */}
       <div className="max-w-7xl mx-auto pt-6">

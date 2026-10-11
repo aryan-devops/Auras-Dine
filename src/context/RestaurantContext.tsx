@@ -212,7 +212,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [tables, currentTableId, currentTenantId]);
 
   // 4. Categories & Menu Items
-  const [categories] = useState<MenuCategory[]>(() => {
+  const [categories, setCategories] = useState<MenuCategory[]>(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}categories`);
     return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
   });
@@ -887,6 +887,9 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     planId: '3_months' | '6_months' | '12_months';
     taxRatePercent?: number;
     serviceChargePercent?: number;
+    primaryColor?: string;
+    accentColor?: string;
+    secondaryColor?: string;
   }): RestaurantTenant => {
     const newId = `tenant-${tenantData.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now().toString().slice(-4)}`;
     const plan = plans.find((p) => p.id === tenantData.planId) || plans[0];
@@ -901,9 +904,9 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       tagline: tenantData.tagline || 'Artisanal dining & authentic hospitality',
       cuisine: tenantData.cuisine || 'Modern Contemporary',
       description: `${tenantData.name} offers handcrafted specialties and seasonal dining.`,
-      primaryColor: '#30673A',
-      accentColor: '#E3792F',
-      secondaryColor: '#E9E9C7',
+      primaryColor: tenantData.primaryColor || '#30673A',
+      accentColor: tenantData.accentColor || '#E3792F',
+      secondaryColor: tenantData.secondaryColor || '#E9E9C7',
       currency: 'INR',
       currencySymbol: '₹',
       taxRatePercent: tenantData.taxRatePercent ?? 6,
@@ -931,7 +934,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       tenantId: newId,
       tableNumber: 'Table 1',
       capacity: 2,
-      qrToken: `qr-${Math.random().toString(36).slice(2, 9)}`,
+      qrToken: `qr-${newId.slice(-6)}-${Math.random().toString(36).slice(2, 6)}`,
       isActive: true,
     };
     const table2: RestaurantTable = {
@@ -939,7 +942,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       tenantId: newId,
       tableNumber: 'Table 2',
       capacity: 4,
-      qrToken: `qr-${Math.random().toString(36).slice(2, 9)}`,
+      qrToken: `qr-${newId.slice(-6)}-${Math.random().toString(36).slice(2, 6)}`,
       isActive: true,
     };
     const table3: RestaurantTable = {
@@ -947,7 +950,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       tenantId: newId,
       tableNumber: 'Patio VIP',
       capacity: 6,
-      qrToken: `qr-${Math.random().toString(36).slice(2, 9)}`,
+      qrToken: `qr-${newId.slice(-6)}-${Math.random().toString(36).slice(2, 6)}`,
       isActive: true,
     };
     setTables((prev) => [...prev, table1, table2, table3]);
@@ -1045,7 +1048,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     if (table) {
       setCurrentTenantId(table.tenantId);
       setCurrentTableId(table.id);
-      setCurrentRole('customer');
+      setCurrentRole('onboarding');
       return true;
     }
     return false;
