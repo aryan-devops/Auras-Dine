@@ -1,0 +1,6 @@
+{
+  "name": "AuraDine · Premium QR Menu & Restaurant Operations SaaS",
+  "description": "Multi-tenant restaurant SaaS with QR digital menu, live kitchen management, dietary veg/non-veg controls, and subscription admin.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
