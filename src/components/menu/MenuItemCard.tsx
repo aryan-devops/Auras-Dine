@@ -100,7 +100,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
   if (variant === 'highlight') {
     return (
       <>
-        <div className="w-[195px] xs:w-[215px] sm:w-[240px] shrink-0 snap-start bg-white rounded-2xl p-2.5 sm:p-3 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+        <div className="w-[215px] xs:w-[235px] sm:w-[250px] shrink-0 snap-start bg-white rounded-2xl p-2.5 sm:p-3 border border-[#30673A]/12 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
           <div>
             {/* Highlight image */}
             <div className="relative w-full aspect-[16/10] max-h-28 rounded-xl overflow-hidden bg-[#FAF8F2] mb-2">
@@ -137,19 +137,46 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
             <p className="text-[11px] text-[#1E231F]/65 line-clamp-1 mt-0.5">
               {item.description}
             </p>
+
+            {/* Metadata row */}
+            <div className="flex items-center flex-wrap gap-1.5 text-[10px] text-neutral-500 mt-1.5">
+              <span className="flex items-center gap-0.5">
+                <Clock className="w-2.5 h-2.5 text-neutral-400" />
+                {item.prepTimeMinutes} mins
+              </span>
+              {item.calories && (
+                <>
+                  <span aria-hidden="true" className="text-neutral-300">·</span>
+                  <span className="flex items-center gap-0.5 text-neutral-600 font-medium">
+                    <Flame className="w-2.5 h-2.5 text-[#E3792F]" />
+                    {item.calories} kcal
+                  </span>
+                </>
+              )}
+            </div>
+            {item.allergenInformation && (
+              <div className="text-[9.5px] text-[#30673A] font-semibold truncate mt-0.5">
+                {item.allergenInformation}
+              </div>
+            )}
           </div>
 
-          <div className="mt-2.5 pt-2 border-t border-neutral-100 flex items-center justify-between">
-            <span className="text-sm font-bold text-[#1E231F] tabular-nums font-heading">
-              {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
-            </span>
+          <div className="mt-2 pt-2 border-t border-neutral-100 flex items-center justify-between">
+            <div className="flex items-baseline gap-1">
+              <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">
+                Price
+              </span>
+              <span className="text-sm font-bold text-[#1E231F] tabular-nums font-heading">
+                {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
+              </span>
+            </div>
 
             {totalInCart > 0 ? (
               <div className="flex items-center gap-1.5 bg-[#30673A] text-white rounded-lg py-1 px-2 shadow-xs">
                 <button
                   type="button"
                   onClick={handleDecrement}
-                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95"
+                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 cursor-pointer"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="w-3 h-3" />
@@ -160,7 +187,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
                 <button
                   type="button"
                   onClick={handleIncrement}
-                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95"
+                  className="w-4 h-4 flex items-center justify-center hover:bg-black/20 rounded active:scale-95 cursor-pointer"
                   aria-label="Increase quantity"
                 >
                   <Plus className="w-3 h-3" />
@@ -170,10 +197,13 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               <button
                 type="button"
                 onClick={handleAddClick}
-                className="py-1 px-3 rounded-lg bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-bold shadow-2xs flex items-center gap-1 active:scale-95 transition-colors cursor-pointer"
+                className="py-1 px-2.5 rounded-lg bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-xs font-bold shadow-2xs flex items-center gap-1 active:scale-95 transition-colors cursor-pointer"
               >
                 <span>Add</span>
                 <Plus className="w-3 h-3" />
+                {hasCustomizations && (
+                  <span className="text-[9px] font-normal ml-0.5">• Custom</span>
+                )}
               </button>
             )}
           </div>
@@ -347,7 +377,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
       {/* =========================================================================
           MOBILE VIEW (< 768px): Spacious, Clean Swiggy / Zomato Food Card
           ========================================================================= */}
-      <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/10 shadow-xs flex items-start justify-between gap-2.5 sm:gap-3.5 relative">
+      <div className="md:hidden bg-white rounded-2xl p-3 sm:p-3.5 border border-[#30673A]/10 shadow-xs flex items-start justify-between gap-2.5 sm:gap-3.5 relative w-full max-w-full overflow-hidden">
         {/* Left Side: Dish Details (Broad, breathable text container) */}
         <div className="flex-1 min-w-0 pr-1 flex flex-col justify-between self-stretch">
           <div>
@@ -362,36 +392,49 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
             </div>
 
             {/* Dish Name: Full readability, line-clamp-2 */}
-            <h3 className="text-[14px] xs:text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug line-clamp-2 mt-1">
+            <h3 className="text-[14px] xs:text-[15px] sm:text-base font-bold text-[#1E231F] font-heading glinster-font leading-snug line-clamp-2 mt-1 break-words">
               {item.name}
             </h3>
 
-            {/* Price */}
-            <div className="text-[13px] xs:text-[14px] font-bold text-[#1E231F] tabular-nums font-heading mt-0.5">
-              {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
-            </div>
-
             {/* Description: 2-line clamp with pleasant line-height */}
-            <p className="text-[11px] xs:text-xs text-[#1E231F]/65 line-clamp-2 leading-relaxed mt-1">
+            <p className="text-[11px] xs:text-xs text-[#1E231F]/65 line-clamp-2 leading-relaxed mt-1 break-words">
               {item.description}
             </p>
           </div>
 
-          {/* Clean Metadata Row */}
-          <div className="flex items-center gap-2 text-[10.5px] xs:text-[11px] text-neutral-400 mt-2">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-neutral-400" />
+          {/* Clean Metadata Row with prep time, calories, and allergen information */}
+          <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-[10.5px] xs:text-[11px] text-neutral-500 mt-2">
+            <span className="flex items-center gap-1 font-medium text-neutral-600">
+              <Clock className="w-3 h-3 text-neutral-400 shrink-0" />
               {item.prepTimeMinutes} mins
             </span>
             {item.calories && (
               <>
                 <span aria-hidden="true" className="text-neutral-300">·</span>
-                <span className="flex items-center gap-0.5 text-neutral-500">
-                  <Flame className="w-3 h-3 text-[#E3792F]" />
+                <span className="flex items-center gap-0.5 text-neutral-600 font-medium">
+                  <Flame className="w-3 h-3 text-[#E3792F] shrink-0" />
                   {item.calories} kcal
                 </span>
               </>
             )}
+            {item.allergenInformation && (
+              <>
+                <span aria-hidden="true" className="text-neutral-300">·</span>
+                <span className="text-[#30673A] font-semibold text-[10px] xs:text-[10.5px]">
+                  {item.allergenInformation}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Price Row */}
+          <div className="flex items-baseline gap-1 mt-2">
+            <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
+              Price
+            </span>
+            <span className="text-[13px] xs:text-[15px] font-bold text-[#1E231F] tabular-nums font-heading">
+              {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
+            </span>
           </div>
         </div>
 
@@ -462,17 +505,14 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, variant = 'sta
               <button
                 type="button"
                 onClick={handleAddClick}
-                className="w-[74px] xs:w-[80px] sm:w-[86px] py-1 rounded-lg bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-[11px] font-extrabold shadow-sm flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer uppercase tracking-wider"
+                className="w-[74px] xs:w-[80px] sm:w-[86px] py-1 px-1 rounded-lg bg-white hover:bg-[#30673A] text-[#30673A] hover:text-white border border-[#30673A]/30 text-[11px] font-extrabold shadow-sm flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer uppercase tracking-wider"
               >
                 <span>Add</span>
                 <Plus className="w-2.5 h-2.5" />
+                {hasCustomizations && (
+                  <span className="text-[8.5px] lowercase opacity-80 font-medium ml-0.5">• custom</span>
+                )}
               </button>
-            )}
-
-            {isAvailable && hasCustomizations && totalInCart === 0 && (
-              <span className="text-[9px] text-neutral-400 font-medium mt-0.5 leading-none">
-                Customisable
-              </span>
             )}
           </div>
         </div>

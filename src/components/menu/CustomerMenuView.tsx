@@ -5,10 +5,6 @@ import {
   Bell,
   Sparkles,
   CheckCircle2,
-  Smartphone,
-  Maximize2,
-  Wifi,
-  Battery,
   Heart,
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
@@ -43,7 +39,6 @@ export const CustomerMenuView: React.FC = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isTableAuthModalOpen, setIsTableAuthModalOpen] = useState(false);
-  const [phoneFrameMode, setPhoneFrameMode] = useState(false);
 
   // Active placed order for this table/session if any
   const latestOrder = useMemo(() => {
@@ -272,7 +267,7 @@ export const CustomerMenuView: React.FC = () => {
                 </div>
 
                 {/* Mobile: Horizontal Carousel (No vertical congestion) */}
-                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar -mx-3 px-3 pb-2 pt-0.5 snap-x">
+                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-0.5 snap-x w-full">
                   {mustTryItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} variant="highlight" />
                   ))}
@@ -302,7 +297,7 @@ export const CustomerMenuView: React.FC = () => {
                 </div>
 
                 {/* Mobile: Horizontal Carousel */}
-                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar -mx-3 px-3 pb-2 pt-0.5 snap-x">
+                <div className="md:hidden flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-0.5 snap-x w-full">
                   {recommendedItems.map((item) => (
                     <MenuItemCard key={item.id} item={item} variant="highlight" />
                   ))}
@@ -425,13 +420,13 @@ export const CustomerMenuView: React.FC = () => {
         )}
       </main>
 
-      {/* 5. Sticky Floating Bottom Action Dock (when not in simulated phone frame) */}
-      {!phoneFrameMode && renderFloatingDock(false)}
+      {/* 5. Sticky Floating Bottom Action Dock */}
+      {renderFloatingDock()}
     </div>
   );
 
   // Floating Action Dock (Live Order Progress & Cart Summary)
-  const renderFloatingDock = (isInsidePhoneFrame = false) => {
+  const renderFloatingDock = () => {
     const hasLiveOrder =
       latestOrder &&
       !isTrackingModalOpen &&
@@ -442,13 +437,7 @@ export const CustomerMenuView: React.FC = () => {
     if (!hasLiveOrder && !hasCart) return null;
 
     return (
-      <div
-        className={`${
-          isInsidePhoneFrame
-            ? 'absolute bottom-6 left-3 right-3 z-30'
-            : 'fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-40 max-w-md mx-auto pointer-events-auto'
-        } space-y-2 animate-in slide-in-from-bottom-2 duration-300`}
-      >
+      <div className="fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-40 max-w-md mx-auto pointer-events-auto space-y-2 animate-in slide-in-from-bottom-2 duration-300">
         {/* 1. Live Order Progress Bar */}
         {hasLiveOrder && (
           <div className="bg-[#1E231F] text-white p-2.5 sm:p-3 rounded-2xl shadow-xl border border-[#30673A]/40 flex items-center justify-between gap-2.5">
@@ -518,74 +507,9 @@ export const CustomerMenuView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2]">
-      {/* Top Device Simulator Toggle Bar (for testing on desktop/laptop) */}
-      <div className="bg-neutral-900 text-white py-2 px-4 border-b border-neutral-800 text-xs hidden md:flex items-center justify-between">
-        <div className="flex items-center gap-2 text-neutral-300">
-          <Smartphone className="w-3.5 h-3.5 text-[#E3792F]" />
-          <span>Phone Screen View Alignment:</span>
-          <span className="font-bold text-white">
-            {phoneFrameMode ? 'iPhone 16 Pro Frame Active' : 'Responsive View Active'}
-          </span>
-        </div>
-
-        <button
-          onClick={() => setPhoneFrameMode(!phoneFrameMode)}
-          className="px-3 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-        >
-          {phoneFrameMode ? (
-            <>
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span>Expand to Full View</span>
-            </>
-          ) : (
-            <>
-              <Smartphone className="w-3.5 h-3.5 text-[#30673A]" />
-              <span>Simulate iPhone Frame</span>
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Main View: Either inside authentic iPhone Chassis or Fullscreen */}
-      {phoneFrameMode ? (
-        <div className="py-8 px-4 flex justify-center items-center bg-[#1E231F] min-h-[calc(100vh-120px)]">
-          {/* Authentic iPhone Chassis */}
-          <div
-            className="relative w-[390px] h-[820px] rounded-[50px] border-[10px] border-neutral-850 shadow-2xl bg-[#FAF8F2] overflow-hidden flex flex-col"
-            style={{
-              boxShadow: '0 30px 70px rgba(0,0,0,0.8), inset 0 0 0 2px rgba(255,255,255,0.1)',
-            }}
-          >
-            {/* Phone Status Bar + Dynamic Island */}
-            <div className="bg-white pt-2.5 pb-1 px-6 flex items-center justify-between text-[11px] font-bold text-[#1E231F] shrink-0 border-b border-neutral-100 select-none">
-              <span>9:41</span>
-              {/* Dynamic Island Pill */}
-              <div className="w-24 h-5 bg-black rounded-full mx-auto" />
-              <div className="flex items-center gap-1.5">
-                <Wifi className="w-3 h-3" />
-                <Battery className="w-3.5 h-3.5" />
-              </div>
-            </div>
-
-            {/* Scrollable Phone Menu Viewport */}
-            <div className="flex-1 overflow-y-auto no-scrollbar relative">
-              <MenuContent />
-            </div>
-
-            {/* Pinned Bottom Dock in Simulated Phone Frame */}
-            {renderFloatingDock(true)}
-
-            {/* Phone Home Bar */}
-            <div className="h-4 bg-white flex items-center justify-center shrink-0 border-t border-neutral-100">
-              <div className="w-32 h-1 bg-neutral-400 rounded-full" />
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Fullscreen responsive layout */
-        <MenuContent />
-      )}
+    <div className="min-h-screen bg-[#FAF8F2] w-full max-w-full overflow-x-hidden">
+      {/* Responsive Food Menu Viewport (Desktop 3-4 cols, Tablet 2-3 cols, Mobile Compact Swiggy/Zomato Cards) */}
+      <MenuContent />
 
       {/* Modals */}
       <DietaryConflictModal />

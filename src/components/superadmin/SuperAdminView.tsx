@@ -349,11 +349,11 @@ export const SuperAdminView: React.FC = () => {
                   <DollarSign className="w-4 h-4 text-[#30673A]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-white mt-2">
-                  ${estimatedMRR.toFixed(2)}
+                  ₹{estimatedMRR.toFixed(2)}
                 </div>
                 <div className="text-[11px] text-[#30673A] font-semibold mt-1 flex items-center gap-1">
                   <ArrowUpRight className="w-3 h-3" />
-                  <span>ARR run-rate: ${estimatedARR.toFixed(0)}</span>
+                  <span>ARR run-rate: ₹{estimatedARR.toFixed(0)}</span>
                 </div>
               </div>
 
@@ -376,7 +376,7 @@ export const SuperAdminView: React.FC = () => {
                   <CreditCard className="w-4 h-4 text-[#0284C7]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-white mt-2">
-                  ${totalSubscriptionRevenue.toFixed(2)}
+                  ₹{totalSubscriptionRevenue.toFixed(2)}
                 </div>
                 <div className="text-[11px] text-neutral-400 mt-1">
                   {billingInvoices.length} paid membership cycles
@@ -687,7 +687,7 @@ export const SuperAdminView: React.FC = () => {
 
                     <div className="mt-4 flex items-baseline gap-1">
                       <span className="text-3xl font-black font-mono text-white">
-                        ${plan.price}
+                        ₹{plan.price}
                       </span>
                       <span className="text-xs text-neutral-400">
                         / {plan.durationMonths} months
@@ -778,7 +778,7 @@ export const SuperAdminView: React.FC = () => {
                           <div className="text-[10px] text-neutral-500">{inv.billingPeriod}</div>
                         </td>
                         <td className="py-3 px-4 font-mono font-bold text-[#E9E9C7]">
-                          ${inv.amount.toFixed(2)}
+                          ₹{inv.amount.toFixed(2)}
                         </td>
                         <td className="py-3 px-4">
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-900/50 text-emerald-400 border border-emerald-800">
@@ -1064,7 +1064,7 @@ export const SuperAdminView: React.FC = () => {
                 >
                   {membershipPlans.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} — ${p.price} / {p.durationMonths}m ({p.maxTables >= 999 ? 'Unlimited' : p.maxTables} tables)
+                      {p.name} — ₹{p.price} / {p.durationMonths}m ({p.maxTables >= 999 ? 'Unlimited' : p.maxTables} tables)
                     </option>
                   ))}
                 </select>
@@ -1175,7 +1175,7 @@ export const SuperAdminView: React.FC = () => {
                     </div>
                   </div>
                   <span className="font-mono font-bold text-[#E9E9C7]">
-                    ${p.price}
+                    ₹{p.price}
                   </span>
                 </button>
               ))}

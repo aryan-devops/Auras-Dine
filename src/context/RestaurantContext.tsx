@@ -154,13 +154,21 @@ interface RestaurantContextType {
 
 const RestaurantContext = createContext<RestaurantContextType | undefined>(undefined);
 
-const STORAGE_KEY_PREFIX = 'auradine_v1_';
+const STORAGE_KEY_PREFIX = 'auradine_v3_';
 
 export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // 1. Tenants
   const [tenants, setTenants] = useState<RestaurantTenant[]>(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}tenants`);
-    return saved ? JSON.parse(saved) : INITIAL_TENANTS;
+    if (saved) {
+      try {
+        const parsed: RestaurantTenant[] = JSON.parse(saved);
+        return parsed.map((t) => ({ ...t, currency: 'INR', currencySymbol: '₹' }));
+      } catch (e) {
+        // Fallback to initial
+      }
+    }
+    return INITIAL_TENANTS;
   });
 
   const [currentTenantId, setCurrentTenantId] = useState<string>(() => {
@@ -833,8 +841,8 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       primaryColor: '#30673A',
       accentColor: '#E3792F',
       secondaryColor: '#E9E9C7',
-      currency: 'USD',
-      currencySymbol: '$',
+      currency: 'INR',
+      currencySymbol: '₹',
       taxRatePercent: tenantData.taxRatePercent ?? 6,
       serviceChargePercent: tenantData.serviceChargePercent ?? 5,
       isOpen: true,
