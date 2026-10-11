@@ -73,6 +73,7 @@ export const AdminPage: React.FC = () => {
     resetStaffPassword,
     toggleStaffStatus,
     deleteStaff,
+    currentStaffUser,
   } = useRestaurant();
 
   const [activeTab, setActiveTab] = useState<'menu' | 'categories' | 'tables' | 'analytics' | 'settings' | 'staff'>('menu');
@@ -370,6 +371,12 @@ export const AdminPage: React.FC = () => {
                 {currentTenant.name}
               </h1>
               <p className="text-xs text-neutral-500">{currentTenant.tagline} ({currentTenant.address})</p>
+              {currentStaffUser && (
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#30673A] font-semibold">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>Logged in as: {currentStaffUser.name} (@{currentStaffUser.username})</span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-3">

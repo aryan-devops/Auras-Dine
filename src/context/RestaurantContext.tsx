@@ -172,6 +172,13 @@ interface RestaurantContextType {
   resetStaffPassword: (staffId: string, newPassword: string) => Promise<boolean>;
   toggleStaffStatus: (staffId: string) => void;
   deleteStaff: (staffId: string) => void;
+  currentStaffUser: StaffMember | null;
+  loginStaff: (
+    hotelNameInput: string,
+    usernameInput: string,
+    passwordInput: string
+  ) => Promise<{ success: boolean; error?: string; staff?: StaffMember }>;
+  logoutStaff: () => void;
 
   // Utilities
   resetDemoData: () => void;
@@ -325,6 +332,27 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}staffMembers`);
     return saved ? JSON.parse(saved) : INITIAL_STAFF_MEMBERS;
   });
+
+  // 14. Authenticated Staff User Session
+  const [currentStaffUser, setCurrentStaffUser] = useState<StaffMember | null>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}currentStaffUser`);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (currentStaffUser) {
+      localStorage.setItem(`${STORAGE_KEY_PREFIX}currentStaffUser`, JSON.stringify(currentStaffUser));
+    } else {
+      localStorage.removeItem(`${STORAGE_KEY_PREFIX}currentStaffUser`);
+    }
+  }, [currentStaffUser]);
 
   // Sync to local storage
   useEffect(() => {
@@ -1095,6 +1123,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     setAuditLogs(INITIAL_AUDIT_LOGS);
     setPlatformSettings(INITIAL_PLATFORM_SETTINGS);
     setStaffMembers(INITIAL_STAFF_MEMBERS);
+    setCurrentStaffUser(null);
     setCart([]);
     setDietaryFilter('all');
   };
@@ -1245,6 +1274,149 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     );
   };
 
+  const loginStaff = async (
+    hotelNameInput: string,
+    usernameInput: string,
+    passwordInput: string
+  ): Promise<{ success: boolean; error?: string; staff?: StaffMember }> => {
+    const rawHotel = hotelNameInput.trim();
+    const rawUsername = usernameInput.trim();
+    const rawPassword = passwordInput.trim();
+
+    if (!rawHotel) {
+      return { success: false, error: 'Please enter the hotel or restaurant name.' };
+    }
+    if (!rawUsername || !rawPassword) {
+      return { success: false, error: 'Please enter both User ID and Password.' };
+    }
+
+    const cleanHotelInput = rawHotel.toLowerCase();
+    const cleanUsername = rawUsername.toLowerCase();
+
+    // 1. Hotel name lookup: match by full name, slug, or normalized alphanumeric string
+    const matchedTenant = tenants.find((t) => {
+      const name = t.name.toLowerCase();
+      const slug = t.slug.toLowerCase();
+      const normName = name.replace(/[^a-z0-9]/g, '');
+      const normSlug = slug.replace(/[^a-z0-9]/g, '');
+      const normQuery = cleanHotelInput.replace(/[^a-z0-9]/g, '');
+      return (
+        name === cleanHotelInput ||
+        slug === cleanHotelInput ||
+        normName === normQuery ||
+        normSlug === normQuery
+      );
+    });
+
+    if (!matchedTenant) {
+      return {
+        success: false,
+        error: 'Hotel not found. Please verify the restaurant name.',
+      };
+    }
+
+    // 2. Strict tenant-scoped staff lookup:
+    // Only search staff members belonging to matchedTenant.id
+    let staffFound = staffMembers.find(
+      (s) =>
+        s.tenantId === matchedTenant.id &&
+        s.username.toLowerCase() === cleanUsername
+    );
+
+    // If not found in memory, query Firestore for this tenant exclusively
+    if (!staffFound) {
+      try {
+        const q = query(
+          collection(db, 'staffCredentials'),
+          where('tenantId', '==', matchedTenant.id),
+          where('username', '==', cleanUsername)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          const docData = snapshot.docs[0].data();
+          staffFound = {
+            id: docData.id || snapshot.docs[0].id,
+            tenantId: matchedTenant.id,
+            name: docData.name || cleanUsername,
+            username: docData.username,
+            password: docData.password,
+            role: docData.role || 'waiter',
+            station: docData.station || '',
+            status: 'active',
+            createdAt: docData.createdAt || new Date().toISOString(),
+          };
+          setStaffMembers((prev) => [staffFound!, ...prev]);
+        }
+      } catch (err) {
+        console.warn('Firestore fallback query notice:', err);
+      }
+    }
+
+    // 3. User verification: If staff does not exist in this hotel OR password does not match
+    if (!staffFound || staffFound.password !== rawPassword) {
+      logAuditEvent(
+        'STAFF_LOGIN_FAILED',
+        `Failed authentication attempt for user "${cleanUsername}" at hotel "${matchedTenant.name}"`,
+        matchedTenant.name,
+        'warning'
+      );
+      return {
+        success: false,
+        error: 'User ID or password is incorrect.',
+      };
+    }
+
+    // 4. Check active status
+    if (staffFound.status === 'inactive') {
+      return {
+        success: false,
+        error: 'This staff account is currently deactivated. Please contact your restaurant manager.',
+      };
+    }
+
+    // 5. Successful login: update lastLogin, set session, set tenant, set role
+    const updatedStaff: StaffMember = {
+      ...staffFound,
+      lastLogin: new Date().toISOString(),
+    };
+
+    setStaffMembers((prev) =>
+      prev.map((s) => (s.id === updatedStaff.id ? updatedStaff : s))
+    );
+    setCurrentStaffUser(updatedStaff);
+    setCurrentTenantId(matchedTenant.id);
+
+    if (updatedStaff.role === 'waiter') {
+      setCurrentRole('waiter');
+    } else if (updatedStaff.role === 'kitchen') {
+      setCurrentRole('kitchen');
+    } else if (updatedStaff.role === 'admin') {
+      setCurrentRole('restaurant_admin');
+    }
+
+    logAuditEvent(
+      'STAFF_LOGIN_SUCCESS',
+      `Staff member ${updatedStaff.name} (@${updatedStaff.username}) logged in as ${updatedStaff.role} at ${matchedTenant.name}`,
+      matchedTenant.name,
+      'info'
+    );
+
+    return { success: true, staff: updatedStaff };
+  };
+
+  const logoutStaff = () => {
+    if (currentStaffUser) {
+      logAuditEvent(
+        'STAFF_LOGOUT',
+        `Staff member ${currentStaffUser.name} logged out`,
+        currentTenant.name,
+        'info'
+      );
+    }
+    setCurrentStaffUser(null);
+    localStorage.removeItem(`${STORAGE_KEY_PREFIX}currentStaffUser`);
+  };
+
   const scopedCategories = useMemo(() => {
     return categories
       .filter((c) => c.tenantId === currentTenantId)
@@ -1348,6 +1520,9 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         resetStaffPassword,
         toggleStaffStatus,
         deleteStaff,
+        currentStaffUser,
+        loginStaff,
+        logoutStaff,
       }}
     >
       {children}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Smartphone, ChefHat, Bell, Store, ShieldAlert, Building2, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Smartphone, ChefHat, Bell, Store, ShieldAlert, Building2, Sparkles, KeyRound } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { UserRole } from '../../types';
 
@@ -89,6 +90,16 @@ export const RoleSwitcher: React.FC = () => {
               </select>
             </div>
           )}
+
+          {/* Staff Login Link */}
+          <Link
+            to="/staff-login"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-200 hover:bg-neutral-300 text-neutral-800 text-[11px] font-bold transition-colors shrink-0"
+            title="Open Staff & Waiter Login Gateway"
+          >
+            <KeyRound className="w-3 h-3 text-[#30673A]" />
+            <span className="hidden sm:inline">Staff Login</span>
+          </Link>
         </div>
 
       </div>

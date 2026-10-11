@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { ChefHat, Clock, CheckCircle2, Play, AlertTriangle, Volume2, VolumeX, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChefHat, Clock, CheckCircle2, Play, AlertTriangle, Volume2, VolumeX, Eye, UserCheck, ArrowRight } from 'lucide-react';
 import { OrderStatus } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { LogoutButton } from '../../components/auth/LogoutButton';
 
 export const KitchenPage: React.FC = () => {
-  const { orders, updateOrderStatus, currentTenant } = useRestaurant();
+  const { orders, updateOrderStatus, currentTenant, currentStaffUser } = useRestaurant();
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<string | null>(null);
@@ -29,17 +30,56 @@ export const KitchenPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#1E231F] text-[#FAF8F2] p-4 sm:p-6">
-        {/* Audio notification toggle & metric pills */}
-        <div className="flex items-center justify-between gap-3 flex-wrap pb-6">
+        {/* Header with Chef profile, Audio toggle & Sign Out */}
+        <div className="flex items-center justify-between gap-3 flex-wrap pb-6 border-b border-neutral-800 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+              <ChefHat className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">
+                  Kitchen Display System (KDS)
+                </span>
+                <span className="text-xs text-neutral-400">· {currentTenant.name}</span>
+              </div>
+              {currentStaffUser ? (
+                <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-neutral-300">
+                  <span className="font-bold text-amber-400 flex items-center gap-1">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    {currentStaffUser.name}
+                  </span>
+                  <span className="text-neutral-500 font-mono text-[11px]">@{currentStaffUser.username}</span>
+                  {currentStaffUser.station && (
+                    <span className="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                      {currentStaffUser.station}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
+                  <span>Demo KDS Session</span>
+                  <Link
+                    to={`/staff-login?hotel=${encodeURIComponent(currentTenant.name)}`}
+                    className="text-amber-400 hover:underline font-bold text-[11px] inline-flex items-center gap-1"
+                  >
+                    <span>Sign In with Staff ID</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               {soundEnabled ? (
                 <>
-                  <Volume2 className="w-3.5 h-3.5 text-[#30673A]" />
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Ticket Bell: ON</span>
                 </>
               ) : (
@@ -49,8 +89,8 @@ export const KitchenPage: React.FC = () => {
                 </>
               )}
             </button>
+            <LogoutButton label="Sign Out" className="py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white border border-neutral-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0" />
           </div>
-          <LogoutButton />
         </div>
           {/* Quick Filter Tabs */}
           <div className="flex items-center gap-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">

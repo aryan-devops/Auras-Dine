@@ -58,6 +58,9 @@ const MainAppContent: React.FC = () => {
 
         <Routes>
           <Route path="/admin-login" element={<RestaurantAdminLogin />} />
+          <Route path="/staff-login" element={<RestaurantAdminLogin />} />
+          <Route path="/waiter-login" element={<RestaurantAdminLogin />} />
+          <Route path="/kitchen-login" element={<RestaurantAdminLogin />} />
           <Route path="/:tenantSlug/:tableId/auth" element={<CustomerAuthPage />} />
           <Route path="/:tenantSlug/menu" element={<CustomerPage />} />
           <Route path="/restaurant/:tenantSlug/table/:tableId/auth" element={<CustomerAuthPage />} />

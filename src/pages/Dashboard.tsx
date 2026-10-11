@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, ChefHat, Bell, Settings, LayoutDashboard } from 'lucide-react';
+import { Users, ChefHat, Bell, Settings, LayoutDashboard, KeyRound } from 'lucide-react';
 import { RoleSwitcher } from '../components/common/RoleSwitcher';
 
 export const Dashboard: React.FC = () => {
@@ -9,6 +9,7 @@ export const Dashboard: React.FC = () => {
     { name: 'Waiter View', path: '/waiter', icon: Bell },
     { name: 'Kitchen View', path: '/kitchen', icon: ChefHat },
     { name: 'Restaurant Admin', path: '/admin', icon: Settings },
+    { name: 'Staff & Waiter Login Gateway', path: '/staff-login', icon: KeyRound },
     { name: 'Super Admin', path: '/superadmin', icon: Users },
     { name: 'QR Table Stand', path: '/qr-stand', icon: LayoutDashboard },
   ];

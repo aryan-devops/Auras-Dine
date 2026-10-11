@@ -1,5 +1,6 @@
 import React from 'react';
-import { Bell, CheckCircle2, Droplets, Receipt, Sparkles, AlertCircle, ChefHat } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bell, CheckCircle2, Droplets, Receipt, Sparkles, AlertCircle, ChefHat, UserCheck, ArrowRight } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { LogoutButton } from '../../components/auth/LogoutButton';
 
@@ -12,6 +13,7 @@ export const WaiterPage: React.FC = () => {
     resolveServiceRequest,
     orders,
     updateOrderStatus,
+    currentStaffUser,
   } = useRestaurant();
 
   // Active service requests for this tenant
@@ -26,9 +28,47 @@ export const WaiterPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAF8F2] p-4 sm:p-6 pb-20">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex justify-between items-center">
-            <h1 className="text-xl font-bold text-neutral-900">Waiter Portal</h1>
-            <LogoutButton />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-2xs">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#30673A] text-white">
+                Floor Service
+              </span>
+              <span className="text-xs text-neutral-400">· {currentTenant.name}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-[#1E231F] glinster-font mt-0.5">
+              Waiter Service Portal
+            </h1>
+            {currentStaffUser ? (
+              <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-neutral-600">
+                <span className="font-bold text-[#30673A] flex items-center gap-1">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  {currentStaffUser.name}
+                </span>
+                <span className="text-neutral-400 font-mono text-[11px]">@{currentStaffUser.username}</span>
+                {currentStaffUser.station && (
+                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                    {currentStaffUser.station}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 mt-1 text-xs text-neutral-500">
+                <span>Demo mode active</span>
+                <Link
+                  to={`/staff-login?hotel=${encodeURIComponent(currentTenant.name)}`}
+                  className="text-[#30673A] hover:underline font-bold text-[11px] inline-flex items-center gap-1"
+                >
+                  <span>Sign In with Staff ID</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <LogoutButton label="Sign Out" />
+          </div>
         </div>
 
         {/* 1. Urgent Pass: Ready Orders Waiting for Server Delivery */}
