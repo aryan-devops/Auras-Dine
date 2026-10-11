@@ -24,6 +24,19 @@
         "restaurantName": { "type": "string" }
       },
       "required": ["username", "password", "role", "tenantId", "restaurantName"]
+    },
+    "CustomerSession": {
+      "title": "CustomerSession",
+      "description": "Customer check-in session data from QR scan",
+      "type": "object",
+      "properties": {
+        "tenantSlug": { "type": "string" },
+        "tableId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["tenantSlug", "tableId", "customerName", "customerPhone", "createdAt"]
     }
   },
   "firestore": {
@@ -34,6 +47,10 @@
     "/staffCredentials/{credentialId}": {
       "schema": "StaffCredential",
       "description": "Stores staff login credentials"
+    },
+    "/customerSessions/{sessionId}": {
+      "schema": "CustomerSession",
+      "description": "Stores customer check-in data"
     }
   }
 }

@@ -4,6 +4,7 @@ import { RestaurantProvider, useRestaurant } from './context/RestaurantContext';
 import { ThemeInjector } from './components/common/ThemeInjector';
 import { Dashboard } from './pages/Dashboard';
 import { CustomerPage } from './pages/customer/CustomerPage';
+import { CustomerAuthPage } from './pages/customer/CustomerAuthPage';
 import { KitchenPage } from './pages/kitchen/KitchenPage';
 import { WaiterPage } from './pages/waiter/WaiterPage';
 import { AdminPage } from './pages/admin/AdminPage';
@@ -57,6 +58,10 @@ const MainAppContent: React.FC = () => {
         <main className="flex-1 w-full max-w-full min-w-0">
           <Routes>
             <Route path="/admin-login" element={<RestaurantAdminLogin />} />
+            <Route path="/:tenantSlug/:tableId/auth" element={<CustomerAuthPage />} />
+            <Route path="/:tenantSlug/menu" element={<CustomerPage />} />
+            <Route path="/restaurant/:tenantSlug/table/:tableId/auth" element={<CustomerAuthPage />} />
+            <Route path="/restaurant/:tenantSlug/menu" element={<CustomerPage />} />
             <Route path="/customer" element={<CustomerPage />} />
             <Route path="/kitchen" element={<KitchenPage />} />
             <Route path="/waiter" element={<WaiterPage />} />

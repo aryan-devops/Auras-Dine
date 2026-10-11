@@ -103,8 +103,8 @@ export const TableStandStudio: React.FC = () => {
   // Destination URL for QR
   const scanUrl =
     qrMode === 'universal'
-      ? `${window.location.origin}?tenant=${currentTenant.slug}&universal=true`
-      : `${window.location.origin}?tenant=${currentTenant.slug}&table=${selectedTable?.id}&token=${selectedTable?.qrToken}`;
+      ? `${window.location.origin}/${currentTenant.slug}/menu`
+      : `${window.location.origin}/${currentTenant.slug}/${selectedTable?.id}/auth`;
 
   // Generate real, high-contrast QR code with optional center badge
   useEffect(() => {
