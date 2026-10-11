@@ -131,7 +131,7 @@ export const CustomerPage: React.FC = () => {
       </div>
 
       {/* 2. Re-aligned Slim Sticky Filter & Search Bar */}
-      <div className="sticky top-14 sm:top-16 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2 w-full max-w-full overflow-hidden">
+      <div className="sticky top-0 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#30673A]/10 py-2 sm:py-2.5 px-3 sm:px-4 shadow-2xs space-y-1.5 sm:space-y-2 w-full max-w-full overflow-hidden">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 w-full min-w-0">
           
           {/* Clean Search Input with 16px font on mobile to prevent iOS auto-zoom */}
