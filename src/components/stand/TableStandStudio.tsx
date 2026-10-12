@@ -22,8 +22,8 @@ import {
 import { useRestaurant } from '../../context/RestaurantContext';
 
 const QR_COLOR_OPTIONS = [
-  { name: 'Retro Green', hex: '#30673A', bg: 'bg-[#30673A]' },
-  { name: 'Tangerine', hex: '#E3792F', bg: 'bg-[#E3792F]' },
+  { name: 'Retro Green', hex: '#2C5EAD', bg: 'bg-[#2C5EAD]' },
+  { name: 'Tangerine', hex: '#1591DC', bg: 'bg-[#1591DC]' },
   { name: 'Midnight Charcoal', hex: '#1E231F', bg: 'bg-[#1E231F]' },
   { name: 'Bistro Espresso', hex: '#451A03', bg: 'bg-[#451A03]' },
   { name: 'Deep Pine', hex: '#14532D', bg: 'bg-[#14532D]' },
@@ -31,8 +31,8 @@ const QR_COLOR_OPTIONS = [
 
 const QR_BG_OPTIONS = [
   { name: 'Crisp White', hex: '#FFFFFF', bg: 'bg-white' },
-  { name: 'Soft Pistachio', hex: '#E9E9C7', bg: 'bg-[#E9E9C7]' },
-  { name: 'Warm Linen', hex: '#FAF8F2', bg: 'bg-[#FAF8F2]' },
+  { name: 'Soft Pistachio', hex: '#C4E2F5', bg: 'bg-[#C4E2F5]' },
+  { name: 'Warm Linen', hex: '#F4F9FD', bg: 'bg-[#F4F9FD]' },
 ];
 
 export const TableStandStudio: React.FC = () => {
@@ -65,7 +65,7 @@ export const TableStandStudio: React.FC = () => {
   const [usePlaceholderQr, setUsePlaceholderQr] = useState(false);
 
   // QR Color & Logo Customization
-  const [qrColor, setQrColor] = useState('#30673A');
+  const [qrColor, setQrColor] = useState('#2C5EAD');
   const [qrBgColor, setQrBgColor] = useState('#FFFFFF');
   const [qrCenterIcon, setQrCenterIcon] = useState<'monogram' | 'utensils' | 'wine' | 'chef' | 'table_num' | 'none'>('monogram');
 
@@ -206,7 +206,7 @@ export const TableStandStudio: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1E231F] text-[#FAF8F2] p-4 sm:p-6 pb-28">
+    <div className="min-h-screen bg-[#1E231F] text-[#F4F9FD] p-4 sm:p-6 pb-28">
       {/* Print-only CSS rules */}
       <style>{`
         @media print {
@@ -228,7 +228,7 @@ export const TableStandStudio: React.FC = () => {
           }
           .print-stand-card {
             box-shadow: none !important;
-            border: 2px solid #30673A !important;
+            border: 2px solid #2C5EAD !important;
             page-break-inside: avoid !important;
           }
         }
@@ -239,15 +239,15 @@ export const TableStandStudio: React.FC = () => {
         {/* Header Bar */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-neutral-800 no-print">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#30673A] text-white flex items-center justify-center font-bold text-xl shadow-lg border border-[#E9E9C7]/20">
-              <Sparkles className="w-6 h-6 text-[#E9E9C7]" />
+            <div className="w-12 h-12 rounded-2xl bg-[#2C5EAD] text-white flex items-center justify-center font-bold text-xl shadow-lg border border-[#C4E2F5]/20">
+              <Sparkles className="w-6 h-6 text-[#C4E2F5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-bold glinster-font text-white">
                   Aurasdine · Table QR Stand Studio
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#E3792F]/20 text-[#E3792F] border border-[#E3792F]/40 font-mono">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#1591DC]/20 text-[#1591DC] border border-[#1591DC]/40 font-mono">
                   Hospitality Print Suite
                 </span>
               </div>
@@ -261,7 +261,7 @@ export const TableStandStudio: React.FC = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={handlePrint}
-              className="py-2 px-4 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
+              className="py-2 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
             >
               <Printer className="w-4 h-4" />
               <span>Print Table Stand</span>
@@ -277,7 +277,7 @@ export const TableStandStudio: React.FC = () => {
 
             <button
               onClick={handleTestScan}
-              className="py-2 px-3.5 rounded-xl bg-[#E3792F] hover:bg-[#c96420] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
+              className="py-2 px-3.5 rounded-xl bg-[#1591DC] hover:bg-[#0D76B6] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
               title="Test scan and open phone customer view"
             >
               <Smartphone className="w-4 h-4" />
@@ -288,7 +288,7 @@ export const TableStandStudio: React.FC = () => {
               onClick={handleCopyLink}
               className="py-2 px-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-neutral-700"
             >
-              {copiedUrl ? <Check className="w-3.5 h-3.5 text-[#30673A]" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedUrl ? <Check className="w-3.5 h-3.5 text-[#2C5EAD]" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copiedUrl ? 'URL Copied!' : 'Copy Menu URL'}</span>
             </button>
           </div>
@@ -305,7 +305,7 @@ export const TableStandStudio: React.FC = () => {
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              <Layers className="w-3.5 h-3.5 text-[#30673A]" />
+              <Layers className="w-3.5 h-3.5 text-[#2C5EAD]" />
               <span>Front-View Stand</span>
             </button>
 
@@ -317,7 +317,7 @@ export const TableStandStudio: React.FC = () => {
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              <Eye className="w-3.5 h-3.5 text-[#E3792F]" />
+              <Eye className="w-3.5 h-3.5 text-[#1591DC]" />
               <span>3D Tabletop Acrylic Mockup</span>
             </button>
 
@@ -341,7 +341,7 @@ export const TableStandStudio: React.FC = () => {
                 type="checkbox"
                 checked={usePlaceholderQr}
                 onChange={(e) => setUsePlaceholderQr(e.target.checked)}
-                className="w-3.5 h-3.5 rounded text-[#30673A]"
+                className="w-3.5 h-3.5 rounded text-[#2C5EAD]"
               />
               <span className="text-neutral-300">
                 {usePlaceholderQr ? 'Showing Placeholder QR' : 'Active Functional QR'}
@@ -360,7 +360,7 @@ export const TableStandStudio: React.FC = () => {
             <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-[#30673A]" />
+                  <Sliders className="w-3.5 h-3.5 text-[#2C5EAD]" />
                   QR Stand Architecture Mode
                 </h3>
               </div>
@@ -371,12 +371,12 @@ export const TableStandStudio: React.FC = () => {
                   onClick={() => setQrMode('universal')}
                   className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                     qrMode === 'universal'
-                      ? 'bg-[#30673A]/20 border-[#30673A] text-white'
+                      ? 'bg-[#2C5EAD]/20 border-[#2C5EAD] text-white'
                       : 'bg-neutral-800 border-neutral-700 text-neutral-400 hover:text-neutral-200'
                   }`}
                 >
                   <div className="text-xs font-bold text-white flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-[#E3792F]" />
+                    <Sparkles className="w-3 h-3 text-[#1591DC]" />
                     Single Universal QR
                   </div>
                   <p className="text-[10px] text-neutral-400 mt-1 leading-tight">
@@ -389,12 +389,12 @@ export const TableStandStudio: React.FC = () => {
                   onClick={() => setQrMode('table_specific')}
                   className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                     qrMode === 'table_specific'
-                      ? 'bg-[#30673A]/20 border-[#30673A] text-white'
+                      ? 'bg-[#2C5EAD]/20 border-[#2C5EAD] text-white'
                       : 'bg-neutral-800 border-neutral-700 text-neutral-400 hover:text-neutral-200'
                   }`}
                 >
                   <div className="text-xs font-bold text-white flex items-center gap-1">
-                    <Hash className="w-3 h-3 text-[#30673A]" />
+                    <Hash className="w-3 h-3 text-[#2C5EAD]" />
                     Table-Specific QR
                   </div>
                   <p className="text-[10px] text-neutral-400 mt-1 leading-tight">
@@ -408,7 +408,7 @@ export const TableStandStudio: React.FC = () => {
                 <label className="block text-neutral-300 font-semibold text-xs flex items-center justify-between">
                   <span>Write / Customize Table Number</span>
                   {qrMode === 'universal' && (
-                    <span className="text-[10px] text-[#E3792F] font-normal">Optional display badge</span>
+                    <span className="text-[10px] text-[#1591DC] font-normal">Optional display badge</span>
                   )}
                 </label>
                 <div className="flex items-center gap-2">
@@ -417,7 +417,7 @@ export const TableStandStudio: React.FC = () => {
                     value={editableTableNumber}
                     onChange={(e) => handleTableNumberChange(e.target.value)}
                     placeholder="e.g. Table 4, Patio 2, Booth 7..."
-                    className="flex-1 px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white font-bold text-xs focus:ring-1 focus:ring-[#30673A] focus:outline-none"
+                    className="flex-1 px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white font-bold text-xs focus:ring-1 focus:ring-[#2C5EAD] focus:outline-none"
                   />
                   <button
                     type="button"
@@ -441,7 +441,7 @@ export const TableStandStudio: React.FC = () => {
                         }}
                         className={`py-1 px-2.5 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer ${
                           selectedTable?.id === t.id
-                            ? 'bg-[#30673A] text-white border-[#30673A]'
+                            ? 'bg-[#2C5EAD] text-white border-[#2C5EAD]'
                             : 'bg-neutral-800 text-neutral-400 border-neutral-700 hover:text-neutral-200'
                         }`}
                       >
@@ -456,7 +456,7 @@ export const TableStandStudio: React.FC = () => {
             {/* 2. QR Code Style & Visual Customization */}
             <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-3.5 text-xs">
               <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-[#E3792F]" />
+                <Palette className="w-3.5 h-3.5 text-[#1591DC]" />
                 Freedom to Customize QR Code
               </h3>
 
@@ -495,7 +495,7 @@ export const TableStandStudio: React.FC = () => {
                       onClick={() => setQrBgColor(bg.hex)}
                       className={`px-3 py-1 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
                         qrBgColor === bg.hex
-                          ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                          ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                           : 'border-neutral-800 bg-neutral-800 text-neutral-400 hover:text-neutral-200'
                       }`}
                     >
@@ -516,7 +516,7 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setQrCenterIcon('monogram')}
                     className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border flex items-center justify-center gap-1 cursor-pointer ${
                       qrCenterIcon === 'monogram'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
@@ -529,11 +529,11 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setQrCenterIcon('table_num')}
                     className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border flex items-center justify-center gap-1 cursor-pointer ${
                       qrCenterIcon === 'table_num'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
-                    <Hash className="w-3 h-3 text-[#E3792F]" />
+                    <Hash className="w-3 h-3 text-[#1591DC]" />
                     <span>Table #</span>
                   </button>
 
@@ -542,11 +542,11 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setQrCenterIcon('utensils')}
                     className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border flex items-center justify-center gap-1 cursor-pointer ${
                       qrCenterIcon === 'utensils'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
-                    <Utensils className="w-3 h-3 text-[#30673A]" />
+                    <Utensils className="w-3 h-3 text-[#2C5EAD]" />
                     <span>Fork/Knife</span>
                   </button>
 
@@ -555,7 +555,7 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setQrCenterIcon('wine')}
                     className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border flex items-center justify-center gap-1 cursor-pointer ${
                       qrCenterIcon === 'wine'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
@@ -568,7 +568,7 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setQrCenterIcon('chef')}
                     className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border flex items-center justify-center gap-1 cursor-pointer ${
                       qrCenterIcon === 'chef'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
@@ -581,7 +581,7 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setQrCenterIcon('none')}
                     className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border flex items-center justify-center gap-1 cursor-pointer ${
                       qrCenterIcon === 'none'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
@@ -637,14 +637,14 @@ export const TableStandStudio: React.FC = () => {
               <div className="pt-2 border-t border-neutral-800 space-y-2">
                 <label className="flex items-center justify-between cursor-pointer">
                   <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                    <Wifi className="w-3.5 h-3.5 text-[#30673A]" />
+                    <Wifi className="w-3.5 h-3.5 text-[#2C5EAD]" />
                     Include Guest Wi-Fi Details
                   </span>
                   <input
                     type="checkbox"
                     checked={showWifi}
                     onChange={(e) => setShowWifi(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#30673A]"
+                    className="w-4 h-4 rounded text-[#2C5EAD]"
                   />
                 </label>
 
@@ -671,7 +671,7 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setStandFormat('a6')}
                     className={`py-2 px-3 rounded-xl text-xs font-semibold border ${
                       standFormat === 'a6'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400'
                     }`}
                   >
@@ -682,7 +682,7 @@ export const TableStandStudio: React.FC = () => {
                     onClick={() => setStandFormat('a5')}
                     className={`py-2 px-3 rounded-xl text-xs font-semibold border ${
                       standFormat === 'a5'
-                        ? 'border-[#30673A] bg-[#30673A]/20 text-white'
+                        ? 'border-[#2C5EAD] bg-[#2C5EAD]/20 text-white'
                         : 'border-neutral-800 bg-neutral-800 text-neutral-400'
                     }`}
                   >
@@ -703,13 +703,13 @@ export const TableStandStudio: React.FC = () => {
                 {/* Physical Stand Face */}
                 <div
                   ref={standRef}
-                  className={`print-stand-card relative bg-[#E9E9C7] text-[#1E231F] rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between items-center text-center select-none ${
+                  className={`print-stand-card relative bg-[#C4E2F5] text-[#1E231F] rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between items-center text-center select-none ${
                     standFormat === 'a6'
                       ? 'w-[315px] min-h-[460px] p-7'
                       : 'w-[380px] min-h-[550px] p-9'
                   }`}
                   style={{
-                    border: '3px solid #30673A',
+                    border: '3px solid #2C5EAD',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(48, 103, 58, 0.25)',
                   }}
                 >
@@ -717,36 +717,36 @@ export const TableStandStudio: React.FC = () => {
                   <div
                     className="absolute inset-2.5 rounded-xl pointer-events-none"
                     style={{
-                      border: '1px solid #30673A',
+                      border: '1px solid #2C5EAD',
                       opacity: 0.35,
                     }}
                   />
 
                   {/* Corner Flourishes */}
-                  <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-[#30673A]" />
-                  <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-[#30673A]" />
-                  <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-[#30673A]" />
-                  <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-[#30673A]" />
+                  <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-[#2C5EAD]" />
+                  <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-[#2C5EAD]" />
+                  <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-[#2C5EAD]" />
+                  <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-[#2C5EAD]" />
 
                   {/* 1. TOP SECTION — Hotel Branding */}
                   <div className="w-full space-y-1 z-10 pt-1">
                     <h2
-                      className="text-2xl sm:text-3xl font-bold tracking-tight text-[#30673A] glinster-font uppercase leading-tight line-clamp-2"
+                      className="text-2xl sm:text-3xl font-bold tracking-tight text-[#2C5EAD] glinster-font uppercase leading-tight line-clamp-2"
                       style={{ letterSpacing: '-0.02em' }}
                     >
                       {customBrandName}
                     </h2>
 
                     {customTagline && (
-                      <div className="text-[11px] font-bold tracking-widest text-[#E3792F] uppercase">
+                      <div className="text-[11px] font-bold tracking-widest text-[#1591DC] uppercase">
                         {customTagline}
                       </div>
                     )}
 
                     {/* Table Number Pill */}
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-[#30673A]/30 mt-2 shadow-2xs">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#E3792F]" />
-                      <span className="text-xs font-black tracking-wider uppercase text-[#30673A] font-mono">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-[#2C5EAD]/30 mt-2 shadow-2xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#1591DC]" />
+                      <span className="text-xs font-black tracking-wider uppercase text-[#2C5EAD] font-mono">
                         {qrMode === 'universal'
                           ? 'ENTER TABLE # ON SCAN'
                           : (editableTableNumber || selectedTable?.tableNumber || 'TABLE 04')}
@@ -756,13 +756,13 @@ export const TableStandStudio: React.FC = () => {
 
                   {/* 2. MIDDLE SECTION — High-Contrast Centered QR Code */}
                   <div
-                    className="my-4 p-3.5 rounded-2xl border-2 border-[#30673A] shadow-md z-10 flex flex-col items-center justify-center transition-colors"
+                    className="my-4 p-3.5 rounded-2xl border-2 border-[#2C5EAD] shadow-md z-10 flex flex-col items-center justify-center transition-colors"
                     style={{ backgroundColor: qrBgColor }}
                   >
                     {usePlaceholderQr ? (
                       /* Placeholder mode for visual approval */
-                      <div className="w-44 h-44 border-2 border-dashed border-[#30673A] bg-[#FAF8F2] flex flex-col items-center justify-center p-4 text-center rounded-lg">
-                        <div className="text-xs font-mono font-bold text-[#30673A] uppercase tracking-wider">
+                      <div className="w-44 h-44 border-2 border-dashed border-[#2C5EAD] bg-[#F4F9FD] flex flex-col items-center justify-center p-4 text-center rounded-lg">
+                        <div className="text-xs font-mono font-bold text-[#2C5EAD] uppercase tracking-wider">
                           [ DEMO QR CODE ]
                         </div>
                         <div className="text-[10px] text-neutral-500 mt-1 leading-snug">
@@ -785,14 +785,14 @@ export const TableStandStudio: React.FC = () => {
 
                   {/* Optional Wi-Fi box */}
                   {showWifi && (
-                    <div className="mb-2 px-3 py-1 rounded-lg bg-white/70 border border-[#30673A]/20 text-[10px] text-[#30673A] font-semibold z-10">
+                    <div className="mb-2 px-3 py-1 rounded-lg bg-white/70 border border-[#2C5EAD]/20 text-[10px] text-[#2C5EAD] font-semibold z-10">
                       📶 Wi-Fi: <span className="font-bold">{wifiSsid}</span> · Pass: <span className="font-mono">{wifiPassword}</span>
                     </div>
                   )}
 
                   {/* 3. INSTRUCTION BELOW QR CODE */}
                   <div className="w-full space-y-1 z-10 pb-2">
-                    <div className="text-xs sm:text-sm font-bold text-[#30673A] tracking-wider uppercase font-sans">
+                    <div className="text-xs sm:text-sm font-bold text-[#2C5EAD] tracking-wider uppercase font-sans">
                       {customInstruction}
                     </div>
                     <p className="text-[10px] text-neutral-600 max-w-xs mx-auto leading-tight">
@@ -803,8 +803,8 @@ export const TableStandStudio: React.FC = () => {
                   </div>
 
                   {/* 4. BOTTOM SECTION — Powered by Aurasdine */}
-                  <div className="w-full pt-2 border-t border-[#30673A]/20 z-10 flex items-center justify-center">
-                    <span className="text-[11px] font-semibold text-[#30673A] tracking-tight">
+                  <div className="w-full pt-2 border-t border-[#2C5EAD]/20 z-10 flex items-center justify-center">
+                    <span className="text-[11px] font-semibold text-[#2C5EAD] tracking-tight">
                       Powered by <strong className="font-bold">Aurasdine</strong>
                     </span>
                   </div>
@@ -825,7 +825,7 @@ export const TableStandStudio: React.FC = () => {
                   
                   {/* Freestanding Clear Acrylic Stand Frame with Glass Bevel Reflection */}
                   <div
-                    className="relative w-[290px] h-[420px] bg-[#E9E9C7] rounded-t-xl p-6 flex flex-col justify-between items-center text-center shadow-2xl border-4 border-white/60"
+                    className="relative w-[290px] h-[420px] bg-[#C4E2F5] rounded-t-xl p-6 flex flex-col justify-between items-center text-center shadow-2xl border-4 border-white/60"
                     style={{
                       boxShadow: '0 30px 60px -12px rgba(0,0,0,0.7), 0 0 0 6px rgba(255,255,255,0.2)',
                       transform: 'perspective(1000px) rotateX(4deg)',
@@ -839,20 +839,20 @@ export const TableStandStudio: React.FC = () => {
 
                     {/* Inner Content */}
                     <div className="w-full space-y-1 pt-1 z-10">
-                      <h3 className="text-2xl font-bold tracking-tight text-[#30673A] glinster-font uppercase">
+                      <h3 className="text-2xl font-bold tracking-tight text-[#2C5EAD] glinster-font uppercase">
                         {customBrandName}
                       </h3>
-                      <div className="text-[10px] font-bold tracking-widest text-[#E3792F] uppercase">
+                      <div className="text-[10px] font-bold tracking-widest text-[#1591DC] uppercase">
                         {customTagline}
                       </div>
-                      <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/70 border border-[#30673A]/30 text-[11px] font-bold text-[#30673A]">
+                      <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/70 border border-[#2C5EAD]/30 text-[11px] font-bold text-[#2C5EAD]">
                         {qrMode === 'universal' ? 'ALL TABLES' : editableTableNumber}
                       </div>
                     </div>
 
                     {/* QR Code in Acrylic */}
                     <div
-                      className="p-2.5 rounded-xl border-2 border-[#30673A] shadow-md z-10"
+                      className="p-2.5 rounded-xl border-2 border-[#2C5EAD] shadow-md z-10"
                       style={{ backgroundColor: qrBgColor }}
                     >
                       {qrDataUrl && (
@@ -865,7 +865,7 @@ export const TableStandStudio: React.FC = () => {
                     </div>
 
                     <div className="w-full space-y-0.5 z-10 pb-1">
-                      <div className="text-xs font-bold text-[#30673A] uppercase tracking-wide">
+                      <div className="text-xs font-bold text-[#2C5EAD] uppercase tracking-wide">
                         {customInstruction}
                       </div>
                       <div className="text-[9px] text-neutral-600">
@@ -873,8 +873,8 @@ export const TableStandStudio: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="w-full pt-1.5 border-t border-[#30673A]/20 z-10">
-                      <span className="text-[10px] text-[#30673A] font-semibold">
+                    <div className="w-full pt-1.5 border-t border-[#2C5EAD]/20 z-10">
+                      <span className="text-[10px] text-[#2C5EAD] font-semibold">
                         Powered by <strong>Aurasdine</strong>
                       </span>
                     </div>
@@ -888,7 +888,7 @@ export const TableStandStudio: React.FC = () => {
                       background: 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(220,225,220,0.6) 100%)',
                     }}
                   >
-                    <div className="w-48 h-1 bg-[#30673A]/30 rounded-full" />
+                    <div className="w-48 h-1 bg-[#2C5EAD]/30 rounded-full" />
                   </div>
 
                   {/* Surface Shadow */}
@@ -902,24 +902,24 @@ export const TableStandStudio: React.FC = () => {
               <div className="w-full flex flex-col items-center py-4">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 border border-dashed border-neutral-700 p-6 rounded-2xl bg-neutral-950">
                   {/* Front Side */}
-                  <div className="w-[220px] h-[310px] bg-[#E9E9C7] rounded-xl p-4 flex flex-col justify-between items-center text-center border-2 border-[#30673A]">
-                    <div className="text-xs font-bold text-[#30673A] glinster-font uppercase">
+                  <div className="w-[220px] h-[310px] bg-[#C4E2F5] rounded-xl p-4 flex flex-col justify-between items-center text-center border-2 border-[#2C5EAD]">
+                    <div className="text-xs font-bold text-[#2C5EAD] glinster-font uppercase">
                       {customBrandName}
                     </div>
                     {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-24 h-24" />}
-                    <div className="text-[9px] font-bold text-[#30673A]">FRONT FACE</div>
+                    <div className="text-[9px] font-bold text-[#2C5EAD]">FRONT FACE</div>
                   </div>
 
                   {/* Fold Line */}
                   <div className="h-40 border-l-2 border-dashed border-neutral-600 hidden sm:block" />
 
                   {/* Reverse Side */}
-                  <div className="w-[220px] h-[310px] bg-[#E9E9C7] rounded-xl p-4 flex flex-col justify-between items-center text-center border-2 border-[#30673A]">
-                    <div className="text-xs font-bold text-[#30673A] glinster-font uppercase">
+                  <div className="w-[220px] h-[310px] bg-[#C4E2F5] rounded-xl p-4 flex flex-col justify-between items-center text-center border-2 border-[#2C5EAD]">
+                    <div className="text-xs font-bold text-[#2C5EAD] glinster-font uppercase">
                       {customBrandName}
                     </div>
                     {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-24 h-24" />}
-                    <div className="text-[9px] font-bold text-[#30673A]">REVERSE FACE</div>
+                    <div className="text-[9px] font-bold text-[#2C5EAD]">REVERSE FACE</div>
                   </div>
                 </div>
               </div>
