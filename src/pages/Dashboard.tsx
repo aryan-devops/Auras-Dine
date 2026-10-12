@@ -1,36 +1,133 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, ChefHat, Bell, Settings, LayoutDashboard, KeyRound } from 'lucide-react';
+import {
+  Users,
+  ChefHat,
+  Bell,
+  Settings,
+  LayoutDashboard,
+  KeyRound,
+  Sparkles,
+  QrCode,
+  ArrowRight,
+} from 'lucide-react';
 import { RoleSwitcher } from '../components/common/RoleSwitcher';
 
 export const Dashboard: React.FC = () => {
   const sections = [
-    { name: 'Customer View', path: '/customer', icon: LayoutDashboard },
-    { name: 'Waiter View', path: '/waiter', icon: Bell },
-    { name: 'Kitchen View', path: '/kitchen', icon: ChefHat },
-    { name: 'Restaurant Admin', path: '/admin', icon: Settings },
-    { name: 'Staff & Waiter Login Gateway', path: '/staff-login', icon: KeyRound },
-    { name: 'Super Admin', path: '/superadmin', icon: Users },
-    { name: 'QR Table Stand', path: '/qr-stand', icon: LayoutDashboard },
+    {
+      name: 'Customer Digital Menu',
+      description: 'Mobile QR ordering experience for seated diners',
+      path: '/customer',
+      icon: LayoutDashboard,
+      badge: 'Guest View',
+      color: 'bg-emerald-50 text-[#30673A] border-emerald-200',
+    },
+    {
+      name: 'Waiter Calling Bell Terminal',
+      description: 'Live table paging, bill requests & food delivery pass',
+      path: '/waiter',
+      icon: Bell,
+      badge: 'Floor Staff',
+      color: 'bg-amber-50 text-[#E3792F] border-amber-200',
+    },
+    {
+      name: 'Kitchen Display System (KDS)',
+      description: 'Chef ticket queue, cooking timers & dish plating',
+      path: '/kitchen',
+      icon: ChefHat,
+      badge: 'Kitchen Staff',
+      color: 'bg-orange-50 text-orange-700 border-orange-200',
+    },
+    {
+      name: 'Staff & Waiter Login Gateway',
+      description: 'Secure hotel-scoped credential verification',
+      path: '/staff-login',
+      icon: KeyRound,
+      badge: 'Auth Portal',
+      color: 'bg-purple-50 text-purple-700 border-purple-200',
+    },
+    {
+      name: 'Restaurant Admin Dashboard',
+      description: 'Menu engineering, live analytics, tables & operations',
+      path: '/admin',
+      icon: Settings,
+      badge: 'Restaurant Manager',
+      color: 'bg-blue-50 text-blue-700 border-blue-200',
+    },
+    {
+      name: 'Super Admin Multi-Tenant Hub',
+      description: 'Tenant billing, SaaS subscriptions & platform governance',
+      path: '/superadmin',
+      icon: Users,
+      badge: 'Platform Owner',
+      color: 'bg-neutral-100 text-neutral-800 border-neutral-300',
+    },
+    {
+      name: 'QR Table Stand Studio',
+      description: 'Printable acrylic table tents & dedicated table QR codes',
+      path: '/qr-stand',
+      icon: QrCode,
+      badge: 'Print & Setup',
+      color: 'bg-teal-50 text-teal-700 border-teal-200',
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] p-8">
-      <div className="mb-4">
+    <div className="min-h-screen bg-[#FAF8F2] w-full max-w-full overflow-x-hidden">
+      <div className="w-full">
         <RoleSwitcher />
       </div>
-      <h1 className="text-3xl font-bold mb-8 text-[#1E231F]">Aurasdine Production Hub</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {sections.map((section) => (
-          <Link
-            key={section.path}
-            to={section.path}
-            className="flex items-center gap-4 p-6 bg-white border border-[#30673A]/20 rounded-lg hover:shadow-md transition-shadow"
-          >
-            <section.icon className="w-8 h-8 text-[#30673A]" />
-            <span className="text-xl font-semibold text-[#1E231F]">{section.name}</span>
-          </Link>
-        ))}
+
+      <div className="max-w-5xl mx-auto p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#30673A]/10 text-[#30673A] text-xs font-bold border border-[#30673A]/20 mb-1">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Aurasdine Multi-Tenant Suite</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-[#1E231F] glinster-font tracking-tight">
+            Operations & Role Launchpad
+          </h1>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
+            Select a live terminal view or management console to launch.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {sections.map((section) => {
+            const Icon = section.icon;
+            return (
+              <Link
+                key={section.path}
+                to={section.path}
+                className="group p-4 sm:p-5 bg-white border border-[#30673A]/15 hover:border-[#30673A]/40 rounded-2xl sm:rounded-3xl shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-3 active:scale-[0.99] cursor-pointer"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${section.color}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
+                      {section.badge}
+                    </span>
+                  </div>
+
+                  <h2 className="text-sm sm:text-base font-extrabold text-[#1E231F] group-hover:text-[#30673A] transition-colors leading-snug">
+                    {section.name}
+                  </h2>
+                  <p className="text-xs text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
+                    {section.description}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-bold text-[#30673A]">
+                  <span>Launch Portal</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

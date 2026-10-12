@@ -108,10 +108,30 @@ export const CustomerPage: React.FC = () => {
               {currentTenant.tagline} {currentTable ? `· Seated at ${currentTable.tableNumber}` : ''}
             </p>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="px-3 py-1 rounded-full bg-[#30673A]/10 text-[#30673A] text-xs font-bold border border-[#30673A]/20">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <span className="hidden xs:inline-block px-2.5 py-1 rounded-full bg-[#30673A]/10 text-[#30673A] text-xs font-bold border border-[#30673A]/20">
               {currentTenant.isOpen ? 'Open Now' : 'Closed'}
             </span>
+
+            {/* Call Waiter Bell Button */}
+            <button
+              type="button"
+              onClick={() => setIsServiceModalOpen(true)}
+              title="Page Floor Waiter"
+              aria-label="Call Waiter"
+              className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all flex items-center justify-center shadow-xs shrink-0 cursor-pointer active:scale-95 ${
+                hasActiveRequest
+                  ? 'bg-[#E3792F] text-white ring-2 ring-[#E3792F]/40 animate-pulse'
+                  : 'bg-[#FAF8F2] hover:bg-[#30673A]/10 text-[#30673A] border border-[#30673A]/25'
+              }`}
+            >
+              <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              {hasActiveRequest && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border border-white" />
+              )}
+            </button>
+
+            {/* Cart Button */}
             <button
               type="button"
               onClick={() => setIsCartDrawerOpen(true)}
@@ -411,10 +431,31 @@ export const CustomerPage: React.FC = () => {
       latestOrder.status !== 'cancelled';
     const hasCart = cartCount > 0;
 
-    if (!hasLiveOrder && !hasCart) return null;
+    if (!hasLiveOrder && !hasCart && !hasActiveRequest) return null;
 
     return (
       <div className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-lg mx-auto pointer-events-auto space-y-2.5 animate-in slide-in-from-bottom-3 duration-300">
+        {/* Active Waiter Call Notification Pill */}
+        {hasActiveRequest && (
+          <div
+            onClick={() => setIsServiceModalOpen(true)}
+            className="bg-[#1E231F]/95 backdrop-blur-md text-white p-2.5 px-3 rounded-2xl shadow-xl border border-[#E3792F]/50 flex items-center justify-between gap-3 cursor-pointer hover:border-[#E3792F] transition-colors"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-xl bg-[#E3792F] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <Bell className="w-3.5 h-3.5 animate-bounce" />
+              </div>
+              <div className="text-xs min-w-0">
+                <div className="font-bold text-[#E3792F] truncate">Floor Waiter Paged</div>
+                <div className="text-neutral-400 text-[10px] truncate">Staff alerted for your table</div>
+              </div>
+            </div>
+            <span className="text-[11px] font-bold text-[#E9E9C7] bg-white/10 px-2 py-0.5 rounded-lg shrink-0">
+              Details
+            </span>
+          </div>
+        )}
+
         {/* 1. Live Order Progress Bar */}
         {hasLiveOrder && (
           <div className="bg-[#1E231F]/95 backdrop-blur-md text-white p-3 rounded-2xl shadow-xl border border-white/10 flex items-center justify-between gap-3">
