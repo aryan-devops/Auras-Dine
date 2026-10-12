@@ -19,21 +19,21 @@ const options: {
     value: 'all',
     label: 'All Items',
     shortLabel: 'All',
-    activeColor: 'bg-[#1E231F] text-[#FAF8F2]',
+    activeColor: 'bg-[#1E231F] text-[#F4F9FD]',
   },
   {
     value: 'veg',
     label: 'Veg Only',
     shortLabel: 'Veg',
     icon: '●',
-    activeColor: 'bg-[#30673A] text-white',
+    activeColor: 'bg-[#2C5EAD] text-white',
   },
   {
     value: 'non_veg',
     label: 'Non-Veg',
     shortLabel: 'Non-Veg',
     icon: '▲',
-    activeColor: 'bg-[#E3792F] text-white',
+    activeColor: 'bg-[#1591DC] text-white',
   },
 ];
 
@@ -52,7 +52,7 @@ export const DietaryFilter: React.FC<DietaryFilterProps> = ({
       aria-label="Filter dishes by dietary classification"
       className={`inline-flex items-center ${
         isSm ? 'p-0.5' : 'p-1'
-      } rounded-full bg-[#E9E9C7]/40 border border-[#30673A]/15 backdrop-blur-sm shadow-xs ${className}`}
+      } rounded-full bg-[#C4E2F5]/40 border border-[#2C5EAD]/15 backdrop-blur-sm shadow-xs ${className}`}
     >
       {options.map((option) => {
         const isSelected = value === option.value;
@@ -69,7 +69,7 @@ export const DietaryFilter: React.FC<DietaryFilterProps> = ({
               isSm
                 ? 'min-h-[30px] px-2.5 py-1 text-xs'
                 : 'min-h-[34px] sm:min-h-[38px] px-3 sm:px-3.5 py-1 sm:py-1.5 text-xs sm:text-sm'
-            } rounded-full font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30673A] focus-visible:ring-offset-1 select-none ${
+            } rounded-full font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2C5EAD] focus-visible:ring-offset-1 select-none ${
               isSelected
                 ? `${option.activeColor} shadow-sm font-semibold scale-[1.02]`
                 : 'text-[#1E231F]/80 hover:text-[#1E231F] hover:bg-white/50'
@@ -79,8 +79,8 @@ export const DietaryFilter: React.FC<DietaryFilterProps> = ({
               <span
                 className={`text-[10px] leading-none ${
                   option.value === 'veg'
-                    ? isSelected ? 'text-[#FAF8F2]' : 'text-[#30673A]'
-                    : isSelected ? 'text-white' : 'text-[#E3792F]'
+                    ? isSelected ? 'text-[#F4F9FD]' : 'text-[#2C5EAD]'
+                    : isSelected ? 'text-white' : 'text-[#1591DC]'
                 }`}
                 aria-hidden="true"
               >

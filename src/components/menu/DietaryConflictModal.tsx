@@ -25,9 +25,9 @@ export const DietaryConflictModal: React.FC = () => {
       aria-labelledby="conflict-dialog-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-md bg-[#FFFFFF] rounded-2xl p-6 shadow-2xl border border-[#30673A]/15 overflow-hidden">
+      <div className="relative w-full max-w-md bg-[#FFFFFF] rounded-2xl p-6 shadow-2xl border border-[#2C5EAD]/15 overflow-hidden">
         {/* Accent top stripe */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#E3792F]" />
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#1591DC]" />
 
         {/* Close button */}
         <button
@@ -39,7 +39,7 @@ export const DietaryConflictModal: React.FC = () => {
         </button>
 
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-[#E3792F]/10 text-[#E3792F] rounded-xl shrink-0 mt-1">
+          <div className="p-3 bg-[#1591DC]/10 text-[#1591DC] rounded-xl shrink-0 mt-1">
             <AlertCircle className="w-6 h-6" />
           </div>
           <div>
@@ -50,20 +50,20 @@ export const DietaryConflictModal: React.FC = () => {
               Cart Contains {conflictTypeLabel.charAt(0).toUpperCase() + conflictTypeLabel.slice(1)} Items
             </h3>
             <p className="text-sm text-[#1E231F]/70 mt-1 leading-relaxed">
-              You are switching your menu view to <strong className="text-[#30673A]">{targetLabel}</strong>, but your cart currently has {conflictingCartItems.length} {conflictTypeLabel} item{conflictingCartItems.length > 1 ? 's' : ''}:
+              You are switching your menu view to <strong className="text-[#2C5EAD]">{targetLabel}</strong>, but your cart currently has {conflictingCartItems.length} {conflictTypeLabel} item{conflictingCartItems.length > 1 ? 's' : ''}:
             </p>
           </div>
         </div>
 
         {/* List of conflicting items */}
-        <div className="my-4 p-3 bg-[#FAF8F2] rounded-xl border border-neutral-200/60 max-h-40 overflow-y-auto space-y-2">
+        <div className="my-4 p-3 bg-[#F4F9FD] rounded-xl border border-neutral-200/60 max-h-40 overflow-y-auto space-y-2">
           {conflictingCartItems.map((item) => (
             <div
               key={item.cartItemId}
               className="flex items-center justify-between text-xs text-[#1E231F]"
             >
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-[#E3792F] font-bold">▲</span>
+                <span className="text-[10px] text-[#1591DC] font-bold">▲</span>
                 <span className="font-medium">{item.menuItem.name}</span>
                 <span className="text-neutral-400">× {item.quantity}</span>
               </div>
@@ -92,9 +92,9 @@ export const DietaryConflictModal: React.FC = () => {
           <button
             type="button"
             onClick={() => handleResolveConflict('keep_cart')}
-            className="w-full py-2.5 px-4 bg-[#E9E9C7]/50 hover:bg-[#E9E9C7] text-[#1E231F] rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border border-[#30673A]/20 transition-colors"
+            className="w-full py-2.5 px-4 bg-[#C4E2F5]/50 hover:bg-[#C4E2F5] text-[#1E231F] rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border border-[#2C5EAD]/20 transition-colors"
           >
-            <ShoppingBag className="w-4 h-4 text-[#30673A]" />
+            <ShoppingBag className="w-4 h-4 text-[#2C5EAD]" />
             Keep my cart & filter view
           </button>
 
