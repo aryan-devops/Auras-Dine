@@ -79,9 +79,9 @@ export const SuperAdminView: React.FC = () => {
   const [newTenantPlan, setNewTenantPlan] = useState<'3_months' | '6_months' | '12_months'>('6_months');
   const [newTenantTax, setNewTenantTax] = useState('6');
   const [newTenantService, setNewTenantService] = useState('5');
-  const [newPrimaryColor, setNewPrimaryColor] = useState('#30673A');
-  const [newAccentColor, setNewAccentColor] = useState('#E3792F');
-  const [newSecondaryColor, setNewSecondaryColor] = useState('#E9E9C7');
+  const [newPrimaryColor, setNewPrimaryColor] = useState('#2C5EAD');
+  const [newAccentColor, setNewAccentColor] = useState('#1591DC');
+  const [newSecondaryColor, setNewSecondaryColor] = useState('#C4E2F5');
 
   // Password Management State
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -234,13 +234,13 @@ export const SuperAdminView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1E231F] text-[#FAF8F2] p-4 sm:p-6 pb-28">
+    <div className="min-h-screen bg-[#1E231F] text-[#F4F9FD] p-4 sm:p-6 pb-28">
       {/* Viewport restriction (< 1024px): Desktop-Only Experience Guard (Requirement 5.C) */}
       <div className="lg:hidden flex flex-col items-center justify-center min-h-[75vh] p-6 text-center max-w-md mx-auto my-auto animate-in fade-in">
-        <div className="w-16 h-16 rounded-3xl bg-[#E3792F]/20 border border-[#E3792F]/40 flex items-center justify-center text-[#E3792F] mb-6 shadow-xl">
+        <div className="w-16 h-16 rounded-3xl bg-[#1591DC]/20 border border-[#1591DC]/40 flex items-center justify-center text-[#1591DC] mb-6 shadow-xl">
           <Monitor className="w-8 h-8" />
         </div>
-        <span className="text-[11px] uppercase tracking-widest font-mono font-bold text-[#E3792F] bg-[#E3792F]/10 px-3 py-1 rounded-full border border-[#E3792F]/30 mb-3">
+        <span className="text-[11px] uppercase tracking-widest font-mono font-bold text-[#1591DC] bg-[#1591DC]/10 px-3 py-1 rounded-full border border-[#1591DC]/30 mb-3">
           1024px+ Viewport Required
         </span>
         <h2 className="text-2xl font-bold font-heading glinster-font text-white mb-2">
@@ -256,18 +256,18 @@ export const SuperAdminView: React.FC = () => {
           </div>
           <div className="flex justify-between items-center">
             <span>Access Security:</span>
-            <span className="text-[#30673A] font-bold">Enforced by Server-Side RLS</span>
+            <span className="text-[#2C5EAD] font-bold">Enforced by Server-Side RLS</span>
           </div>
           <div className="flex justify-between items-center">
             <span>Mobile Management:</span>
-            <span className="text-[#FAF8F2] font-semibold">Restaurant Admin Available</span>
+            <span className="text-[#F4F9FD] font-semibold">Restaurant Admin Available</span>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
           <button
             type="button"
             onClick={() => setCurrentRole('restaurant_admin')}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
           >
             Open Restaurant Admin
           </button>
@@ -287,7 +287,7 @@ export const SuperAdminView: React.FC = () => {
         {/* 1. Header Bar */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-neutral-800">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#E3792F] to-[#d9661b] text-white flex items-center justify-center font-bold text-xl shadow-lg">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1591DC] to-[#d9661b] text-white flex items-center justify-center font-bold text-xl shadow-lg">
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
@@ -295,7 +295,7 @@ export const SuperAdminView: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-bold glinster-font text-white">
                   Aurasdine · Platform Super Admin
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#E3792F]/20 text-[#E3792F] border border-[#E3792F]/40 font-mono">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#1591DC]/20 text-[#1591DC] border border-[#1591DC]/40 font-mono">
                   Multi-Tenant Root
                 </span>
               </div>
@@ -309,7 +309,7 @@ export const SuperAdminView: React.FC = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setIsOnboardModalOpen(true)}
-              className="py-2 px-3.5 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
+              className="py-2 px-3.5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
             >
               <Plus className="w-4 h-4" />
               <span>Onboard Restaurant</span>
@@ -340,7 +340,7 @@ export const SuperAdminView: React.FC = () => {
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <TrendingUp className="w-3.5 h-3.5 text-[#30673A]" />
+            <TrendingUp className="w-3.5 h-3.5 text-[#2C5EAD]" />
             <span>Overview & KPIs</span>
           </button>
 
@@ -352,7 +352,7 @@ export const SuperAdminView: React.FC = () => {
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <Building2 className="w-3.5 h-3.5 text-[#E3792F]" />
+            <Building2 className="w-3.5 h-3.5 text-[#1591DC]" />
             <span>Tenants Directory ({tenants.length})</span>
           </button>
 
@@ -413,12 +413,12 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Monthly Recurring Revenue (MRR)</span>
-                  <DollarSign className="w-4 h-4 text-[#30673A]" />
+                  <DollarSign className="w-4 h-4 text-[#2C5EAD]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-white mt-2">
                   ₹{estimatedMRR.toFixed(2)}
                 </div>
-                <div className="text-[11px] text-[#30673A] font-semibold mt-1 flex items-center gap-1">
+                <div className="text-[11px] text-[#2C5EAD] font-semibold mt-1 flex items-center gap-1">
                   <ArrowUpRight className="w-3 h-3" />
                   <span>ARR run-rate: ₹{estimatedARR.toFixed(0)}</span>
                 </div>
@@ -427,7 +427,7 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Active SaaS Tenants</span>
-                  <Building2 className="w-4 h-4 text-[#E3792F]" />
+                  <Building2 className="w-4 h-4 text-[#1591DC]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-white mt-2">
                   {activeTenants} / {totalTenants}
@@ -470,12 +470,12 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-white glinster-font flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#30673A]" />
+                    <Building2 className="w-4 h-4 text-[#2C5EAD]" />
                     Restaurant Tenant Roster
                   </h3>
                   <button
                     onClick={() => setActiveTab('tenants')}
-                    className="text-xs text-[#E3792F] hover:underline font-semibold"
+                    className="text-xs text-[#1591DC] hover:underline font-semibold"
                   >
                     View All →
                   </button>
@@ -525,12 +525,12 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-white glinster-font flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#E3792F]" />
+                    <Clock className="w-4 h-4 text-[#1591DC]" />
                     Recent Platform Audit Events
                   </h3>
                   <button
                     onClick={() => setActiveTab('audit')}
-                    className="text-xs text-[#E3792F] hover:underline font-semibold"
+                    className="text-xs text-[#1591DC] hover:underline font-semibold"
                   >
                     Full Log →
                   </button>
@@ -543,7 +543,7 @@ export const SuperAdminView: React.FC = () => {
                       className="p-2.5 bg-neutral-800/60 rounded-xl text-xs space-y-1"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold font-mono text-[11px] text-[#E9E9C7]">
+                        <span className="font-bold font-mono text-[11px] text-[#C4E2F5]">
                           {log.action}
                         </span>
                         <span className="text-[10px] text-neutral-500 font-mono">
@@ -583,7 +583,7 @@ export const SuperAdminView: React.FC = () => {
                     placeholder="Search restaurant..."
                     value={searchTenant}
                     onChange={(e) => setSearchTenant(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                    className="pl-8 pr-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                   />
                 </div>
 
@@ -633,7 +633,7 @@ export const SuperAdminView: React.FC = () => {
                             {t.cuisine}
                           </td>
                           <td className="py-3 px-4">
-                            <div className="font-mono font-bold text-[#E9E9C7]">
+                            <div className="font-mono font-bold text-[#C4E2F5]">
                               {t.subscription.planName}
                             </div>
                             <div className="text-[11px] text-neutral-400">
@@ -673,7 +673,7 @@ export const SuperAdminView: React.FC = () => {
                                   setSelectedTenantForRenew(t.id);
                                   setIsRenewModalOpen(true);
                                 }}
-                                className="px-2 py-1 rounded-lg bg-[#30673A] hover:bg-[#204828] text-white text-[11px] font-semibold flex items-center gap-1"
+                                className="px-2 py-1 rounded-lg bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-[11px] font-semibold flex items-center gap-1"
                               >
                                 <Calendar className="w-3 h-3" />
                                 Renew
@@ -747,7 +747,7 @@ export const SuperAdminView: React.FC = () => {
                   key={plan.id}
                   className={`p-6 rounded-2xl bg-neutral-900 border flex flex-col justify-between ${
                     plan.recommended
-                      ? 'border-[#30673A] ring-1 ring-[#30673A]'
+                      ? 'border-[#2C5EAD] ring-1 ring-[#2C5EAD]'
                       : 'border-neutral-800'
                   }`}
                 >
@@ -757,7 +757,7 @@ export const SuperAdminView: React.FC = () => {
                         {plan.name}
                       </h3>
                       {plan.recommended && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#30673A] text-white font-bold">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#2C5EAD] text-white font-bold">
                           Featured
                         </span>
                       )}
@@ -772,14 +772,14 @@ export const SuperAdminView: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="text-xs text-[#E9E9C7] font-semibold mt-1">
+                    <div className="text-xs text-[#C4E2F5] font-semibold mt-1">
                       Up to {plan.maxTables >= 999 ? 'Unlimited' : plan.maxTables} Dining Tables
                     </div>
 
                     <div className="my-4 pt-4 border-t border-neutral-800 space-y-2">
                       {plan.features.map((feat, i) => (
                         <div key={i} className="flex items-center gap-2 text-xs text-neutral-300">
-                          <CheckCircle className="w-3.5 h-3.5 text-[#30673A] shrink-0" />
+                          <CheckCircle className="w-3.5 h-3.5 text-[#2C5EAD] shrink-0" />
                           <span>{feat}</span>
                         </div>
                       ))}
@@ -855,7 +855,7 @@ export const SuperAdminView: React.FC = () => {
                           <div>{inv.planName}</div>
                           <div className="text-[10px] text-neutral-500">{inv.billingPeriod}</div>
                         </td>
-                        <td className="py-3 px-4 font-mono font-bold text-[#E9E9C7]">
+                        <td className="py-3 px-4 font-mono font-bold text-[#C4E2F5]">
                           ₹{inv.amount.toFixed(2)}
                         </td>
                         <td className="py-3 px-4">
@@ -917,14 +917,14 @@ export const SuperAdminView: React.FC = () => {
                             ? 'bg-red-500'
                             : log.severity === 'warning'
                             ? 'bg-amber-500'
-                            : 'bg-[#30673A]'
+                            : 'bg-[#2C5EAD]'
                         }`}
                       />
                       <span className="font-mono font-bold text-xs text-white">
                         {log.action}
                       </span>
                       {log.tenantName && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-[#E9E9C7] font-semibold">
+                        <span className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-[#C4E2F5] font-semibold">
                           {log.tenantName}
                         </span>
                       )}
@@ -976,7 +976,7 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400 text-xs">
                   <span>Realtime WebSocket Channels</span>
-                  <Radio className="w-4 h-4 text-[#30673A]" />
+                  <Radio className="w-4 h-4 text-[#2C5EAD]" />
                 </div>
                 <div className="text-2xl font-mono font-black text-white mt-2">
                   {healthStatus.realtimeConnections}
@@ -989,7 +989,7 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400 text-xs">
                   <span>Storage Egress Bandwidth</span>
-                  <Activity className="w-4 h-4 text-[#E3792F]" />
+                  <Activity className="w-4 h-4 text-[#1591DC]" />
                 </div>
                 <div className="text-2xl font-mono font-black text-white mt-2">
                   {healthStatus.storageBandwidthMB} MB
@@ -1019,7 +1019,7 @@ export const SuperAdminView: React.FC = () => {
             {/* Global Broadcast Announcement Setting */}
             <div className="p-5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-4">
               <h3 className="text-sm font-bold text-white glinster-font flex items-center gap-2">
-                <Radio className="w-4 h-4 text-[#E3792F]" />
+                <Radio className="w-4 h-4 text-[#1591DC]" />
                 Platform-Wide Announcement Banner
               </h3>
               <p className="text-xs text-neutral-400">
@@ -1039,7 +1039,7 @@ export const SuperAdminView: React.FC = () => {
                         },
                       })
                     }
-                    className="w-4 h-4 rounded text-[#30673A]"
+                    className="w-4 h-4 rounded text-[#2C5EAD]"
                   />
                   <span className="text-xs font-bold text-white">
                     Enable Live Broadcast Announcement
@@ -1061,7 +1061,7 @@ export const SuperAdminView: React.FC = () => {
                         },
                       })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                    className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                   />
                 </div>
               </div>
@@ -1100,7 +1100,7 @@ export const SuperAdminView: React.FC = () => {
                   placeholder="e.g. Botanica Osteria"
                   value={newTenantName}
                   onChange={(e) => setNewTenantName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                 />
               </div>
 
@@ -1240,7 +1240,7 @@ export const SuperAdminView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-5 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white font-bold"
+                  className="py-2 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white font-bold"
                 >
                   Onboard & Provision
                 </button>
@@ -1272,7 +1272,7 @@ export const SuperAdminView: React.FC = () => {
                   onClick={() => setSelectedPlanForRenew(p.id)}
                   className={`w-full p-3 rounded-xl border flex items-center justify-between text-left transition-colors ${
                     selectedPlanForRenew === p.id
-                      ? 'border-[#30673A] bg-[#30673A]/20'
+                      ? 'border-[#2C5EAD] bg-[#2C5EAD]/20'
                       : 'border-neutral-800 bg-neutral-800/40 hover:bg-neutral-800'
                   }`}
                 >
@@ -1282,7 +1282,7 @@ export const SuperAdminView: React.FC = () => {
                       {p.durationMonths} months duration
                     </div>
                   </div>
-                  <span className="font-mono font-bold text-[#E9E9C7]">
+                  <span className="font-mono font-bold text-[#C4E2F5]">
                     ₹{p.price}
                   </span>
                 </button>
@@ -1300,7 +1300,7 @@ export const SuperAdminView: React.FC = () => {
               <button
                 type="button"
                 onClick={handleRenewSubmit}
-                className="py-2 px-5 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold"
+                className="py-2 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold"
               >
                 Execute Renewal
               </button>
@@ -1357,7 +1357,7 @@ export const SuperAdminView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-4 rounded-xl bg-[#30673A] text-white font-bold"
+                  className="py-2 px-4 rounded-xl bg-[#2C5EAD] text-white font-bold"
                 >
                   Save Tier
                 </button>
@@ -1417,7 +1417,7 @@ export const SuperAdminView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-5 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold"
+                  className="py-2 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold"
                 >
                   Reset Password
                 </button>
