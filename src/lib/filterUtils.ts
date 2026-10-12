@@ -61,7 +61,7 @@ export function getFoodTypeLabel(foodType: FoodType): {
     case 'veg':
       return {
         label: 'Pure Veg',
-        badgeClass: 'text-[#30673A] border-[#30673A]',
+        badgeClass: 'text-[#2C5EAD] border-[#2C5EAD]',
         symbol: '●',
       };
     case 'vegan':

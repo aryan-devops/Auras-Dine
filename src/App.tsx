@@ -58,7 +58,7 @@ const MainAppContent: React.FC = () => {
       <Layout onOpenCart={() => setIsCartDrawerOpen(true)}>
         {/* 2b. Broadcast Announcement Banner if enabled by Super Admin */}
         {platformSettings.announcement.enabled && platformSettings.announcement.message && (
-          <div className="bg-[#E3792F] text-white text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2 shadow-xs animate-in fade-in w-full max-w-full">
+          <div className="bg-[#1591DC] text-white text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2 shadow-xs animate-in fade-in w-full max-w-full">
             <span className="font-bold uppercase tracking-wider text-[10px] bg-black/20 px-1.5 py-0.5 rounded">
               Platform Notice
             </span>

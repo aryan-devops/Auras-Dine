@@ -161,11 +161,11 @@ export const RestaurantAdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] flex flex-col justify-center items-center p-4 sm:p-6 selection:bg-[#30673A] selection:text-white">
+    <div className="min-h-screen bg-[#F4F9FD] flex flex-col justify-center items-center p-4 sm:p-6 selection:bg-[#2C5EAD] selection:text-white">
       <div className="w-full max-w-md space-y-4">
         {/* Branding Header */}
         <div className="text-center space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#30673A] text-xs font-bold tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#2C5EAD] text-xs font-bold tracking-wide">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>High-Security Staff Gateway</span>
           </div>
@@ -209,7 +209,7 @@ export const RestaurantAdminLogin: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-bold text-[#1E231F] flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-[#30673A]" />
+                  <Building2 className="w-3.5 h-3.5 text-[#2C5EAD]" />
                   <span>Hotel / Restaurant Name *</span>
                 </label>
                 {matchedTenantPreview && (
@@ -229,7 +229,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                     setErrorMessage('');
                   }}
                   disabled={lockoutRemaining > 0}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 text-[#1E231F] placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A] disabled:opacity-50 transition-all font-medium"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 text-[#1E231F] placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD] disabled:opacity-50 transition-all font-medium"
                   required
                 />
               </div>
@@ -241,7 +241,7 @@ export const RestaurantAdminLogin: React.FC = () => {
             {/* Input 2: Staff User ID */}
             <div>
               <label className="text-xs font-bold text-[#1E231F] flex items-center gap-1.5 mb-1.5">
-                <User className="w-3.5 h-3.5 text-[#30673A]" />
+                <User className="w-3.5 h-3.5 text-[#2C5EAD]" />
                 <span>Staff User ID / Username *</span>
               </label>
               <input
@@ -253,7 +253,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                   setErrorMessage('');
                 }}
                 disabled={lockoutRemaining > 0}
-                className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl bg-[#FAF8F2] border border-neutral-200 text-[#1E231F] placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A] disabled:opacity-50 transition-all"
+                className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl bg-[#F4F9FD] border border-neutral-200 text-[#1E231F] placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD] disabled:opacity-50 transition-all"
                 required
               />
             </div>
@@ -261,7 +261,7 @@ export const RestaurantAdminLogin: React.FC = () => {
             {/* Input 3: Security Password */}
             <div>
               <label className="text-xs font-bold text-[#1E231F] flex items-center gap-1.5 mb-1.5">
-                <Lock className="w-3.5 h-3.5 text-[#30673A]" />
+                <Lock className="w-3.5 h-3.5 text-[#2C5EAD]" />
                 <span>Security Password *</span>
               </label>
               <div className="relative">
@@ -274,7 +274,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                     setErrorMessage('');
                   }}
                   disabled={lockoutRemaining > 0}
-                  className="w-full pl-3.5 pr-10 py-2.5 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 text-[#1E231F] placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A] disabled:opacity-50 transition-all"
+                  className="w-full pl-3.5 pr-10 py-2.5 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 text-[#1E231F] placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD] disabled:opacity-50 transition-all"
                   required
                 />
                 <button
@@ -300,7 +300,7 @@ export const RestaurantAdminLogin: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading || lockoutRemaining > 0}
-              className="w-full py-3 px-4 bg-[#30673A] hover:bg-[#204828] active:scale-98 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full py-3 px-4 bg-[#2C5EAD] hover:bg-[#1D4482] active:scale-98 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -326,10 +326,10 @@ export const RestaurantAdminLogin: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowDemoCredentials(!showDemoCredentials)}
-              className="w-full flex items-center justify-between text-[11px] font-bold text-neutral-500 hover:text-[#30673A] transition-colors cursor-pointer py-1"
+              className="w-full flex items-center justify-between text-[11px] font-bold text-neutral-500 hover:text-[#2C5EAD] transition-colors cursor-pointer py-1"
             >
               <span className="flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#E3792F]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#1591DC]" />
                 <span>Quick Demo Accounts (Click to Fill)</span>
               </span>
               <span className="text-[10px] text-neutral-400">
@@ -344,8 +344,8 @@ export const RestaurantAdminLogin: React.FC = () => {
                 </p>
 
                 {/* Hotel 1: The Green Table */}
-                <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-neutral-200/80 space-y-1.5">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#30673A]">
+                <div className="p-2.5 rounded-xl bg-[#F4F9FD] border border-neutral-200/80 space-y-1.5">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#2C5EAD]">
                     The Green Table
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
@@ -354,7 +354,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                       onClick={() =>
                         fillCredentials('The Green Table', 'david.server', 'password123')
                       }
-                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#30673A] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
+                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#2C5EAD] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
                     >
                       <div className="font-bold text-[#1E231F] flex items-center gap-1">
                         <UtensilsCrossed className="w-2.5 h-2.5 text-emerald-700" />
@@ -370,7 +370,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                       onClick={() =>
                         fillCredentials('The Green Table', 'marco.chef', 'password123')
                       }
-                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#30673A] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
+                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#2C5EAD] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
                     >
                       <div className="font-bold text-[#1E231F] flex items-center gap-1">
                         <ChefHat className="w-2.5 h-2.5 text-amber-700" />
@@ -386,7 +386,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                       onClick={() =>
                         fillCredentials('The Green Table', 'priya.waiter', 'password123')
                       }
-                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#30673A] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
+                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#2C5EAD] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
                     >
                       <div className="font-bold text-[#1E231F] flex items-center gap-1">
                         <UtensilsCrossed className="w-2.5 h-2.5 text-emerald-700" />
@@ -402,7 +402,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                       onClick={() =>
                         fillCredentials('The Green Table', 'admin.greentable', 'password123')
                       }
-                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#30673A] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
+                      className="p-1.5 bg-white rounded-lg border border-neutral-200/60 hover:border-[#2C5EAD] text-left text-[11px] cursor-pointer transition-all hover:shadow-2xs"
                     >
                       <div className="font-bold text-[#1E231F] flex items-center gap-1">
                         <ShieldCheck className="w-2.5 h-2.5 text-purple-700" />
@@ -416,7 +416,7 @@ export const RestaurantAdminLogin: React.FC = () => {
                 </div>
 
                 {/* Hotel 2: Urban Grill House */}
-                <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-neutral-200/80 space-y-1.5">
+                <div className="p-2.5 rounded-xl bg-[#F4F9FD] border border-neutral-200/80 space-y-1.5">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
                     Urban Grill House
                   </div>

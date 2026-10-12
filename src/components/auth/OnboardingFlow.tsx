@@ -70,7 +70,7 @@ export const OnboardingFlow: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FAF8F2]">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#F4F9FD]">
       <div id="recaptcha-container"></div>
       
       {step === 'auth' && (

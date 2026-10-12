@@ -60,12 +60,12 @@ export const CustomerAuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-[#30673A]/20">
+    <div className="min-h-screen bg-[#F4F9FD] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-[#2C5EAD]/20">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-[#30673A] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
-            <Utensils className="w-8 h-8 text-[#E9E9C7]" />
+          <div className="w-16 h-16 rounded-2xl bg-[#2C5EAD] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+            <Utensils className="w-8 h-8 text-[#C4E2F5]" />
           </div>
           <h1 className="text-2xl font-bold text-[#1E231F] glinster-font">
             {tenant.name}
@@ -74,19 +74,19 @@ export const CustomerAuthPage: React.FC = () => {
         </div>
 
         {table && (
-          <div className="mb-6 p-3 bg-[#FAF8F2] rounded-2xl border border-neutral-200 flex items-center justify-between text-xs font-semibold text-neutral-700">
+          <div className="mb-6 p-3 bg-[#F4F9FD] rounded-2xl border border-neutral-200 flex items-center justify-between text-xs font-semibold text-neutral-700">
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#E3792F]" />
+              <MapPin className="w-4 h-4 text-[#1591DC]" />
               Seated at:
             </span>
-            <span className="font-bold text-[#30673A] font-mono">{table.tableNumber}</span>
+            <span className="font-bold text-[#2C5EAD] font-mono">{table.tableNumber}</span>
           </div>
         )}
 
         <form onSubmit={handleCheckInAndAuth} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-[#30673A]" />
+              <User className="w-3.5 h-3.5 text-[#2C5EAD]" />
               Your Full Name
             </label>
             <input
@@ -94,14 +94,14 @@ export const CustomerAuthPage: React.FC = () => {
               placeholder="e.g. Alex Johnson"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#FAF8F2] border border-neutral-200 text-[#1E231F] text-sm focus:outline-none focus:ring-2 focus:ring-[#30673A]"
+              className="w-full px-4 py-3 rounded-xl bg-[#F4F9FD] border border-neutral-200 text-[#1E231F] text-sm focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]"
               required
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[#30673A]" />
+              <Phone className="w-3.5 h-3.5 text-[#2C5EAD]" />
               Phone Number
             </label>
             <input
@@ -109,7 +109,7 @@ export const CustomerAuthPage: React.FC = () => {
               placeholder="e.g. +1 (555) 000-0000"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#FAF8F2] border border-neutral-200 text-[#1E231F] text-sm focus:outline-none focus:ring-2 focus:ring-[#30673A]"
+              className="w-full px-4 py-3 rounded-xl bg-[#F4F9FD] border border-neutral-200 text-[#1E231F] text-sm focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]"
               required
             />
           </div>
@@ -121,9 +121,9 @@ export const CustomerAuthPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 px-5 rounded-2xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
+            className="w-full py-3.5 px-5 rounded-2xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
           >
-            <CheckCircle2 className="w-4 h-4 text-[#E9E9C7]" />
+            <CheckCircle2 className="w-4 h-4 text-[#C4E2F5]" />
             <span>{isSubmitting ? 'Saving & Authenticating...' : 'Authenticate & Open Menu'}</span>
           </button>
         </form>
