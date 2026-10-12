@@ -203,7 +203,14 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     if (saved) {
       try {
         const parsed: RestaurantTenant[] = JSON.parse(saved);
-        return parsed.map((t) => ({ ...t, currency: 'INR', currencySymbol: '₹' }));
+        return parsed.map((t) => ({
+          ...t,
+          currency: 'INR',
+          currencySymbol: '₹',
+          primaryColor: t.primaryColor === '#2C5EAD' || !t.primaryColor ? '#2C5EAD' : t.primaryColor,
+          accentColor: t.accentColor === '#1591DC' || !t.accentColor ? '#1591DC' : t.accentColor,
+          secondaryColor: t.secondaryColor === '#C4E2F5' || !t.secondaryColor ? '#C4E2F5' : t.secondaryColor,
+        }));
       } catch (e) {
         // Fallback to initial
       }
@@ -246,7 +253,19 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
   // 4. Categories & Menu Items
   const [categories, setCategories] = useState<MenuCategory[]>(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}categories`);
-    return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
+    if (!saved) return INITIAL_CATEGORIES;
+    try {
+      const parsed: MenuCategory[] = JSON.parse(saved);
+      return parsed.map((cat) => {
+        const initial = INITIAL_CATEGORIES.find((c) => c.id === cat.id);
+        if (initial && (!cat.imageUrl || (initial.imageUrl && cat.imageUrl !== initial.imageUrl))) {
+          return { ...cat, imageUrl: initial.imageUrl };
+        }
+        return cat;
+      });
+    } catch {
+      return INITIAL_CATEGORIES;
+    }
   });
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
@@ -389,6 +408,10 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY_PREFIX}currentTableId`, currentTableId);
   }, [currentTableId]);
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}categories`, JSON.stringify(categories));
+  }, [categories]);
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY_PREFIX}menuItems`, JSON.stringify(menuItems));
@@ -1578,9 +1601,9 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       tagline: tenantData.tagline || 'Artisanal dining & authentic hospitality',
       cuisine: tenantData.cuisine || 'Modern Contemporary',
       description: `${tenantData.name} offers handcrafted specialties and seasonal dining.`,
-      primaryColor: tenantData.primaryColor || '#30673A',
-      accentColor: tenantData.accentColor || '#E3792F',
-      secondaryColor: tenantData.secondaryColor || '#E9E9C7',
+      primaryColor: tenantData.primaryColor || '#2C5EAD',
+      accentColor: tenantData.accentColor || '#1591DC',
+      secondaryColor: tenantData.secondaryColor || '#C4E2F5',
       currency: 'INR',
       currencySymbol: '₹',
       taxRatePercent: tenantData.taxRatePercent ?? 6,

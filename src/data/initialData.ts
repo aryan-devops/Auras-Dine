@@ -56,9 +56,9 @@ export const INITIAL_TENANTS: RestaurantTenant[] = [
     tagline: 'Farm-to-Table Bistro & Botanical Dining',
     cuisine: 'Contemporary Artisanal & Continental',
     description: 'Fresh seasonal ingredients, slow-cooked heirloom curries, and handcrafted botanical mocktails in a lush retro dining hall.',
-    primaryColor: '#30673A',
-    accentColor: '#E3792F',
-    secondaryColor: '#E9E9C7',
+    primaryColor: '#2C5EAD',
+    accentColor: '#1591DC',
+    secondaryColor: '#C4E2F5',
     currency: 'INR',
     currencySymbol: '₹',
     taxRatePercent: 6,
@@ -84,9 +84,9 @@ export const INITIAL_TENANTS: RestaurantTenant[] = [
     tagline: 'Wood-Fired Steaks, Burgers & Craft Brews',
     cuisine: 'Modern Smokehouse & American Grill',
     description: 'Hardwood smoked ribs, aged patties, crispy tossed wings, and hand-cut truffle fries in an industrial-chic hall.',
-    primaryColor: '#1F2421',
-    accentColor: '#E3792F',
-    secondaryColor: '#E9E9C7',
+    primaryColor: '#2C5EAD',
+    accentColor: '#1591DC',
+    secondaryColor: '#C4E2F5',
     currency: 'INR',
     currencySymbol: '₹',
     taxRatePercent: 8,
@@ -116,6 +116,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'starters',
     description: 'Crispy bites, garden tapas and wood-fired skewers',
     displayOrder: 1,
+    imageUrl: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'cat-mains',
@@ -124,6 +125,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'mains',
     description: 'Slow-simmered regional signatures and fragrant grains',
     displayOrder: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'cat-pizzas',
@@ -132,6 +134,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'pizzas',
     description: '48-hour fermented sourdough with buffalo mozzarella',
     displayOrder: 3,
+    imageUrl: 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'cat-desserts',
@@ -140,6 +143,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'desserts',
     description: 'Warm confections and house-churned gelatos',
     displayOrder: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'cat-drinks',
@@ -148,6 +152,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'drinks',
     description: 'Cold-pressed infusions, iced teas and sparkling sodas',
     displayOrder: 5,
+    imageUrl: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=400&q=80',
   },
 
   // Tenant B: Urban Grill House
@@ -158,6 +163,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'burgers',
     description: 'Double smashed patties with brioche buns',
     displayOrder: 1,
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'cat-ug-grill',
@@ -166,6 +172,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'grill',
     description: 'Slow-smoked cuts and glazed skewers',
     displayOrder: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'cat-ug-sides',
@@ -174,6 +181,7 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
     slug: 'sides',
     description: 'Fries, rings, and mac & cheese',
     displayOrder: 3,
+    imageUrl: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=400&q=80',
   },
 ];
 
