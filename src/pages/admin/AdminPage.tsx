@@ -40,8 +40,9 @@ import {
   CheckCircle2,
   Lock,
   Shuffle,
+  Upload,
 } from 'lucide-react';
-import { FoodType, MenuItem, StaffMember, StaffRole } from '../../types';
+import { FoodType, MenuItem, MenuCategory, StaffMember, StaffRole } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { TableQrCard } from '../../components/qr/TableQrCard';
 import { FoodImageStudioModal } from '../../components/admin/FoodImageStudioModal';
@@ -108,6 +109,94 @@ export const AdminPage: React.FC = () => {
     const symbols = ['!', '@', '#', '$'];
     const sym = symbols[Math.floor(Math.random() * symbols.length)];
     return `${pfx}${num}${sym}`;
+  };
+
+  // Category Management State
+  const scopedCategories = categories.filter((c) => c.tenantId === currentTenant.id);
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
+  const [categoryFormName, setCategoryFormName] = useState('');
+  const [categoryFormDescription, setCategoryFormDescription] = useState('');
+  const [categoryFormImageUrl, setCategoryFormImageUrl] = useState('');
+  const [categoryDeleteTarget, setCategoryDeleteTarget] = useState<MenuCategory | null>(null);
+
+  const CATEGORY_PHOTO_PRESETS = [
+    { name: 'Starters & Tapas', url: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Mains & Curries', url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Stone Pizzas', url: 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Smash Burgers', url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Grills & Barbecue', url: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Loaded Sides', url: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Desserts & Gelato', url: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Drinks & Mocktails', url: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=400&q=80' },
+  ];
+
+  const filteredScopedCategories = scopedCategories.filter((cat) =>
+    cat.name.toLowerCase().includes(categorySearchQuery.toLowerCase()) ||
+    (cat.description && cat.description.toLowerCase().includes(categorySearchQuery.toLowerCase()))
+  );
+
+  const handleCategoryFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (result) {
+        setCategoryFormImageUrl(result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleOpenAddCategory = () => {
+    setEditingCategory(null);
+    setCategoryFormName('');
+    setCategoryFormDescription('');
+    setCategoryFormImageUrl('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80');
+    setIsAddCategoryOpen(true);
+  };
+
+  const handleOpenEditCategory = (cat: MenuCategory) => {
+    setEditingCategory(cat);
+    setCategoryFormName(cat.name);
+    setCategoryFormDescription(cat.description || '');
+    setCategoryFormImageUrl(cat.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80');
+    setIsAddCategoryOpen(true);
+  };
+
+  const handleSaveCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryFormName.trim()) return;
+
+    const slug = categoryFormName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    if (editingCategory) {
+      updateCategory(editingCategory.id, {
+        name: categoryFormName.trim(),
+        slug: slug || editingCategory.slug,
+        description: categoryFormDescription.trim(),
+        imageUrl: categoryFormImageUrl.trim(),
+      });
+    } else {
+      addCategory({
+        name: categoryFormName.trim(),
+        slug: slug || `category-${Date.now()}`,
+        description: categoryFormDescription.trim(),
+        displayOrder: scopedCategories.length + 1,
+        imageUrl: categoryFormImageUrl.trim(),
+        isActive: true,
+      });
+    }
+    setIsAddCategoryOpen(false);
+    setEditingCategory(null);
+  };
+
+  const handleConfirmDeleteCategory = () => {
+    if (!categoryDeleteTarget) return;
+    deleteCategory(categoryDeleteTarget.id);
+    setCategoryDeleteTarget(null);
   };
 
   // Filter & Search in menu
@@ -354,7 +443,7 @@ export const AdminPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#F4F9FD] flex flex-col justify-between">
       <div className="p-4 sm:p-6 pb-24 flex-1">
         <div className="max-w-7xl mx-auto space-y-6">
           
@@ -362,7 +451,7 @@ export const AdminPage: React.FC = () => {
           <div className="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#30673A] text-white">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#2C5EAD] text-white">
                   Hotel Admin Portal
                 </span>
                 <span className="text-xs text-neutral-400">· {currentTenant.slug}</span>
@@ -372,7 +461,7 @@ export const AdminPage: React.FC = () => {
               </h1>
               <p className="text-xs text-neutral-500">{currentTenant.tagline} ({currentTenant.address})</p>
               {currentStaffUser && (
-                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#30673A] font-semibold">
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#2C5EAD] font-semibold">
                   <UserCheck className="w-3.5 h-3.5" />
                   <span>Logged in as: {currentStaffUser.name} (@{currentStaffUser.username})</span>
                 </div>
@@ -382,7 +471,7 @@ export const AdminPage: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setCurrentRole('customer')}
-                className="py-2 px-3.5 rounded-xl bg-[#FAF8F2] hover:bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="py-2 px-3.5 rounded-xl bg-[#F4F9FD] hover:bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>View Customer Menu</span>
@@ -393,23 +482,39 @@ export const AdminPage: React.FC = () => {
 
           {/* Navigation Tabs */}
           <div className="flex items-center justify-between bg-white p-1 rounded-2xl border border-neutral-200/80 shadow-2xs">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('menu')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'menu'
-                ? 'bg-[#30673A] text-white'
+                ? 'bg-[#2C5EAD] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
             <UtensilsCrossed className="w-3.5 h-3.5" />
-            <span>Menu Management</span>
+            <span>Menu Dishes</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
+              activeTab === 'categories'
+                ? 'bg-[#2C5EAD] text-white'
+                : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            <FolderPlus className="w-3.5 h-3.5" />
+            <span>Categories</span>
+            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums font-bold ${
+              activeTab === 'categories' ? 'bg-white/20 text-white' : 'bg-[#C4E2F5]/50 text-[#2C5EAD]'
+            }`}>
+              {scopedCategories.length}
+            </span>
           </button>
           <button
             onClick={() => setActiveTab('tables')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'tables'
-                ? 'bg-[#30673A] text-white'
+                ? 'bg-[#2C5EAD] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -420,7 +525,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('analytics')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'analytics'
-                ? 'bg-[#30673A] text-white'
+                ? 'bg-[#2C5EAD] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -431,7 +536,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('settings')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'settings'
-                ? 'bg-[#30673A] text-white'
+                ? 'bg-[#2C5EAD] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -442,7 +547,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('staff')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'staff'
-                ? 'bg-[#30673A] text-white'
+                ? 'bg-[#2C5EAD] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -475,7 +580,7 @@ export const AdminPage: React.FC = () => {
                     setFormDescription('');
                     setIsAddingItem(true);
                   }}
-                  className="py-2.5 px-4 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  className="py-2.5 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Dish</span>
@@ -487,7 +592,7 @@ export const AdminPage: React.FC = () => {
             {isAddingItem && (
               <form
                 onSubmit={handleSaveItem}
-                className="p-5 bg-white rounded-2xl border border-[#30673A]/20 shadow-sm space-y-4"
+                className="p-5 bg-white rounded-2xl border border-[#2C5EAD]/20 shadow-sm space-y-4"
               >
                 <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
                   <h3 className="text-base font-bold text-[#1E231F] glinster-font">
@@ -513,7 +618,7 @@ export const AdminPage: React.FC = () => {
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="e.g. Pistachio Smoked Paneer Tikka"
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                     />
                   </div>
 
@@ -524,7 +629,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                     >
                       {categories.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -544,7 +649,7 @@ export const AdminPage: React.FC = () => {
                       required
                       value={formPrice}
                       onChange={(e) => setFormPrice(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] font-mono focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-mono focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                     />
                   </div>
 
@@ -556,7 +661,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={formFoodType}
                       onChange={(e) => setFormFoodType(e.target.value as FoodType)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] font-semibold text-[#30673A] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-semibold text-[#2C5EAD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                     >
                       <option value="veg">● Vegetarian (Pure Veg)</option>
                       <option value="vegan">🌱 100% Plant-Based Vegan</option>
@@ -573,7 +678,7 @@ export const AdminPage: React.FC = () => {
                       type="number"
                       value={formPrepTime}
                       onChange={(e) => setFormPrepTime(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                     />
                   </div>
 
@@ -585,16 +690,16 @@ export const AdminPage: React.FC = () => {
                       type="number"
                       value={formCalories}
                       onChange={(e) => setFormCalories(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                     />
                   </div>
                 </div>
 
                 {/* Food Photography Studio Section */}
-                <div className="p-3.5 bg-[#FAF8F2] rounded-2xl border border-neutral-200/90 space-y-2">
+                <div className="p-3.5 bg-[#F4F9FD] rounded-2xl border border-neutral-200/90 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="block font-bold text-neutral-800 text-xs flex items-center gap-1.5">
-                      <Camera className="w-3.5 h-3.5 text-[#30673A]" />
+                      <Camera className="w-3.5 h-3.5 text-[#2C5EAD]" />
                       Dish Photograph (Upload File, Take Camera Photo, or Presets)
                     </label>
                     {formImagePath && (
@@ -629,7 +734,7 @@ export const AdminPage: React.FC = () => {
                             setSelectedDishForImage(null);
                             setIsImageStudioOpen(true);
                           }}
-                          className="py-1.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                          className="py-1.5 px-3 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                         >
                           <Camera className="w-3.5 h-3.5" />
                           <span>{formImagePath ? 'Change Dish Photo' : 'Upload or Take Photo'}</span>
@@ -641,9 +746,9 @@ export const AdminPage: React.FC = () => {
                             setSelectedDishForImage(null);
                             setIsImageStudioOpen(true);
                           }}
-                          className="py-1.5 px-3 rounded-xl bg-white hover:bg-neutral-100 text-[#30673A] border border-[#30673A]/30 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="py-1.5 px-3 rounded-xl bg-white hover:bg-neutral-100 text-[#2C5EAD] border border-[#2C5EAD]/30 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
-                          <Sparkles className="w-3.5 h-3.5 text-[#E3792F]" />
+                          <Sparkles className="w-3.5 h-3.5 text-[#1591DC]" />
                           <span>Gourmet Presets</span>
                         </button>
                       </div>
@@ -665,7 +770,7 @@ export const AdminPage: React.FC = () => {
                     value={formDescription}
                     onChange={(e) => setFormDescription(e.target.value)}
                     placeholder="Artisanal description of flavors, seasonings, and textures..."
-                    className="w-full p-2.5 text-xs rounded-xl border border-neutral-200 bg-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                    className="w-full p-2.5 text-xs rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                   />
                 </div>
 
@@ -678,7 +783,7 @@ export const AdminPage: React.FC = () => {
                     value={formAllergens}
                     onChange={(e) => setFormAllergens(e.target.value)}
                     placeholder="e.g. Contains Dairy, Nuts, Gluten"
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-neutral-200 bg-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
                   />
                 </div>
 
@@ -688,7 +793,7 @@ export const AdminPage: React.FC = () => {
                       type="checkbox"
                       checked={formIsRecommended}
                       onChange={(e) => setFormIsRecommended(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#30673A]"
+                      className="w-4 h-4 rounded text-[#2C5EAD]"
                     />
                     <span className="font-semibold text-neutral-700">Chef&apos;s Recommendation</span>
                   </label>
@@ -698,9 +803,9 @@ export const AdminPage: React.FC = () => {
                       type="checkbox"
                       checked={formIsMustTry}
                       onChange={(e) => setFormIsMustTry(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#E3792F]"
+                      className="w-4 h-4 rounded text-[#1591DC]"
                     />
-                    <span className="font-semibold text-[#E3792F]">Must-Try Signature</span>
+                    <span className="font-semibold text-[#1591DC]">Must-Try Signature</span>
                   </label>
                 </div>
 
@@ -714,7 +819,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="py-2 px-5 rounded-xl bg-[#30673A] text-white text-xs font-bold hover:bg-[#204828]"
+                    className="py-2 px-5 rounded-xl bg-[#2C5EAD] text-white text-xs font-bold hover:bg-[#1D4482]"
                   >
                     {editingItemId ? 'Update Dish' : 'Publish to Digital Menu'}
                   </button>
@@ -726,7 +831,7 @@ export const AdminPage: React.FC = () => {
             <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#FAF8F2] border-b border-neutral-200 text-neutral-600 font-bold uppercase tracking-wider text-[10px]">
+                  <thead className="bg-[#F4F9FD] border-b border-neutral-200 text-neutral-600 font-bold uppercase tracking-wider text-[10px]">
                     <tr>
                       <th className="py-3 px-4">Photo</th>
                       <th className="py-3 px-4">Dish</th>
@@ -783,8 +888,8 @@ export const AdminPage: React.FC = () => {
                             <span
                               className={`font-semibold inline-flex items-center gap-1 ${
                                 item.foodType === 'veg' || item.foodType === 'vegan'
-                                  ? 'text-[#30673A]'
-                                  : 'text-[#E3792F]'
+                                  ? 'text-[#2C5EAD]'
+                                  : 'text-[#1591DC]'
                               }`}
                             >
                               <span>
@@ -803,7 +908,7 @@ export const AdminPage: React.FC = () => {
                                 onClick={() => toggleItemFlag(item.id, 'isRecommended')}
                                 className={`p-1 rounded-md text-[10px] font-semibold cursor-pointer ${
                                   item.isRecommended
-                                    ? 'bg-[#30673A] text-white'
+                                    ? 'bg-[#2C5EAD] text-white'
                                     : 'bg-neutral-100 text-neutral-400 hover:text-neutral-700'
                                 }`}
                                 title="Toggle Chef Recommendation"
@@ -815,7 +920,7 @@ export const AdminPage: React.FC = () => {
                                 onClick={() => toggleItemFlag(item.id, 'isMustTry')}
                                 className={`p-1 rounded-md text-[10px] font-semibold cursor-pointer ${
                                   item.isMustTry
-                                    ? 'bg-[#E3792F] text-white'
+                                    ? 'bg-[#1591DC] text-white'
                                     : 'bg-neutral-100 text-neutral-400 hover:text-neutral-700'
                                 }`}
                                 title="Toggle Must-Try"
@@ -867,6 +972,139 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
+        {/* TAB: CATEGORIES MANAGEMENT */}
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
+                  Food Categories & Sections ({scopedCategories.length})
+                </h2>
+                <p className="text-xs text-neutral-500">
+                  Organize menu courses, upload beautiful section imagery, and structure diner navigation
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleOpenAddCategory}
+                className="py-2.5 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer self-start sm:self-auto"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Food Category</span>
+              </button>
+            </div>
+
+            {/* Category Search & Filter */}
+            <div className="bg-white p-3.5 rounded-2xl border border-neutral-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <input
+                  type="text"
+                  value={categorySearchQuery}
+                  onChange={(e) => setCategorySearchQuery(e.target.value)}
+                  placeholder="Search categories..."
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                />
+              </div>
+              <div className="text-xs text-neutral-500 font-medium">
+                {scopedCategories.length} {scopedCategories.length === 1 ? 'category' : 'categories'} configured
+              </div>
+            </div>
+
+            {/* Category Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredScopedCategories.map((cat) => {
+                const itemCount = menuItems.filter((i) => i.categoryId === cat.id).length;
+                return (
+                  <div
+                    key={cat.id}
+                    className="bg-white rounded-2xl border border-neutral-200/80 p-4 shadow-2xs hover:shadow-sm transition-all duration-200 flex flex-col justify-between group"
+                  >
+                    <div className="flex items-start gap-3.5">
+                      {/* Rounded Category Avatar */}
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 bg-[#C4E2F5]/20 ring-2 ring-[#C4E2F5] shadow-xs">
+                        <img
+                          src={cat.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'}
+                          alt={cat.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80';
+                          }}
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="text-sm font-bold text-[#1E231F] truncate group-hover:text-[#2C5EAD] transition-colors">
+                            {cat.name}
+                          </h3>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#C4E2F5]/40 text-[#2C5EAD] font-bold shrink-0">
+                            {itemCount} {itemCount === 1 ? 'dish' : 'dishes'}
+                          </span>
+                        </div>
+                        {cat.description ? (
+                          <p className="text-xs text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
+                            {cat.description}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-neutral-400 italic mt-1">No description provided</p>
+                        )}
+                        <div className="mt-2 text-[10px] text-neutral-400 font-mono">
+                          slug: /{cat.slug}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
+                      <span className="text-[11px] text-neutral-400">
+                        Display order: #{cat.displayOrder || 1}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditCategory(cat)}
+                          className="p-1.5 rounded-lg text-neutral-500 hover:text-[#2C5EAD] hover:bg-[#F4F9FD] border border-neutral-200 transition-colors cursor-pointer"
+                          title="Edit Category"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCategoryDeleteTarget(cat)}
+                          className="p-1.5 rounded-lg text-neutral-500 hover:text-red-600 hover:bg-red-50 border border-neutral-200 transition-colors cursor-pointer"
+                          title="Delete Category"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {filteredScopedCategories.length === 0 && (
+              <div className="bg-white rounded-2xl border border-neutral-200/80 p-12 text-center">
+                <FolderPlus className="w-10 h-10 text-neutral-300 mx-auto mb-3" />
+                <h3 className="text-base font-bold text-neutral-800">No categories found</h3>
+                <p className="text-xs text-neutral-500 max-w-xs mx-auto mt-1 mb-4">
+                  {categorySearchQuery ? 'No categories matched your search criteria.' : 'Create your first food category to start grouping dishes.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleOpenAddCategory}
+                  className="py-2 px-4 rounded-xl bg-[#2C5EAD] text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add First Category</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* TAB 2: TABLES & QR CODES */}
         {activeTab === 'tables' && (
           <div className="space-y-6">
@@ -884,7 +1122,7 @@ export const AdminPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentRole('qr_stand')}
-                  className="py-2 px-3.5 rounded-xl bg-[#E3792F] hover:bg-[#c96420] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  className="py-2 px-3.5 rounded-xl bg-[#1591DC] hover:bg-[#0D76B6] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Launch Table Stand Studio</span>
@@ -912,7 +1150,7 @@ export const AdminPage: React.FC = () => {
                   </select>
                   <button
                     type="submit"
-                    className="py-2 px-3.5 rounded-xl bg-[#30673A] text-white text-xs font-bold hover:bg-[#204828] shrink-0"
+                    className="py-2 px-3.5 rounded-xl bg-[#2C5EAD] text-white text-xs font-bold hover:bg-[#1D4482] shrink-0"
                   >
                     + Add Table
                   </button>
@@ -950,12 +1188,12 @@ export const AdminPage: React.FC = () => {
               <div className="p-4 bg-white rounded-2xl border border-neutral-200/80 shadow-2xs">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Total Revenue</span>
-                  <DollarSign className="w-4 h-4 text-[#30673A]" />
+                  <DollarSign className="w-4 h-4 text-[#2C5EAD]" />
                 </div>
                 <div className="text-2xl font-black font-mono tabular-nums text-[#1E231F] mt-2">
                   {currentTenant.currencySymbol}{totalSales.toFixed(2)}
                 </div>
-                <div className="text-[11px] text-[#30673A] font-semibold mt-1">
+                <div className="text-[11px] text-[#2C5EAD] font-semibold mt-1">
                   Active orders & completed
                 </div>
               </div>
@@ -963,7 +1201,7 @@ export const AdminPage: React.FC = () => {
               <div className="p-4 bg-white rounded-2xl border border-neutral-200/80 shadow-2xs">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Orders Today</span>
-                  <ShoppingBag className="w-4 h-4 text-[#E3792F]" />
+                  <ShoppingBag className="w-4 h-4 text-[#1591DC]" />
                 </div>
                 <div className="text-2xl font-black font-mono tabular-nums text-[#1E231F] mt-2">
                   {tenantOrders.length}
@@ -994,7 +1232,7 @@ export const AdminPage: React.FC = () => {
                 <div className="text-base font-bold text-[#1E231F] mt-2">
                   {currentTenant.subscription.planName}
                 </div>
-                <div className="text-[11px] text-[#30673A] font-semibold mt-1">
+                <div className="text-[11px] text-[#2C5EAD] font-semibold mt-1">
                   Expires: {new Date(currentTenant.subscription.expiryDate).toLocaleDateString()}
                 </div>
               </div>
@@ -1009,10 +1247,10 @@ export const AdminPage: React.FC = () => {
                 {tenantOrders.map((ord) => (
                   <div
                     key={ord.id}
-                    className="p-3 bg-[#FAF8F2] rounded-xl flex items-center justify-between text-xs"
+                    className="p-3 bg-[#F4F9FD] rounded-xl flex items-center justify-between text-xs"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="font-mono font-bold text-[#30673A]">
+                      <span className="font-mono font-bold text-[#2C5EAD]">
                         {ord.orderNumber}
                       </span>
                       <span className="font-semibold text-neutral-700">
@@ -1067,7 +1305,7 @@ export const AdminPage: React.FC = () => {
                   type="text"
                   value={restaurantName}
                   onChange={(e) => setRestaurantName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] text-sm font-semibold"
+                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] text-sm font-semibold"
                 />
               </div>
 
@@ -1079,7 +1317,7 @@ export const AdminPage: React.FC = () => {
                   type="text"
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2]"
+                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD]"
                 />
               </div>
 
@@ -1093,7 +1331,7 @@ export const AdminPage: React.FC = () => {
                     step="0.5"
                     value={taxRate}
                     onChange={(e) => setTaxRate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-mono"
                   />
                 </div>
                 <div>
@@ -1105,7 +1343,7 @@ export const AdminPage: React.FC = () => {
                     step="0.5"
                     value={serviceCharge}
                     onChange={(e) => setServiceCharge(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F2] font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-mono"
                   />
                 </div>
               </div>
@@ -1116,7 +1354,7 @@ export const AdminPage: React.FC = () => {
                     type="checkbox"
                     checked={isOpen}
                     onChange={(e) => setIsOpen(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#30673A]"
+                    className="w-4 h-4 rounded text-[#2C5EAD]"
                   />
                   <div>
                     <span className="font-bold text-neutral-800 block">
@@ -1131,7 +1369,7 @@ export const AdminPage: React.FC = () => {
 
               <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
                 {settingsSaved ? (
-                  <span className="text-xs text-[#30673A] font-semibold flex items-center gap-1">
+                  <span className="text-xs text-[#2C5EAD] font-semibold flex items-center gap-1">
                     <Check className="w-3.5 h-3.5" />
                     Settings saved successfully!
                   </span>
@@ -1141,7 +1379,7 @@ export const AdminPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="py-2.5 px-6 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white font-bold text-xs shadow-sm transition-colors"
+                  className="py-2.5 px-6 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white font-bold text-xs shadow-sm transition-colors"
                 >
                   Save Settings
                 </button>
@@ -1160,7 +1398,7 @@ export const AdminPage: React.FC = () => {
                   <h2 className="text-xl font-black text-[#1E231F] glinster-font">
                     Staff & Operations Management
                   </h2>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-[#30673A]/10 text-[#30673A]">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-[#2C5EAD]/10 text-[#2C5EAD]">
                     {scopedStaffMembers.length} Members
                   </span>
                 </div>
@@ -1181,7 +1419,7 @@ export const AdminPage: React.FC = () => {
                   setShowNewStaffPassword(false);
                   setIsAddStaffOpen(true);
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Staff Member</span>
@@ -1206,11 +1444,11 @@ export const AdminPage: React.FC = () => {
               <div className="bg-white p-3.5 rounded-2xl border border-neutral-200/80 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold text-neutral-500">Dining Waiters</span>
-                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#30673A] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#2C5EAD] flex items-center justify-center">
                     <UserCheck className="w-3.5 h-3.5" />
                   </div>
                 </div>
-                <div className="mt-2 text-2xl font-black text-[#30673A] glinster-font">
+                <div className="mt-2 text-2xl font-black text-[#2C5EAD] glinster-font">
                   {scopedStaffMembers.filter((s) => s.role === 'waiter').length}
                 </div>
                 <span className="text-[10px] text-emerald-600/80 font-medium">Floor & Table Service</span>
@@ -1252,7 +1490,7 @@ export const AdminPage: React.FC = () => {
                   placeholder="Search staff by name, @username, or station..."
                   value={staffSearchQuery}
                   onChange={(e) => setStaffSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A] transition-all"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD] transition-all"
                 />
                 {staffSearchQuery && (
                   <button
@@ -1266,7 +1504,7 @@ export const AdminPage: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-2">
                 {/* Role Filter Pills */}
-                <div className="flex items-center bg-[#FAF8F2] p-1 rounded-xl border border-neutral-200/80 text-xs">
+                <div className="flex items-center bg-[#F4F9FD] p-1 rounded-xl border border-neutral-200/80 text-xs">
                   <button
                     onClick={() => setStaffRoleFilter('all')}
                     className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
@@ -1281,7 +1519,7 @@ export const AdminPage: React.FC = () => {
                     onClick={() => setStaffRoleFilter('waiter')}
                     className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
                       staffRoleFilter === 'waiter'
-                        ? 'bg-white shadow-2xs text-[#30673A] font-bold'
+                        ? 'bg-white shadow-2xs text-[#2C5EAD] font-bold'
                         : 'text-neutral-500 hover:text-neutral-900'
                     }`}
                   >
@@ -1313,7 +1551,7 @@ export const AdminPage: React.FC = () => {
                 <select
                   value={staffStatusFilter}
                   onChange={(e) => setStaffStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                  className="px-2.5 py-1.5 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200/80 text-neutral-700 font-medium focus:outline-none focus:border-[#30673A]"
+                  className="px-2.5 py-1.5 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200/80 text-neutral-700 font-medium focus:outline-none focus:border-[#2C5EAD]"
                 >
                   <option value="all">All Statuses</option>
                   <option value="active">Active Only</option>
@@ -1352,7 +1590,7 @@ export const AdminPage: React.FC = () => {
                       setStaffRoleFilter('all');
                       setStaffStatusFilter('all');
                     }}
-                    className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-[#30673A] bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
+                    className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-[#2C5EAD] bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
                   >
                     Clear Filters
                   </button>
@@ -1391,9 +1629,9 @@ export const AdminPage: React.FC = () => {
                           }
                         : {
                             label: 'Floor Waiter',
-                            bg: 'bg-emerald-50 text-[#30673A] border-emerald-200/80',
+                            bg: 'bg-emerald-50 text-[#2C5EAD] border-emerald-200/80',
                             icon: UtensilsCrossed,
-                            avatarBg: 'bg-gradient-to-br from-emerald-600 to-[#204828] text-white',
+                            avatarBg: 'bg-gradient-to-br from-emerald-600 to-[#1D4482] text-white',
                           };
 
                     const RoleIcon = roleBadgeConfig.icon;
@@ -1440,13 +1678,13 @@ export const AdminPage: React.FC = () => {
                               title={`Click to ${staff.status === 'active' ? 'deactivate' : 'activate'}`}
                               className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer transition-colors shrink-0 ${
                                 staff.status === 'active'
-                                  ? 'bg-emerald-50 text-[#30673A] border border-emerald-200/80 hover:bg-emerald-100'
+                                  ? 'bg-emerald-50 text-[#2C5EAD] border border-emerald-200/80 hover:bg-emerald-100'
                                   : 'bg-neutral-100 text-neutral-500 border border-neutral-200 hover:bg-neutral-200'
                               }`}
                             >
                               <span
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  staff.status === 'active' ? 'bg-[#30673A] animate-pulse' : 'bg-neutral-400'
+                                  staff.status === 'active' ? 'bg-[#2C5EAD] animate-pulse' : 'bg-neutral-400'
                                 }`}
                               />
                               <span className="capitalize">{staff.status}</span>
@@ -1465,7 +1703,7 @@ export const AdminPage: React.FC = () => {
                             </div>
 
                             {staff.station && (
-                              <div className="text-xs text-neutral-600 bg-[#FAF8F2] px-2.5 py-1.5 rounded-xl border border-neutral-200/60 flex items-center gap-1.5">
+                              <div className="text-xs text-neutral-600 bg-[#F4F9FD] px-2.5 py-1.5 rounded-xl border border-neutral-200/60 flex items-center gap-1.5">
                                 <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider shrink-0">
                                   Station:
                                 </span>
@@ -1556,7 +1794,7 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Staff preview chip */}
-              <div className="p-3 bg-[#FAF8F2] rounded-xl border border-neutral-200/80 flex items-center justify-between text-xs">
+              <div className="p-3 bg-[#F4F9FD] rounded-xl border border-neutral-200/80 flex items-center justify-between text-xs">
                 <div>
                   <div className="font-bold text-neutral-800">{resetPasswordStaff.name}</div>
                   <div className="text-neutral-500 font-mono text-[11px]">@{resetPasswordStaff.username}</div>
@@ -1590,7 +1828,7 @@ export const AdminPage: React.FC = () => {
                       setNewPasswordInput(pass);
                       setIsCopied(false);
                     }}
-                    className="text-[11px] font-bold text-[#30673A] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-bold text-[#2C5EAD] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <Shuffle className="w-3 h-3" />
                     <span>Auto-Generate</span>
@@ -1606,7 +1844,7 @@ export const AdminPage: React.FC = () => {
                       setIsCopied(false);
                     }}
                     placeholder="Enter new password (min 6 characters)"
-                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                     <button
@@ -1660,7 +1898,7 @@ export const AdminPage: React.FC = () => {
                       setResetSuccessMessage('');
                     }, 1200);
                   }}
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#30673A] hover:bg-[#204828] disabled:opacity-50 rounded-xl transition-all shadow-xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#2C5EAD] hover:bg-[#1D4482] disabled:opacity-50 rounded-xl transition-all shadow-xs cursor-pointer"
                 >
                   Save & Update Password
                 </button>
@@ -1675,7 +1913,7 @@ export const AdminPage: React.FC = () => {
             <div className="bg-white rounded-2xl max-w-lg w-full p-6 border border-neutral-200 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-[#30673A]">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-[#2C5EAD]">
                     <Users className="w-5 h-5" />
                   </div>
                   <div>
@@ -1729,7 +1967,7 @@ export const AdminPage: React.FC = () => {
                           );
                         }
                       }}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                       required
                     />
                   </div>
@@ -1743,7 +1981,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="e.g. david.server"
                       value={newStaffUsername}
                       onChange={(e) => setNewStaffUsername(e.target.value.toLowerCase().replace(/\s+/g, '.'))}
-                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                       required
                     />
                   </div>
@@ -1757,7 +1995,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={newStaffRole}
                       onChange={(e) => setNewStaffRole(e.target.value as StaffRole)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                     >
                       <option value="waiter">Floor Waiter / Server</option>
                       <option value="kitchen">Kitchen Staff / Chef</option>
@@ -1774,7 +2012,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="e.g. Main Dining Floor (Tables 1-5)"
                       value={newStaffStation}
                       onChange={(e) => setNewStaffStation(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                     />
                   </div>
                 </div>
@@ -1789,7 +2027,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="+1 (555) 000-0000"
                       value={newStaffPhone}
                       onChange={(e) => setNewStaffPhone(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                     />
                   </div>
 
@@ -1802,7 +2040,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="staff@restaurant.com"
                       value={newStaffEmail}
                       onChange={(e) => setNewStaffEmail(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                     />
                   </div>
                 </div>
@@ -1816,7 +2054,7 @@ export const AdminPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setNewStaffPassword(generateSecurePassword())}
-                      className="text-[11px] font-bold text-[#30673A] hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] font-bold text-[#2C5EAD] hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <Shuffle className="w-3 h-3" />
                       <span>Auto-Generate</span>
@@ -1828,7 +2066,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="Password"
                       value={newStaffPassword}
                       onChange={(e) => setNewStaffPassword(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#FAF8F2] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#30673A]/20 focus:border-[#30673A]"
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
                       required
                     />
                     <button
@@ -1851,7 +2089,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-bold text-white bg-[#30673A] hover:bg-[#204828] rounded-xl transition-all shadow-xs cursor-pointer"
+                    className="px-5 py-2 text-xs font-bold text-white bg-[#2C5EAD] hover:bg-[#1D4482] rounded-xl transition-all shadow-xs cursor-pointer"
                   >
                     Register Staff Member
                   </button>
@@ -1877,6 +2115,201 @@ export const AdminPage: React.FC = () => {
             }
           }}
         />
+
+        {/* ADD / EDIT CATEGORY MODAL */}
+        {isAddCategoryOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 max-w-lg w-full p-5 sm:p-6 shadow-2xl relative my-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAddCategoryOpen(false);
+                  setEditingCategory(null);
+                }}
+                className="absolute right-4 top-4 w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-500 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-[#2C5EAD]/10 text-[#2C5EAD] flex items-center justify-center font-bold">
+                  <FolderPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                    {editingCategory ? 'Edit Food Category' : 'Create New Food Category'}
+                  </h3>
+                  <p className="text-xs text-neutral-500">
+                    Configure title, description, and upload appetizing cover image
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveCategory} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 mb-1">
+                    Category Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={categoryFormName}
+                    onChange={(e) => setCategoryFormName(e.target.value)}
+                    placeholder="e.g., Artisanal Pizzas, Handcrafted Mocktails"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 mb-1">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={categoryFormDescription}
+                    onChange={(e) => setCategoryFormDescription(e.target.value)}
+                    placeholder="e.g., 48-hour fermented sourdough with buffalo mozzarella and herbs"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD] resize-none"
+                  />
+                </div>
+
+                {/* Image Upload & Preview Section */}
+                <div className="p-3.5 rounded-2xl bg-[#F4F9FD] border border-[#C4E2F5]/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#2C5EAD]">Category Photo (Rounded Preview)</span>
+                    <span className="text-[10px] text-neutral-400">Live Zomato Style</span>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    {/* Live Circular Preview */}
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden shrink-0 ring-3 ring-[#2C5EAD] ring-offset-2 shadow-md bg-neutral-100">
+                      <img
+                        src={categoryFormImageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'}
+                        alt="Category Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80';
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex-1 space-y-2">
+                      {/* File Upload Button */}
+                      <div>
+                        <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-neutral-50 border border-[#2C5EAD]/40 text-[#2C5EAD] text-xs font-bold shadow-2xs cursor-pointer transition-colors">
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Upload Photo from Device</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCategoryFileUpload}
+                            className="hidden"
+                          />
+                        </label>
+                        <p className="text-[10px] text-neutral-400 mt-1">PNG, JPG, WebP supported</p>
+                      </div>
+
+                      {/* Or URL input */}
+                      <div>
+                        <input
+                          type="url"
+                          value={categoryFormImageUrl}
+                          onChange={(e) => setCategoryFormImageUrl(e.target.value)}
+                          placeholder="Or paste public image URL..."
+                          className="w-full px-3 py-1.5 text-xs rounded-lg bg-white border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Presets Carousel */}
+                  <div>
+                    <span className="text-[10.5px] font-semibold text-neutral-600 block mb-1.5">
+                      Or select a curated dish photography preset:
+                    </span>
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                      {CATEGORY_PHOTO_PRESETS.map((preset) => (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => setCategoryFormImageUrl(preset.url)}
+                          className={`group shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-medium transition-colors cursor-pointer ${
+                            categoryFormImageUrl === preset.url
+                              ? 'bg-[#2C5EAD] text-white border-[#2C5EAD]'
+                              : 'bg-white hover:bg-neutral-50 text-neutral-700 border-neutral-200'
+                          }`}
+                        >
+                          <img
+                            src={preset.url}
+                            alt={preset.name}
+                            className="w-5 h-5 rounded-full object-cover"
+                          />
+                          <span className="whitespace-nowrap">{preset.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddCategoryOpen(false);
+                      setEditingCategory(null);
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl text-xs font-bold bg-[#2C5EAD] hover:bg-[#1D4482] text-white shadow-sm transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>{editingCategory ? 'Update Category' : 'Save Category'}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* DELETE CATEGORY CONFIRMATION MODAL */}
+        {categoryDeleteTarget && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 max-w-md w-full p-5 sm:p-6 shadow-2xl relative my-auto">
+              <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center font-bold mb-4 mx-auto">
+                <Trash2 className="w-6 h-6" />
+              </div>
+
+              <h3 className="text-base font-bold text-center text-[#1E231F] glinster-font mb-1.5">
+                Delete &quot;{categoryDeleteTarget.name}&quot;?
+              </h3>
+              <p className="text-xs text-neutral-500 text-center leading-relaxed mb-4">
+                Are you sure you want to remove this category? Any dishes currently assigned to it will be safely protected and reassigned to another active category so they are never lost.
+              </p>
+
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCategoryDeleteTarget(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
+                >
+                  Keep Category
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteCategory}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-sm transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Confirm Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
