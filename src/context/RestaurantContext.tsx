@@ -101,9 +101,9 @@ interface RestaurantContextType {
 
   // Service requests (waiter calls)
   serviceRequests: ServiceRequest[];
-  createServiceRequest: (type: ServiceRequestType, note?: string) => void;
-  claimServiceRequest: (requestId: string, staffName: string) => void;
-  resolveServiceRequest: (requestId: string) => void;
+  createServiceRequest: (type: ServiceRequestType, note?: string) => Promise<ServiceRequest> | void;
+  claimServiceRequest: (requestId: string, staffName: string) => Promise<void> | void;
+  resolveServiceRequest: (requestId: string) => Promise<void> | void;
 
   // Customer Favorites
   favorites: string[];
@@ -456,6 +456,21 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
                 : o
             )
           );
+        } else if (type === 'NEW_SERVICE_REQUEST' && payload) {
+          const newReq = payload as ServiceRequest;
+          setServiceRequests((prev) => [newReq, ...prev.filter((r) => r.id !== newReq.id)]);
+        } else if (type === 'SERVICE_REQUEST_CLAIMED' && payload) {
+          const { requestId, staffName } = payload;
+          setServiceRequests((prev) =>
+            prev.map((r) =>
+              r.id === requestId ? { ...r, status: 'in_progress', claimedByStaff: staffName } : r
+            )
+          );
+        } else if (type === 'SERVICE_REQUEST_RESOLVED' && payload) {
+          const { requestId, resolvedAt } = payload;
+          setServiceRequests((prev) =>
+            prev.map((r) => (r.id === requestId ? { ...r, status: 'resolved', resolvedAt } : r))
+          );
         }
       };
       return () => {
@@ -464,7 +479,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, []);
 
-  // 3. Real-time Cloud Orders Synchronization across devices (Phone <-> PC) via Firestore
+  // 3. Real-time Cloud Orders & Service Requests Synchronization across devices (Phone <-> PC) via Firestore
   useEffect(() => {
     let unsubscribeSyncDoc: (() => void) | undefined;
     let unsubscribeTopCol: (() => void) | undefined;
@@ -477,6 +492,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.data();
+            // 1. Sync orders
             if (data?.ordersJson) {
               try {
                 const cloudOrders: Order[] = JSON.parse(data.ordersJson);
@@ -494,6 +510,27 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
                 }
               } catch (parseErr) {
                 console.warn('Error parsing cloud orders:', parseErr);
+              }
+            }
+
+            // 2. Sync customer service requests (waiter calling bells)
+            if (data?.serviceRequestsJson) {
+              try {
+                const cloudReqs: ServiceRequest[] = JSON.parse(data.serviceRequestsJson);
+                if (Array.isArray(cloudReqs)) {
+                  setServiceRequests((prev) => {
+                    const mergedMap = new Map<string, ServiceRequest>();
+                    prev.forEach((r) => mergedMap.set(r.id, r));
+                    cloudReqs.forEach((cr) => mergedMap.set(cr.id, cr));
+                    const mergedList = Array.from(mergedMap.values());
+                    mergedList.sort(
+                      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                    );
+                    return mergedList;
+                  });
+                }
+              } catch (parseErr) {
+                console.warn('Error parsing cloud service requests:', parseErr);
               }
             }
           }
@@ -545,7 +582,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     };
   }, []);
 
-  // Manual cloud refresh method for staff / kitchen dashboard
+  // Manual cloud refresh method for staff / kitchen / waiter dashboard
   const refreshCloudOrders = async () => {
     try {
       const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
@@ -559,6 +596,21 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
               const mergedMap = new Map<string, Order>();
               prev.forEach((o) => mergedMap.set(o.id, o));
               cloudOrders.forEach((co) => mergedMap.set(co.id, co));
+              const mergedList = Array.from(mergedMap.values());
+              mergedList.sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+              );
+              return mergedList;
+            });
+          }
+        }
+        if (data?.serviceRequestsJson) {
+          const cloudReqs: ServiceRequest[] = JSON.parse(data.serviceRequestsJson);
+          if (Array.isArray(cloudReqs)) {
+            setServiceRequests((prev) => {
+              const mergedMap = new Map<string, ServiceRequest>();
+              prev.forEach((r) => mergedMap.set(r.id, r));
+              cloudReqs.forEach((cr) => mergedMap.set(cr.id, cr));
               const mergedList = Array.from(mergedMap.values());
               mergedList.sort(
                 (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -923,34 +975,167 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     );
   };
 
-  // Service Requests
-  const createServiceRequest = (type: ServiceRequestType, note?: string) => {
+  // Service Requests (Customer calling bells)
+  const createServiceRequest = async (type: ServiceRequestType, note?: string): Promise<ServiceRequest> => {
     const newRequest: ServiceRequest = {
       id: `req-${Date.now()}`,
       tenantId: currentTenantId,
       tableId: currentTable?.id || 'tbl-walk-in',
-      tableNumber: currentTable?.tableNumber || 'Table',
+      tableNumber: currentTable?.tableNumber || 'Table Session',
       type,
       status: 'open',
       createdAt: new Date().toISOString(),
       note,
     };
-    setServiceRequests((prev) => [newRequest, ...prev]);
+
+    setServiceRequests((prev) => [newRequest, ...prev.filter((r) => r.id !== newRequest.id)]);
+
+    // 1. Broadcast via BroadcastChannel (instant zero-latency on same device/browser)
+    try {
+      broadcastChannelRef.current?.postMessage({
+        type: 'NEW_SERVICE_REQUEST',
+        payload: newRequest,
+      });
+    } catch {}
+
+    // 2. Broadcast to Firestore Cloud Sync Document (Full security rules permission)
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      const reqsToSave = [newRequest, ...serviceRequests.filter((r) => r.id !== newRequest.id)].slice(0, 60);
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          lastServiceRequestAt: new Date().toISOString(),
+          serviceRequestsJson: JSON.stringify(reqsToSave),
+        },
+        { merge: true }
+      );
+    } catch (docErr) {
+      console.warn('Notice: Firestore sync doc service request note:', docErr);
+    }
+
+    // 3. Also write to serviceRequests collection if permitted
+    try {
+      await setDoc(doc(db, 'serviceRequests', newRequest.id), newRequest);
+    } catch {}
+
+    logAuditEvent(
+      'SERVICE_REQUEST_CREATED',
+      `Calling bell: ${newRequest.tableNumber} requested "${type}"${note ? ` ("${note}")` : ''}`,
+      currentTenant.name,
+      'info'
+    );
+
+    return newRequest;
   };
 
-  const claimServiceRequest = (requestId: string, staffName: string) => {
+  const claimServiceRequest = async (requestId: string, staffName: string) => {
+    let updatedReq: ServiceRequest | null = null;
+
     setServiceRequests((prev) =>
-      prev.map((req) => (req.id === requestId ? { ...req, status: 'in_progress', claimedByStaff: staffName } : req))
+      prev.map((req) => {
+        if (req.id === requestId) {
+          const u: ServiceRequest = {
+            ...req,
+            status: 'in_progress',
+            claimedByStaff: staffName,
+          };
+          updatedReq = u;
+          return u;
+        }
+        return req;
+      })
+    );
+
+    // 1. Broadcast via BroadcastChannel
+    try {
+      broadcastChannelRef.current?.postMessage({
+        type: 'SERVICE_REQUEST_CLAIMED',
+        payload: { requestId, staffName },
+      });
+    } catch {}
+
+    // 2. Broadcast to Firestore Cloud Sync Document
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      const mergedReqs = serviceRequests.map((r) =>
+        r.id === requestId ? { ...r, status: 'in_progress' as const, claimedByStaff: staffName } : r
+      ).slice(0, 60);
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          serviceRequestsJson: JSON.stringify(mergedReqs),
+        },
+        { merge: true }
+      );
+    } catch {}
+
+    // 3. Also update serviceRequests collection if permitted
+    try {
+      await updateDoc(doc(db, 'serviceRequests', requestId), {
+        status: 'in_progress',
+        claimedByStaff: staffName,
+      });
+    } catch {}
+
+    logAuditEvent(
+      'SERVICE_REQUEST_CLAIMED',
+      `Request ${requestId} claimed by ${staffName}`,
+      currentTenant.name,
+      'info'
     );
   };
 
-  const resolveServiceRequest = (requestId: string) => {
+  const resolveServiceRequest = async (requestId: string) => {
+    const resolvedTimestamp = new Date().toISOString();
+
     setServiceRequests((prev) =>
       prev.map((req) =>
         req.id === requestId
-          ? { ...req, status: 'resolved', resolvedAt: new Date().toISOString() }
+          ? { ...req, status: 'resolved', resolvedAt: resolvedTimestamp }
           : req
       )
+    );
+
+    // 1. Broadcast via BroadcastChannel
+    try {
+      broadcastChannelRef.current?.postMessage({
+        type: 'SERVICE_REQUEST_RESOLVED',
+        payload: { requestId, resolvedAt: resolvedTimestamp },
+      });
+    } catch {}
+
+    // 2. Broadcast to Firestore Cloud Sync Document
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      const mergedReqs = serviceRequests.map((r) =>
+        r.id === requestId ? { ...r, status: 'resolved' as const, resolvedAt: resolvedTimestamp } : r
+      ).slice(0, 60);
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          serviceRequestsJson: JSON.stringify(mergedReqs),
+        },
+        { merge: true }
+      );
+    } catch {}
+
+    // 3. Also update serviceRequests collection if permitted
+    try {
+      await updateDoc(doc(db, 'serviceRequests', requestId), {
+        status: 'resolved',
+        resolvedAt: resolvedTimestamp,
+      });
+    } catch {}
+
+    logAuditEvent(
+      'SERVICE_REQUEST_RESOLVED',
+      `Request ${requestId} resolved and closed`,
+      currentTenant.name,
+      'info'
     );
   };
 

@@ -63,15 +63,20 @@ export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createServiceRequest(selectedType, note.trim() || undefined);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([150, 80, 150]);
+    }
+    await createServiceRequest(selectedType, note.trim() || undefined);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
       onClose();
-    }, 1800);
+    }, 2200);
   };
+
+  const selectedMeta = REQUEST_TYPES.find((r) => r.type === selectedType);
 
   return (
     <div
@@ -83,22 +88,30 @@ export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
       <div className="relative w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl border border-[#30673A]/15 overflow-hidden">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         {submitted ? (
-          <div className="py-8 text-center space-y-3">
+          <div className="py-8 text-center space-y-3 animate-in fade-in zoom-in-95 duration-200">
             <div className="w-14 h-14 rounded-full bg-[#30673A]/10 text-[#30673A] flex items-center justify-center mx-auto animate-bounce">
               <CheckCircle className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-bold text-[#1E231F] glinster-font">
-              Staff Alerted!
+              Waiter Alerted Instantly!
             </h3>
-            <p className="text-xs text-neutral-500">
-              A server has been paged to <strong className="text-[#30673A]">{currentTable?.tableNumber || 'your table'}</strong>.
+            <p className="text-xs text-neutral-600 font-medium">
+              Your calling bell for <strong className="text-[#30673A]">{selectedMeta?.label}</strong> has been transmitted directly to the floor server terminal for <strong className="text-[#30673A]">{currentTable?.tableNumber || 'your table'}</strong>.
+            </p>
+            {note.trim() && (
+              <p className="text-[11px] text-neutral-500 italic bg-[#FAF8F2] p-2 rounded-xl border border-neutral-200">
+                &quot;{note.trim()}&quot;
+              </p>
+            )}
+            <p className="text-[10.5px] text-neutral-400">
+              A staff member is on their way to assist you shortly.
             </p>
           </div>
         ) : (

@@ -97,6 +97,29 @@ class KitchenAudioAlert {
       console.warn('Bell strike synthesis error:', e);
     }
   }
+
+  /**
+   * Plays a crisp high-frequency hospitality calling chime (Ding-Dong!)
+   * specifically for customer tables paging their floor server/waiter.
+   */
+  public playWaiterCallChime(): void {
+    try {
+      const ctx = this.init();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      // High bright call chime
+      this.strikeBell(ctx, now, 1760); // Note A6
+      // Warm response
+      this.strikeBell(ctx, now + 0.18, 1318.51); // Note E6
+      // Gentle sparkle finish
+      this.strikeBell(ctx, now + 0.36, 2093); // Note C7
+    } catch (e) {
+      console.warn('Waiter call chime audio note:', e);
+    }
+  }
 }
 
 export const kitchenAlert = new KitchenAudioAlert();
+export const waiterAlert = kitchenAlert;
+
