@@ -1,6 +1,20 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChefHat, Clock, CheckCircle2, Play, AlertTriangle, Volume2, VolumeX, Eye, UserCheck, ArrowRight, BellRing, Sparkles, X, Bell, RotateCw, Radio } from 'lucide-react';
+import {
+  ChefHat,
+  Clock,
+  CheckCircle2,
+  Play,
+  AlertTriangle,
+  Volume2,
+  VolumeX,
+  Eye,
+  UserCheck,
+  ArrowRight,
+  BellRing,
+  X,
+  RotateCw,
+} from 'lucide-react';
 import { Order, OrderStatus } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { LogoutButton } from '../../components/auth/LogoutButton';
@@ -63,7 +77,6 @@ export const KitchenPage: React.FC = () => {
     });
 
     if (newPendingOrders.length > 0) {
-      // New order received in real-time from customer phone!
       if (soundEnabled) {
         kitchenAlert.init();
         kitchenAlert.playKitchenBell();
@@ -93,430 +106,452 @@ export const KitchenPage: React.FC = () => {
   const readyCount = tenantOrders.filter((o) => o.status === 'ready').length;
 
   return (
-    <div className="min-h-screen bg-[#1E231F] text-[#FAF8F2] p-4 sm:p-6">
-        {/* Header with Chef profile, Audio toggle & Sign Out */}
-        <div className="flex items-center justify-between gap-3 flex-wrap pb-6 border-b border-neutral-800 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
-              <ChefHat className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">
-                  Kitchen Display System (KDS)
+    <div className="min-h-screen bg-[#141815] text-[#FAF8F2] w-full max-w-full overflow-x-hidden p-2.5 sm:p-5 pb-20">
+      <div className="max-w-6xl mx-auto space-y-3.5 sm:space-y-5">
+        
+        {/* Mobile-First Kitchen Header */}
+        <header className="bg-neutral-900/95 border border-neutral-800 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-sm space-y-3">
+          <div className="flex items-center justify-between gap-2.5 flex-wrap">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  Kitchen KDS
                 </span>
-                <span className="text-xs text-neutral-400">· {currentTenant.name}</span>
+                <span className="text-xs text-neutral-400 font-semibold truncate">
+                  · {currentTenant.name}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 rounded-full font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Live Sync
+                </span>
               </div>
+              <h1 className="text-lg sm:text-2xl font-black glinster-font text-white tracking-tight mt-0.5">
+                Kitchen Display System
+              </h1>
               {currentStaffUser ? (
-                <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-neutral-300">
-                  <span className="font-bold text-amber-400 flex items-center gap-1">
-                    <UserCheck className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-2 text-xs text-neutral-300 mt-0.5 truncate">
+                  <span className="font-bold text-amber-400 flex items-center gap-1 truncate">
+                    <UserCheck className="w-3.5 h-3.5 shrink-0" />
                     {currentStaffUser.name}
                   </span>
-                  <span className="text-neutral-500 font-mono text-[11px]">@{currentStaffUser.username}</span>
+                  <span className="text-neutral-500 font-mono text-[11px]">
+                    @{currentStaffUser.username}
+                  </span>
                   {currentStaffUser.station && (
-                    <span className="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                    <span className="hidden sm:inline bg-neutral-800 text-amber-300 border border-neutral-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
                       {currentStaffUser.station}
                     </span>
                   )}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
-                  <span>Demo KDS Session</span>
+                <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 mt-0.5">
+                  <span>Demo KDS</span>
                   <Link
                     to={`/staff-login?hotel=${encodeURIComponent(currentTenant.name)}`}
-                    className="text-amber-400 hover:underline font-bold text-[11px] inline-flex items-center gap-1"
+                    className="text-amber-400 hover:underline font-bold inline-flex items-center gap-0.5"
                   >
-                    <span>Sign In with Staff ID</span>
+                    <span>Staff Login</span>
                     <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               )}
             </div>
-          </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Live Cloud Sync Pill */}
-            <div className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>Live Cloud Sync</span>
-            </div>
+            {/* Quick Actions (Sync, Test Bell, Bell Mute, Exit) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <button
+                type="button"
+                disabled={isRefreshing}
+                onClick={async () => {
+                  setIsRefreshing(true);
+                  await refreshCloudOrders();
+                  setTimeout(() => setIsRefreshing(false), 500);
+                }}
+                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-neutral-200 flex items-center gap-1.5 transition-colors cursor-pointer active:scale-95"
+                title="Sync from Cloud"
+                aria-label="Sync orders"
+              >
+                <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
+                <span className="hidden md:inline">{isRefreshing ? 'Syncing...' : 'Sync'}</span>
+              </button>
 
-            {/* Manual Sync Cloud Orders button */}
-            <button
-              type="button"
-              disabled={isRefreshing}
-              onClick={async () => {
-                setIsRefreshing(true);
-                await refreshCloudOrders();
-                setTimeout(() => setIsRefreshing(false), 600);
-              }}
-              className="px-2.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-semibold text-neutral-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Sync latest orders from Cloud"
-            >
-              <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
-              <span className="hidden sm:inline">{isRefreshing ? 'Syncing...' : 'Sync'}</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  kitchenAlert.init();
+                  kitchenAlert.playKitchenBell();
+                }}
+                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-bold text-amber-400 flex items-center gap-1 transition-colors cursor-pointer"
+                title="Test Kitchen Service Bell"
+                aria-label="Test Bell"
+              >
+                <BellRing className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Test Bell</span>
+              </button>
 
-            {/* Test Bell button */}
-            <button
-              type="button"
-              onClick={() => {
-                kitchenAlert.init();
-                kitchenAlert.playKitchenBell();
-              }}
-              className="px-2.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-semibold text-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Test Kitchen Service Bell"
-            >
-              <BellRing className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Test Bell</span>
-            </button>
-
-            {/* Sound toggle button */}
-            <button
-              type="button"
-              onClick={() => {
-                kitchenAlert.init();
-                setSoundEnabled(!soundEnabled);
-              }}
-              className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              {soundEnabled ? (
-                <>
+              <button
+                type="button"
+                onClick={() => {
+                  kitchenAlert.init();
+                  setSoundEnabled(!soundEnabled);
+                }}
+                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-neutral-200 flex items-center gap-1 transition-colors cursor-pointer"
+                title="Toggle Bell Sound"
+                aria-label="Toggle Bell"
+              >
+                {soundEnabled ? (
                   <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Ticket Bell: ON</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>Ticket Bell: OFF</span>
-                </>
-              )}
+                ) : (
+                  <VolumeX className="w-3.5 h-3.5 text-neutral-500" />
+                )}
+                <span className="hidden md:inline">{soundEnabled ? 'Bell ON' : 'Muted'}</span>
+              </button>
+
+              <LogoutButton label="Exit" className="p-2 sm:px-3 sm:py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-xl text-xs font-bold transition-colors cursor-pointer" />
+            </div>
+          </div>
+
+          {/* Mobile Status Segmented Slider */}
+          <div className="grid grid-cols-4 gap-1 p-1 bg-black/40 rounded-xl border border-neutral-800/80">
+            <button
+              type="button"
+              onClick={() => setFilterStatus('all')}
+              className={`py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
+                filterStatus === 'all'
+                  ? 'bg-neutral-700 text-white shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>All</span>
+              <span className="font-mono text-[10px] opacity-80">
+                ({pendingCount + preparingCount + readyCount})
+              </span>
             </button>
 
-            <LogoutButton label="Sign Out" className="py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white border border-neutral-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0" />
+            <button
+              type="button"
+              onClick={() => setFilterStatus('pending')}
+              className={`py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
+                filterStatus === 'pending'
+                  ? 'bg-[#E3792F] text-white shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>Pending</span>
+              <span className="w-4 h-4 rounded-full bg-black/40 text-[10px] flex items-center justify-center font-mono">
+                {pendingCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFilterStatus('preparing')}
+              className={`py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
+                filterStatus === 'preparing'
+                  ? 'bg-[#30673A] text-white shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>Cooking</span>
+              <span className="w-4 h-4 rounded-full bg-black/40 text-[10px] flex items-center justify-center font-mono">
+                {preparingCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFilterStatus('ready')}
+              className={`py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
+                filterStatus === 'ready'
+                  ? 'bg-[#0284C7] text-white shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>Ready</span>
+              <span className="w-4 h-4 rounded-full bg-black/40 text-[10px] flex items-center justify-center font-mono">
+                {readyCount}
+              </span>
+            </button>
           </div>
-        </div>
+        </header>
 
         {/* Incoming Order Flash Alert Banner */}
         {incomingAlert && (
-          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#E3792F]/20 to-amber-500/20 border-2 border-[#E3792F] shadow-lg shadow-[#E3792F]/10 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#E3792F]/20 to-amber-500/20 border-2 border-[#E3792F] shadow-lg shadow-[#E3792F]/15 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#E3792F] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 animate-bounce">
+              <div className="w-10 h-10 rounded-xl bg-[#E3792F] text-white flex items-center justify-center shrink-0 shadow-xs animate-bounce">
                 <BellRing className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-[#E3792F] bg-black/40 px-2 py-0.5 rounded">
-                    New Incoming Ticket
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-black uppercase text-[#E3792F] bg-black/50 px-1.5 py-0.2 rounded">
+                    New Ticket
                   </span>
                   <span className="text-xs font-mono font-bold text-white">
                     {incomingAlert.order.orderNumber}
                   </span>
+                  <span className="text-xs font-extrabold text-[#E9E9C7]">
+                    {incomingAlert.order.tableNumber}
+                  </span>
                 </div>
-                <p className="text-xs text-neutral-200 font-semibold mt-0.5 truncate">
-                  {incomingAlert.order.tableNumber} · {incomingAlert.order.items.length} items (
-                  {incomingAlert.order.items.map((i) => `${i.quantity}x ${i.itemName}`).join(', ')}
-                  )
+                <p className="text-[11.5px] text-neutral-300 font-medium truncate mt-0.5">
+                  {incomingAlert.order.items.map((i) => `${i.quantity}× ${i.itemName}`).join(', ')}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   updateOrderStatus(incomingAlert.order.id, 'preparing');
                   setIncomingAlert(null);
                 }}
-                className="px-3.5 py-2 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                className="py-1.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Start Cooking</span>
+                <span>Cook</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIncomingAlert(null)}
-                className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10"
+                aria-label="Dismiss"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
-          {/* Quick Filter Tabs */}
-          <div className="flex items-center gap-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
-            <button
-              onClick={() => setFilterStatus('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                filterStatus === 'all'
-                  ? 'bg-neutral-800 text-white'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              Active ({pendingCount + preparingCount + readyCount})
-            </button>
-            <button
-              onClick={() => setFilterStatus('pending')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 ${
-                filterStatus === 'pending'
-                  ? 'bg-[#E3792F] text-white'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              <span>Pending</span>
-              <span className="w-4 h-4 rounded-full bg-black/30 text-[10px] flex items-center justify-center font-mono">
-                {pendingCount}
-              </span>
-            </button>
-            <button
-              onClick={() => setFilterStatus('preparing')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 ${
-                filterStatus === 'preparing'
-                  ? 'bg-[#30673A] text-white'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              <span>Cooking</span>
-              <span className="w-4 h-4 rounded-full bg-black/30 text-[10px] flex items-center justify-center font-mono">
-                {preparingCount}
-              </span>
-            </button>
-            <button
-              onClick={() => setFilterStatus('ready')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 ${
-                filterStatus === 'ready'
-                  ? 'bg-[#0284C7] text-white'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              <span>Ready Pass</span>
-              <span className="w-4 h-4 rounded-full bg-black/30 text-[10px] flex items-center justify-center font-mono">
-                {readyCount}
-              </span>
-            </button>
-          </div>
 
-      {/* Main Ticket Grid */}
-      <div className="max-w-7xl mx-auto pt-6">
-        {displayedOrders.length === 0 ? (
-          <div className="text-center py-20 bg-neutral-900/60 rounded-2xl border border-neutral-800 p-8 flex flex-col items-center justify-center">
-            <CheckCircle2 className="w-12 h-12 text-[#30673A] mx-auto mb-3" />
-            <h3 className="text-lg font-bold glinster-font text-white">
-              All Kitchen Tickets Clear!
-            </h3>
-            <p className="text-xs text-neutral-400 max-w-sm mx-auto mt-1 mb-4">
-              No orders are currently waiting in this queue state. New incoming table orders will appear here automatically.
-            </p>
-            <button
-              type="button"
-              disabled={isRefreshing}
-              onClick={async () => {
-                setIsRefreshing(true);
-                await refreshCloudOrders();
-                setTimeout(() => setIsRefreshing(false), 600);
-              }}
-              className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
-            >
-              <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span>{isRefreshing ? 'Checking Cloud...' : 'Refresh Orders from Cloud'}</span>
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {displayedOrders.map((ord) => {
-              const minutesAgo = Math.floor(
-                (Date.now() - new Date(ord.createdAt).getTime()) / 60000
-              );
-              const isUrgent = minutesAgo >= 15 && ord.status !== 'ready';
+        {/* Tickets Grid (Mobile 1-col, Tablet 2-col, Desktop 3-4 col) */}
+        <div>
+          {displayedOrders.length === 0 ? (
+            <div className="text-center py-14 bg-neutral-900/60 rounded-2xl border border-neutral-800 p-6 flex flex-col items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-[#30673A] mx-auto mb-2" />
+              <h3 className="text-base font-bold glinster-font text-white">
+                All Kitchen Tickets Clear!
+              </h3>
+              <p className="text-xs text-neutral-400 max-w-xs mx-auto mt-1 mb-4">
+                No orders are waiting in this queue. When guests submit orders from their table, tickets appear here instantly.
+              </p>
+              <button
+                type="button"
+                disabled={isRefreshing}
+                onClick={async () => {
+                  setIsRefreshing(true);
+                  await refreshCloudOrders();
+                  setTimeout(() => setIsRefreshing(false), 500);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
+              >
+                <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span>{isRefreshing ? 'Checking Cloud...' : 'Refresh Orders from Cloud'}</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {displayedOrders.map((ord) => {
+                const minutesAgo = Math.floor(
+                  (Date.now() - new Date(ord.createdAt).getTime()) / 60000
+                );
+                const isUrgent = minutesAgo >= 12 && ord.status !== 'ready';
 
-              return (
-                <div
-                  key={ord.id}
-                  className={`flex flex-col justify-between rounded-2xl bg-neutral-900 border p-4 shadow-lg transition-all ${
-                    ord.status === 'pending'
-                      ? 'border-[#E3792F] shadow-[#E3792F]/10'
-                      : ord.status === 'preparing'
-                      ? 'border-[#30673A] shadow-[#30673A]/10'
-                      : ord.status === 'ready'
-                      ? 'border-[#0284C7] shadow-[#0284C7]/10'
-                      : 'border-neutral-800'
-                  }`}
-                >
-                  <div>
-                    {/* Ticket Header */}
-                    <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-base font-black font-mono tracking-tight text-white">
-                            {ord.orderNumber}
-                          </span>
-                          <span className="text-xs font-bold text-[#E9E9C7] bg-white/10 px-2 py-0.5 rounded-md">
-                            {ord.tableNumber}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-neutral-400 mt-0.5">
-                          Guest: {ord.customerName || 'Diner'}
-                        </div>
-                      </div>
-
-                      {/* Elapsed Timer */}
-                      <div
-                        className={`flex items-center gap-1 text-xs font-mono font-bold px-2 py-1 rounded-lg ${
-                          isUrgent
-                            ? 'bg-red-500/20 text-red-400 animate-pulse'
-                            : 'bg-neutral-800 text-neutral-300'
-                        }`}
-                      >
-                        <Clock className="w-3 h-3" />
-                        <span>{minutesAgo}m ago</span>
-                      </div>
-                    </div>
-
-                    {/* Customer Notes */}
-                    {ord.specialNotes && (
-                      <div className="my-2.5 p-2 bg-[#E3792F]/10 border border-[#E3792F]/30 rounded-lg text-xs text-[#E3792F] flex items-center gap-1.5 font-medium">
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                        <span>{ord.specialNotes}</span>
-                      </div>
-                    )}
-
-                    {/* Item list */}
-                    <div className="py-3 space-y-2.5">
-                      {ord.items.map((it) => (
-                        <div key={it.id} className="text-xs">
-                          <div className="flex items-start justify-between font-bold text-white">
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className={`text-[8px] ${
-                                  it.foodType === 'veg' || it.foodType === 'vegan'
-                                    ? 'text-[#30673A]'
-                                    : 'text-[#E3792F]'
-                                }`}
-                              >
-                                {it.foodType === 'veg' ? '●' : it.foodType === 'vegan' ? '🌱' : '▲'}
-                              </span>
-                              <span className="text-sm font-mono text-[#E9E9C7]">
-                                {it.quantity}×
-                              </span>
-                              <span>{it.itemName}</span>
-                            </div>
+                return (
+                  <div
+                    key={ord.id}
+                    className={`flex flex-col justify-between rounded-2xl bg-neutral-900 border p-3.5 shadow-md transition-all ${
+                      ord.status === 'pending'
+                        ? 'border-[#E3792F] shadow-[#E3792F]/10'
+                        : ord.status === 'preparing'
+                        ? 'border-[#30673A] shadow-[#30673A]/10'
+                        : ord.status === 'ready'
+                        ? 'border-[#0284C7] shadow-[#0284C7]/10'
+                        : 'border-neutral-800'
+                    }`}
+                  >
+                    <div>
+                      {/* Ticket Header: Order Number, Table, Elapsed Time */}
+                      <div className="flex items-center justify-between pb-2.5 border-b border-neutral-800">
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-black font-mono text-white">
+                              {ord.orderNumber}
+                            </span>
+                            <span className="text-xs font-bold text-[#E9E9C7] bg-white/10 px-2 py-0.5 rounded-md">
+                              {ord.tableNumber}
+                            </span>
                           </div>
-
-                          {it.variantName && (
-                            <div className="ml-5 text-[11px] text-[#30673A] font-semibold">
-                              Size: {it.variantName}
-                            </div>
-                          )}
-
-                          {it.addons.length > 0 && (
-                            <div className="ml-5 text-[11px] text-neutral-400">
-                              + {it.addons.map((a) => a.name).join(', ')}
-                            </div>
-                          )}
-
-                          {it.specialInstructions && (
-                            <div className="ml-5 text-[11px] text-[#E3792F] italic">
-                              &quot;{it.specialInstructions}&quot;
-                            </div>
-                          )}
+                          <div className="text-[10.5px] text-neutral-400 mt-0.5">
+                            {ord.customerName || 'Diner'}
+                          </div>
                         </div>
-                      ))}
+
+                        {/* Elapsed Timer Badge */}
+                        <div
+                          className={`flex items-center gap-1 text-[11px] font-mono font-bold px-2 py-0.5 rounded-lg ${
+                            isUrgent
+                              ? 'bg-red-500/25 text-red-400 border border-red-500/40 animate-pulse'
+                              : 'bg-neutral-800 text-neutral-300'
+                          }`}
+                        >
+                          <Clock className="w-3 h-3" />
+                          <span>{minutesAgo < 1 ? 'Just now' : `${minutesAgo}m ago`}</span>
+                        </div>
+                      </div>
+
+                      {/* Special Customer Notes */}
+                      {ord.specialNotes && (
+                        <div className="my-2 p-2 bg-[#E3792F]/10 border border-[#E3792F]/30 rounded-lg text-xs text-[#E3792F] flex items-center gap-1.5 font-medium">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{ord.specialNotes}</span>
+                        </div>
+                      )}
+
+                      {/* Food Items List */}
+                      <div className="py-2.5 space-y-2">
+                        {ord.items.map((it) => (
+                          <div key={it.id} className="text-xs">
+                            <div className="flex items-start justify-between font-bold text-white">
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`text-[8px] ${
+                                    it.foodType === 'veg' || it.foodType === 'vegan'
+                                      ? 'text-[#30673A]'
+                                      : 'text-[#E3792F]'
+                                  }`}
+                                >
+                                  {it.foodType === 'veg' ? '●' : it.foodType === 'vegan' ? '🌱' : '▲'}
+                                </span>
+                                <span className="text-sm font-mono text-[#E9E9C7]">
+                                  {it.quantity}×
+                                </span>
+                                <span>{it.itemName}</span>
+                              </div>
+                            </div>
+
+                            {it.variantName && (
+                              <div className="ml-5 text-[10.5px] text-[#30673A] font-semibold">
+                                Size: {it.variantName}
+                              </div>
+                            )}
+
+                            {it.addons.length > 0 && (
+                              <div className="ml-5 text-[10.5px] text-neutral-400">
+                                + {it.addons.map((a) => a.name).join(', ')}
+                              </div>
+                            )}
+
+                            {it.specialInstructions && (
+                              <div className="ml-5 text-[10.5px] text-[#E3792F] italic">
+                                &quot;{it.specialInstructions}&quot;
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* KDS Action Workflow Buttons */}
-                  <div className="pt-3 border-t border-neutral-800 space-y-2">
-                    {ord.status === 'pending' && (
-                      <button
-                        onClick={() => updateOrderStatus(ord.id, 'preparing', 'Chef accepted ticket')}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#E3792F] hover:bg-[#c96420] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-white" />
-                        Accept & Start Cooking
-                      </button>
-                    )}
-
-                    {ord.status === 'preparing' && (
-                      <button
-                        onClick={() => updateOrderStatus(ord.id, 'ready', 'Plated on pass counter')}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Mark Ready to Serve
-                      </button>
-                    )}
-
-                    {ord.status === 'ready' && (
-                      <button
-                        onClick={() => updateOrderStatus(ord.id, 'completed', 'Served to table')}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#0284C7] hover:bg-[#0369a1] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Complete / Hand to Server
-                      </button>
-                    )}
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setSelectedOrderDetails(ord.id)}
-                        className="flex-1 py-1.5 px-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium flex items-center justify-center gap-1 transition-colors"
-                      >
-                        <Eye className="w-3 h-3" />
-                        History
-                      </button>
-
+                    {/* KDS Action Buttons */}
+                    <div className="pt-2.5 border-t border-neutral-800 space-y-1.5">
                       {ord.status === 'pending' && (
                         <button
-                          onClick={() => {
-                            const reason = prompt('Cancellation reason:') || 'Unavailable';
-                            updateOrderStatus(ord.id, 'cancelled', reason);
-                          }}
-                          className="py-1.5 px-2.5 rounded-lg bg-red-900/30 hover:bg-red-900/50 text-red-400 text-[11px] font-medium transition-colors"
+                          type="button"
+                          onClick={() => updateOrderStatus(ord.id, 'preparing', 'Chef started cooking')}
+                          className="w-full py-2.5 px-3 rounded-xl bg-[#E3792F] hover:bg-[#c96420] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md active:scale-95"
                         >
-                          Decline
+                          <Play className="w-3.5 h-3.5 fill-white" />
+                          <span>Accept & Start Cooking</span>
                         </button>
                       )}
+
+                      {ord.status === 'preparing' && (
+                        <button
+                          type="button"
+                          onClick={() => updateOrderStatus(ord.id, 'ready', 'Plated on pass counter')}
+                          className="w-full py-2.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md active:scale-95"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Mark Ready on Pass</span>
+                        </button>
+                      )}
+
+                      {ord.status === 'ready' && (
+                        <button
+                          type="button"
+                          onClick={() => updateOrderStatus(ord.id, 'completed', 'Served to table')}
+                          className="w-full py-2.5 px-3 rounded-xl bg-[#0284C7] hover:bg-[#0369a1] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md active:scale-95"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Handed to Waiter / Done</span>
+                        </button>
+                      )}
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOrderDetails(ord.id)}
+                          className="flex-1 py-1.5 px-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[10.5px] font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span>History</span>
+                        </button>
+
+                        {ord.status === 'pending' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const reason = prompt('Cancellation reason:') || 'Unavailable';
+                              updateOrderStatus(ord.id, 'cancelled', reason);
+                            }}
+                            className="py-1.5 px-2.5 rounded-lg bg-red-900/30 hover:bg-red-900/50 text-red-400 text-[10.5px] font-semibold transition-colors cursor-pointer"
+                          >
+                            Decline
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* History Audit Modal */}
+        {selectedOrderDetails && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-xs">
+            <div className="w-full max-w-sm bg-neutral-900 rounded-2xl p-5 border border-neutral-700 text-white space-y-3">
+              <h3 className="text-sm font-bold glinster-font">
+                Order Timeline
+              </h3>
+              <div className="space-y-2 max-h-56 overflow-y-auto">
+                {tenantOrders
+                  .find((o) => o.id === selectedOrderDetails)
+                  ?.statusHistory.map((h, i) => (
+                    <div key={i} className="text-xs p-2 bg-neutral-800 rounded-lg space-y-0.5">
+                      <div className="flex justify-between font-bold text-[#E9E9C7]">
+                        <span className="uppercase text-[11px]">{h.status}</span>
+                        <span className="font-mono text-neutral-400 text-[10.5px]">
+                          {new Date(h.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      {h.note && <div className="text-neutral-300 text-[11px]">{h.note}</div>}
+                    </div>
+                  ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedOrderDetails(null)}
+                className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xs font-semibold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         )}
-      </div>
 
-      {/* History Details Modal */}
-      {selectedOrderDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-neutral-900 rounded-2xl p-6 border border-neutral-700 text-white">
-            <h3 className="text-base font-bold glinster-font mb-3">
-              Order Audit History
-            </h3>
-            <div className="space-y-3 my-4 max-h-60 overflow-y-auto">
-              {tenantOrders
-                .find((o) => o.id === selectedOrderDetails)
-                ?.statusHistory.map((h, i) => (
-                  <div key={i} className="text-xs p-2.5 bg-neutral-800 rounded-lg space-y-0.5">
-                    <div className="flex justify-between font-bold text-[#E9E9C7]">
-                      <span className="uppercase">{h.status}</span>
-                      <span className="font-mono text-neutral-400">
-                        {new Date(h.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
-                    {h.note && <div className="text-neutral-300">{h.note}</div>}
-                  </div>
-                ))}
-            </div>
-            <button
-              onClick={() => setSelectedOrderDetails(null)}
-              className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xs font-semibold"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
