@@ -20,6 +20,7 @@ import {
   Layers,
   LayoutGrid,
   CheckCheck,
+  Trash2,
 } from 'lucide-react';
 import { ServiceRequest, ServiceRequestType } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
@@ -37,10 +38,12 @@ export const WaiterPage: React.FC = () => {
     updateOrderStatus,
     currentStaffUser,
     refreshCloudOrders,
+    clearAllServiceRequests,
   } = useRestaurant();
 
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isClearingCalls, setIsClearingCalls] = useState(false);
   const [filterType, setFilterType] = useState<ServiceRequestType | 'all'>('all');
   const [activeMobileView, setActiveMobileView] = useState<'calls' | 'kitchen' | 'tables'>('calls');
 
@@ -53,15 +56,14 @@ export const WaiterPage: React.FC = () => {
   const seenRequestIdsRef = useRef<Set<string>>(new Set());
   const initialLoadedRef = useRef<boolean>(false);
 
-  // Filter service requests for this tenant (resilient matching across tenant ID, slug, or assigned staff)
+  // Filter service requests strictly for this tenant (no leaky !r.tenantId)
   const tenantRequests = useMemo(() => {
     return serviceRequests.filter((r) => {
       if (!r) return false;
       return (
         r.tenantId === currentTenant.id ||
         r.tenantId === currentTenant.slug ||
-        (currentStaffUser && r.tenantId === currentStaffUser.tenantId) ||
-        !r.tenantId
+        (currentStaffUser && r.tenantId === currentStaffUser.tenantId)
       );
     });
   }, [serviceRequests, currentTenant.id, currentTenant.slug, currentStaffUser]);
@@ -92,14 +94,13 @@ export const WaiterPage: React.FC = () => {
     return openRequests.filter((r) => r.type === filterType);
   }, [openRequests, filterType]);
 
-  // Ready orders waiting for waiter delivery
+  // Ready orders waiting for waiter delivery (strictly scoped to current tenant)
   const readyOrders = useMemo(() => {
     return orders.filter(
       (o) =>
         (o.tenantId === currentTenant.id ||
           o.tenantId === currentTenant.slug ||
-          (currentStaffUser && o.tenantId === currentStaffUser.tenantId) ||
-          !o.tenantId) &&
+          (currentStaffUser && o.tenantId === currentStaffUser.tenantId)) &&
         o.status === 'ready'
     );
   }, [orders, currentTenant.id, currentTenant.slug, currentStaffUser]);
@@ -126,10 +127,15 @@ export const WaiterPage: React.FC = () => {
     }
 
     const newCalls: ServiceRequest[] = [];
+    const now = Date.now();
     openRequests.forEach((req) => {
       if (!seenRequestIdsRef.current.has(req.id)) {
         seenRequestIdsRef.current.add(req.id);
-        newCalls.push(req);
+        const ageMs = now - new Date(req.createdAt).getTime();
+        // ONLY trigger audio chime & banner for fresh calls placed within the last 90 seconds
+        if (ageMs < 90000) {
+          newCalls.push(req);
+        }
       }
     });
 
@@ -347,6 +353,27 @@ export const WaiterPage: React.FC = () => {
                   <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
                 )}
                 <span className="hidden md:inline">{soundEnabled ? 'Chime ON' : 'Muted'}</span>
+              </button>
+
+              {/* Purge / Clear All Calls */}
+              <button
+                type="button"
+                disabled={isClearingCalls || openRequests.length === 0}
+                onClick={async () => {
+                  if (window.confirm(`Clear all table calls for ${currentTenant.name}?`)) {
+                    setIsClearingCalls(true);
+                    await clearAllServiceRequests(true);
+                    seenRequestIdsRef.current.clear();
+                    setIncomingCallAlert(null);
+                    setIsClearingCalls(false);
+                  }
+                }}
+                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-xs font-bold text-red-600 flex items-center gap-1.5 transition-colors cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+                title="Clear all calls"
+                aria-label="Clear all calls"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">{isClearingCalls ? 'Clearing...' : 'Clear Calls'}</span>
               </button>
 
               <LogoutButton label="Exit" className="p-2 sm:px-3 sm:py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-xs font-bold transition-colors cursor-pointer" />

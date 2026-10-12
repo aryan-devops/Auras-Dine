@@ -98,12 +98,14 @@ interface RestaurantContextType {
   createOrder: (customerName?: string, specialNotes?: string) => Promise<Order>;
   updateOrderStatus: (orderId: string, status: OrderStatus, note?: string) => Promise<void> | void;
   refreshCloudOrders: () => Promise<void>;
+  clearAllOrders: (tenantOnly?: boolean) => Promise<void>;
 
   // Service requests (waiter calls)
   serviceRequests: ServiceRequest[];
   createServiceRequest: (type: ServiceRequestType, note?: string) => Promise<ServiceRequest> | void;
   claimServiceRequest: (requestId: string, staffName: string) => Promise<void> | void;
   resolveServiceRequest: (requestId: string) => Promise<void> | void;
+  clearAllServiceRequests: (tenantOnly?: boolean) => Promise<void>;
 
   // Customer Favorites
   favorites: string[];
@@ -471,6 +473,12 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
           setServiceRequests((prev) =>
             prev.map((r) => (r.id === requestId ? { ...r, status: 'resolved', resolvedAt } : r))
           );
+        } else if (type === 'CLEAR_ORDERS') {
+          const tId = payload?.tenantId;
+          setOrders((prev) => (tId ? prev.filter((o) => o.tenantId !== tId) : []));
+        } else if (type === 'CLEAR_SERVICE_REQUESTS') {
+          const tId = payload?.tenantId;
+          setServiceRequests((prev) => (tId ? prev.filter((r) => r.tenantId !== tId) : []));
         }
       };
       return () => {
@@ -1022,12 +1030,13 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     // Check if an active (open or in_progress) request for this table & type already exists
     const existingActive = serviceRequests.find((r) => {
       if (r.status === 'resolved') return false;
-      const isMatchingTenant = r.tenantId === currentTenantId || !r.tenantId;
+      const isMatchingTenant = r.tenantId === currentTenantId || r.tenantId === currentTenant.slug;
       const rNormTable = (r.tableNumber || r.tableId || '').toLowerCase().replace(/\s+/g, '');
       const isMatchingTable = rNormTable === targetNormTable || r.tableId === targetTableId;
       return isMatchingTenant && isMatchingTable && r.type === type;
     });
 
+    const freshNote = note && note.trim().length > 0 ? note.trim() : undefined;
     let effectiveRequest: ServiceRequest;
     let nextRequests: ServiceRequest[];
 
@@ -1038,7 +1047,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         status: 'open',
         claimedByStaff: undefined, // Alert floor servers again
         createdAt: new Date().toISOString(),
-        note: note !== undefined && note.trim().length > 0 ? note.trim() : existingActive.note,
+        note: freshNote, // Fresh note only; do not resurrect previous request notes
       };
       nextRequests = serviceRequests.map((r) => (r.id === effectiveRequest.id ? effectiveRequest : r));
     } else {
@@ -1050,7 +1059,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         type,
         status: 'open',
         createdAt: new Date().toISOString(),
-        note: note ? note.trim() : undefined,
+        note: freshNote,
       };
       nextRequests = [effectiveRequest, ...serviceRequests.filter((r) => r.id !== effectiveRequest.id)];
     }
@@ -1204,6 +1213,78 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       `Request ${requestId} resolved and closed`,
       currentTenant.name,
       'info'
+    );
+  };
+
+  const clearAllOrders = async (tenantOnly: boolean = true) => {
+    const remaining = tenantOnly
+      ? orders.filter((o) => o.tenantId !== currentTenantId && o.tenantId !== currentTenant.slug)
+      : [];
+    setOrders(remaining);
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}orders`, JSON.stringify(remaining));
+
+    try {
+      broadcastChannelRef.current?.postMessage({
+        type: 'CLEAR_ORDERS',
+        payload: { tenantId: tenantOnly ? currentTenantId : undefined },
+      });
+    } catch {}
+
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          ordersJson: JSON.stringify(remaining),
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Notice: Firestore clear orders note:', err);
+    }
+
+    logAuditEvent(
+      'QUEUE_PURGED',
+      `Cleared kitchen tickets for ${currentTenant.name}`,
+      currentTenant.name,
+      'warning'
+    );
+  };
+
+  const clearAllServiceRequests = async (tenantOnly: boolean = true) => {
+    const remaining = tenantOnly
+      ? serviceRequests.filter((r) => r.tenantId !== currentTenantId && r.tenantId !== currentTenant.slug)
+      : [];
+    setServiceRequests(remaining);
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}serviceRequests`, JSON.stringify(remaining));
+
+    try {
+      broadcastChannelRef.current?.postMessage({
+        type: 'CLEAR_SERVICE_REQUESTS',
+        payload: { tenantId: tenantOnly ? currentTenantId : undefined },
+      });
+    } catch {}
+
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          serviceRequestsJson: JSON.stringify(remaining),
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Notice: Firestore clear requests note:', err);
+    }
+
+    logAuditEvent(
+      'QUEUE_PURGED',
+      `Cleared calling bells for ${currentTenant.name}`,
+      currentTenant.name,
+      'warning'
     );
   };
 
@@ -2012,10 +2093,12 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         createOrder,
         updateOrderStatus,
         refreshCloudOrders,
+        clearAllOrders,
         serviceRequests,
         createServiceRequest,
         claimServiceRequest,
         resolveServiceRequest,
+        clearAllServiceRequests,
         favorites,
         toggleFavorite,
         isFavorite,

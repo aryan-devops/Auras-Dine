@@ -62,7 +62,22 @@ export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  React.useEffect(() => {
+    if (!isOpen) {
+      setNote('');
+      setSubmitted(false);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const handleSelectType = (type: ServiceRequestType) => {
+    if (type !== selectedType) {
+      setSelectedType(type);
+      setNote(''); // Reset note on request type change to avoid carryover
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +91,7 @@ export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
     try {
       await createServiceRequest(selectedType, note.trim() || undefined);
       setSubmitted(true);
+      setNote(''); // Clean state
       setTimeout(() => {
         setSubmitted(false);
         setIsSubmitting(false);
@@ -150,7 +166,7 @@ export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
                     <button
                       key={req.type}
                       type="button"
-                      onClick={() => setSelectedType(req.type)}
+                      onClick={() => handleSelectType(req.type)}
                       className={`w-full p-3 rounded-xl border flex items-center gap-3 text-left transition-all cursor-pointer ${
                         isSelected
                           ? 'border-[#30673A] bg-[#30673A]/5 shadow-xs'
@@ -183,7 +199,17 @@ export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
                   type="text"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="e.g. 2 sparkling waters please"
+                  placeholder={
+                    selectedType === 'bill'
+                      ? 'e.g. Card machine, cash, or split bill'
+                      : selectedType === 'water'
+                      ? 'e.g. Chilled water or sparkling refill'
+                      : selectedType === 'waiter'
+                      ? 'e.g. Extra napkins, cutlery, or questions'
+                      : selectedType === 'clean'
+                      ? 'e.g. Clear empty plates or fresh spoons'
+                      : 'e.g. Urgent assistance required'
+                  }
                   className="w-full px-3 py-2 text-xs rounded-xl border border-neutral-200 bg-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-[#30673A]"
                 />
               </div>

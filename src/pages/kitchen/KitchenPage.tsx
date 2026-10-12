@@ -14,6 +14,7 @@ import {
   BellRing,
   X,
   RotateCw,
+  Trash2,
 } from 'lucide-react';
 import { Order, OrderStatus } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
@@ -21,26 +22,26 @@ import { LogoutButton } from '../../components/auth/LogoutButton';
 import { kitchenAlert } from '../../lib/audioAlert';
 
 export const KitchenPage: React.FC = () => {
-  const { orders, updateOrderStatus, currentTenant, currentStaffUser, refreshCloudOrders } = useRestaurant();
+  const { orders, updateOrderStatus, currentTenant, currentStaffUser, refreshCloudOrders, clearAllOrders } = useRestaurant();
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isClearingQueue, setIsClearingQueue] = useState(false);
 
   // Incoming order alert banner state
   const [incomingAlert, setIncomingAlert] = useState<{ order: Order; timestamp: number } | null>(null);
   const seenOrderIdsRef = useRef<Set<string>>(new Set());
   const initialLoadedRef = useRef<boolean>(false);
 
-  // Filter orders for the active tenant (resilient matching across IDs and slugs)
+  // Filter orders strictly for the active tenant (no leaky !o.tenantId)
   const tenantOrders = useMemo(() => {
     return orders.filter((o) => {
       if (!o) return false;
       return (
         o.tenantId === currentTenant.id ||
         o.tenantId === currentTenant.slug ||
-        (currentStaffUser && o.tenantId === currentStaffUser.tenantId) ||
-        !o.tenantId
+        (currentStaffUser && o.tenantId === currentStaffUser.tenantId)
       );
     });
   }, [orders, currentTenant.id, currentTenant.slug, currentStaffUser]);
@@ -68,11 +69,16 @@ export const KitchenPage: React.FC = () => {
 
     const pendingOrders = tenantOrders.filter((o) => o.status === 'pending');
     const newPendingOrders: Order[] = [];
+    const now = Date.now();
 
     pendingOrders.forEach((ord) => {
       if (!seenOrderIdsRef.current.has(ord.id)) {
         seenOrderIdsRef.current.add(ord.id);
-        newPendingOrders.push(ord);
+        const ageMs = now - new Date(ord.createdAt).getTime();
+        // ONLY trigger audio alarm & banner for fresh orders created within the last 90 seconds
+        if (ageMs < 90000) {
+          newPendingOrders.push(ord);
+        }
       }
     });
 
@@ -205,6 +211,27 @@ export const KitchenPage: React.FC = () => {
                   <VolumeX className="w-3.5 h-3.5 text-neutral-500" />
                 )}
                 <span className="hidden md:inline">{soundEnabled ? 'Bell ON' : 'Muted'}</span>
+              </button>
+
+              {/* Purge / Clear Stale Test Tickets */}
+              <button
+                type="button"
+                disabled={isClearingQueue || tenantOrders.length === 0}
+                onClick={async () => {
+                  if (window.confirm(`Clear all ${currentTenant.name} kitchen tickets and purge queue?`)) {
+                    setIsClearingQueue(true);
+                    await clearAllOrders(true);
+                    seenOrderIdsRef.current.clear();
+                    setIncomingAlert(null);
+                    setIsClearingQueue(false);
+                  }
+                }}
+                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-xs font-bold text-red-400 flex items-center gap-1.5 transition-colors cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+                title="Purge Test Tickets"
+                aria-label="Purge Test Tickets"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">{isClearingQueue ? 'Clearing...' : 'Clear Queue'}</span>
               </button>
 
               <LogoutButton label="Exit" className="p-2 sm:px-3 sm:py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-xl text-xs font-bold transition-colors cursor-pointer" />
