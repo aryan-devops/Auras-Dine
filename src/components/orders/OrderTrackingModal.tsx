@@ -114,14 +114,14 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-lg bg-[#FAF8F2] rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#30673A]/15"
+        className="relative w-full max-w-lg bg-[#F4F9FD] rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#2C5EAD]/15"
       >
         
         {/* Header */}
         <div className="p-5 bg-white border-b border-neutral-200/80 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-[#30673A] bg-[#30673A]/10 px-2 py-0.5 rounded-md">
+              <span className="text-xs font-mono font-bold text-[#2C5EAD] bg-[#2C5EAD]/10 px-2 py-0.5 rounded-md">
                 {order.orderNumber}
               </span>
               <span className="text-xs text-neutral-400">·</span>
@@ -164,9 +164,9 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                         <div
                           className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
                             isDone
-                              ? 'bg-[#30673A] text-white'
+                              ? 'bg-[#2C5EAD] text-white'
                               : isCurrent
-                              ? 'bg-[#E3792F] text-white animate-pulse'
+                              ? 'bg-[#1591DC] text-white animate-pulse'
                               : 'bg-neutral-200 text-neutral-500'
                           }`}
                         >
@@ -181,7 +181,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                         {idx < STEPS.length - 1 && (
                           <div
                             className={`w-0.5 h-6 mt-1 ${
-                              isDone ? 'bg-[#30673A]' : 'bg-neutral-200'
+                              isDone ? 'bg-[#2C5EAD]' : 'bg-neutral-200'
                             }`}
                           />
                         )}
@@ -191,9 +191,9 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                         <h4
                           className={`text-xs font-bold leading-tight ${
                             isCurrent
-                              ? 'text-[#E3792F]'
+                              ? 'text-[#1591DC]'
                               : isDone
-                              ? 'text-[#30673A]'
+                              ? 'text-[#2C5EAD]'
                               : 'text-neutral-400'
                           }`}
                         >
@@ -213,7 +213,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
           {/* Dish items summary */}
           <div className="p-4 bg-white rounded-xl border border-neutral-200/80 space-y-3">
             <h3 className="text-xs font-bold text-[#1E231F] flex items-center gap-1.5 uppercase tracking-wider">
-              <UtensilsCrossed className="w-3.5 h-3.5 text-[#30673A]" />
+              <UtensilsCrossed className="w-3.5 h-3.5 text-[#2C5EAD]" />
               Items Ordered
             </h3>
 
@@ -225,7 +225,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                       {it.quantity}× {it.itemName}
                     </div>
                     {it.variantName && (
-                      <div className="text-[11px] text-[#30673A]">
+                      <div className="text-[11px] text-[#2C5EAD]">
                         {it.variantName}
                       </div>
                     )}
@@ -258,7 +258,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
               </div>
               <div className="flex justify-between font-bold text-sm text-[#1E231F] pt-1 border-t border-neutral-100">
                 <span>Total Amount</span>
-                <span className="font-mono tabular-nums text-[#30673A]">
+                <span className="font-mono tabular-nums text-[#2C5EAD]">
                   {currentTenant.currencySymbol}{order.grandTotal.toFixed(2)}
                 </span>
               </div>
@@ -271,15 +271,15 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
           <button
             type="button"
             onClick={onRequestAssistance}
-            className="flex-1 py-2.5 px-4 rounded-full bg-[#FAF8F2] hover:bg-[#E9E9C7]/50 text-[#1E231F] border border-neutral-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            className="flex-1 py-2.5 px-4 rounded-full bg-[#F4F9FD] hover:bg-[#C4E2F5]/50 text-[#1E231F] border border-neutral-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
-            <BellRing className="w-3.5 h-3.5 text-[#E3792F]" />
+            <BellRing className="w-3.5 h-3.5 text-[#1591DC]" />
             Request Waiter / Bill
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="py-2.5 px-5 rounded-full bg-[#30673A] hover:bg-[#204828] text-white text-xs font-semibold transition-colors cursor-pointer"
+            className="py-2.5 px-5 rounded-full bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-semibold transition-colors cursor-pointer"
           >
             Back to Menu
           </button>

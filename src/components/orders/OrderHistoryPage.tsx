@@ -19,7 +19,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({ onBack, onRe
   }, [orders, currentTenant.id]);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] p-4 pb-24">
+    <div className="min-h-screen bg-[#F4F9FD] p-4 pb-24">
       <div className="max-w-md mx-auto space-y-6">
         <header className="flex items-center gap-3 pt-2">
           <button onClick={onBack} className="p-2 rounded-full hover:bg-neutral-200">
@@ -43,7 +43,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({ onBack, onRe
                     <div className="font-bold text-sm text-[#1E231F] font-heading">{order.orderNumber}</div>
                     <div className="text-[11px] text-neutral-400">{new Date(order.createdAt).toLocaleDateString()}</div>
                   </div>
-                  <div className="text-sm font-bold text-[#30673A]">{currentTenant.currencySymbol}{order.grandTotal.toFixed(2)}</div>
+                  <div className="text-sm font-bold text-[#2C5EAD]">{currentTenant.currencySymbol}{order.grandTotal.toFixed(2)}</div>
                 </div>
 
                 <div className="text-[11px] text-neutral-600 line-clamp-2">
@@ -52,7 +52,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({ onBack, onRe
 
                 <button
                   onClick={() => onReorder(order)}
-                  className="w-full py-2.5 rounded-xl bg-[#FAF8F2] hover:bg-[#E9E9C7]/50 border border-[#30673A]/20 text-[#30673A] text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-xl bg-[#F4F9FD] hover:bg-[#C4E2F5]/50 border border-[#2C5EAD]/20 text-[#2C5EAD] text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   Re-order these items

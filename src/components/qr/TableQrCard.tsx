@@ -21,7 +21,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
       width: 256,
       margin: 2,
       color: {
-        dark: '#30673A',
+        dark: '#2C5EAD',
         light: '#FFFFFF',
       },
     })
@@ -43,7 +43,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
 
   return (
     <>
-      <div className="bg-white rounded-2xl p-4 border border-[#30673A]/15 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+      <div className="bg-white rounded-2xl p-4 border border-[#2C5EAD]/15 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
             <div>
@@ -60,7 +60,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
           </div>
 
           {/* QR Image Container */}
-          <div className="my-3 p-3 bg-[#FAF8F2] rounded-xl flex flex-col items-center justify-center border border-neutral-200/60">
+          <div className="my-3 p-3 bg-[#F4F9FD] rounded-xl flex flex-col items-center justify-center border border-neutral-200/60">
             {qrDataUrl ? (
               <img
                 src={qrDataUrl}
@@ -83,7 +83,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
           <button
             type="button"
             onClick={handleTestScan}
-            className="flex-1 py-1.5 px-2 rounded-lg bg-[#30673A] hover:bg-[#204828] text-white text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+            className="flex-1 py-1.5 px-2 rounded-lg bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
             title="Simulate scanning on a phone"
           >
             <Smartphone className="w-3 h-3" />
@@ -93,7 +93,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
           <button
             type="button"
             onClick={() => setIsStandPreviewOpen(true)}
-            className="p-1.5 rounded-lg bg-[#FAF8F2] hover:bg-[#E9E9C7]/50 text-neutral-700 border border-neutral-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg bg-[#F4F9FD] hover:bg-[#C4E2F5]/50 text-neutral-700 border border-neutral-200 transition-colors cursor-pointer"
             title="Preview Printable Stand"
           >
             <Eye className="w-3.5 h-3.5" />
@@ -102,7 +102,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
           <button
             type="button"
             onClick={handleDownload}
-            className="p-1.5 rounded-lg bg-[#FAF8F2] hover:bg-[#E9E9C7]/50 text-neutral-700 border border-neutral-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg bg-[#F4F9FD] hover:bg-[#C4E2F5]/50 text-neutral-700 border border-neutral-200 transition-colors cursor-pointer"
             title="Download QR Image"
           >
             <Download className="w-3.5 h-3.5" />
@@ -111,7 +111,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
           <button
             type="button"
             onClick={() => regenerateTableQr(table.id)}
-            className="p-1.5 rounded-lg bg-[#FAF8F2] hover:bg-[#E9E9C7]/50 text-neutral-700 border border-neutral-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg bg-[#F4F9FD] hover:bg-[#C4E2F5]/50 text-neutral-700 border border-neutral-200 transition-colors cursor-pointer"
             title="Rotate Security Token"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -122,8 +122,8 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
       {/* Printable Stand Modal */}
       {isStandPreviewOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 text-center shadow-2xl border-4 border-[#30673A]">
-            <div className="text-[10px] font-bold tracking-widest uppercase text-[#30673A] mb-1">
+          <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 text-center shadow-2xl border-4 border-[#2C5EAD]">
+            <div className="text-[10px] font-bold tracking-widest uppercase text-[#2C5EAD] mb-1">
               Table Stand Card Preview
             </div>
             <h2 className="text-2xl font-bold text-[#1E231F] glinster-font">
@@ -131,7 +131,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
             </h2>
             <p className="text-xs text-neutral-500 mb-4">{currentTenant.tagline}</p>
 
-            <div className="p-4 bg-[#FAF8F2] rounded-2xl inline-block border-2 border-[#E9E9C7] shadow-inner mb-4">
+            <div className="p-4 bg-[#F4F9FD] rounded-2xl inline-block border-2 border-[#C4E2F5] shadow-inner mb-4">
               {qrDataUrl && (
                 <img
                   src={qrDataUrl}
@@ -153,7 +153,7 @@ export const TableQrCard: React.FC<TableQrCardProps> = ({ table }) => {
             <div className="mt-6 flex items-center gap-2">
               <button
                 onClick={handleDownload}
-                className="flex-1 py-2 px-3 rounded-xl bg-[#30673A] text-white text-xs font-semibold flex items-center justify-center gap-1.5"
+                className="flex-1 py-2 px-3 rounded-xl bg-[#2C5EAD] text-white text-xs font-semibold flex items-center justify-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download PNG
