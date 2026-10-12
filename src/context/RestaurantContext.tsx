@@ -513,7 +513,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
               }
             }
 
-            // 2. Sync customer service requests (waiter calling bells)
+            // 2. Sync customer service requests (waiter calling bells) with strict deduplication
             if (data?.serviceRequestsJson) {
               try {
                 const cloudReqs: ServiceRequest[] = JSON.parse(data.serviceRequestsJson);
@@ -523,10 +523,26 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
                     prev.forEach((r) => mergedMap.set(r.id, r));
                     cloudReqs.forEach((cr) => mergedMap.set(cr.id, cr));
                     const mergedList = Array.from(mergedMap.values());
+                    // Sort by newest first
                     mergedList.sort(
                       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                     );
-                    return mergedList;
+                    // Deduplicate active requests so the same table doesn't have duplicate cards
+                    const seenActive = new Set<string>();
+                    const deduplicated: ServiceRequest[] = [];
+                    for (const r of mergedList) {
+                      if (r.status === 'resolved') {
+                        deduplicated.push(r);
+                      } else {
+                        const tableKey = (r.tableNumber || r.tableId || 'table').toLowerCase().replace(/\s+/g, '');
+                        const key = `${r.tenantId || ''}_${tableKey}_${r.type}`;
+                        if (!seenActive.has(key)) {
+                          seenActive.add(key);
+                          deduplicated.push(r);
+                        }
+                      }
+                    }
+                    return deduplicated;
                   });
                 }
               } catch (parseErr) {
@@ -975,33 +991,85 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     );
   };
 
+  // Helper to deduplicate active service requests for the same table & request type
+  const sanitizeServiceRequestsList = (list: ServiceRequest[]): ServiceRequest[] => {
+    const seenActiveKeys = new Set<string>();
+    const sorted = [...list].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    const cleaned: ServiceRequest[] = [];
+    for (const req of sorted) {
+      if (req.status === 'resolved') {
+        cleaned.push(req);
+      } else {
+        const tableKey = (req.tableNumber || req.tableId || 'table').toLowerCase().replace(/\s+/g, '');
+        const key = `${req.tenantId || ''}_${tableKey}_${req.type}`;
+        if (!seenActiveKeys.has(key)) {
+          seenActiveKeys.add(key);
+          cleaned.push(req);
+        }
+      }
+    }
+    return cleaned;
+  };
+
   // Service Requests (Customer calling bells)
   const createServiceRequest = async (type: ServiceRequestType, note?: string): Promise<ServiceRequest> => {
-    const newRequest: ServiceRequest = {
-      id: `req-${Date.now()}`,
-      tenantId: currentTenantId,
-      tableId: currentTable?.id || 'tbl-walk-in',
-      tableNumber: currentTable?.tableNumber || 'Table Session',
-      type,
-      status: 'open',
-      createdAt: new Date().toISOString(),
-      note,
-    };
+    const targetTableId = currentTable?.id || 'tbl-walk-in';
+    const targetTableNumber = currentTable?.tableNumber || 'Table Session';
+    const targetNormTable = targetTableNumber.toLowerCase().replace(/\s+/g, '');
 
-    setServiceRequests((prev) => [newRequest, ...prev.filter((r) => r.id !== newRequest.id)]);
+    // Check if an active (open or in_progress) request for this table & type already exists
+    const existingActive = serviceRequests.find((r) => {
+      if (r.status === 'resolved') return false;
+      const isMatchingTenant = r.tenantId === currentTenantId || !r.tenantId;
+      const rNormTable = (r.tableNumber || r.tableId || '').toLowerCase().replace(/\s+/g, '');
+      const isMatchingTable = rNormTable === targetNormTable || r.tableId === targetTableId;
+      return isMatchingTenant && isMatchingTable && r.type === type;
+    });
+
+    let effectiveRequest: ServiceRequest;
+    let nextRequests: ServiceRequest[];
+
+    if (existingActive) {
+      // Coalesce / refresh existing active ticket instead of creating a duplicate ticket
+      effectiveRequest = {
+        ...existingActive,
+        status: 'open',
+        claimedByStaff: undefined, // Alert floor servers again
+        createdAt: new Date().toISOString(),
+        note: note !== undefined && note.trim().length > 0 ? note.trim() : existingActive.note,
+      };
+      nextRequests = serviceRequests.map((r) => (r.id === effectiveRequest.id ? effectiveRequest : r));
+    } else {
+      effectiveRequest = {
+        id: `req-${Date.now()}`,
+        tenantId: currentTenantId,
+        tableId: targetTableId,
+        tableNumber: targetTableNumber,
+        type,
+        status: 'open',
+        createdAt: new Date().toISOString(),
+        note: note ? note.trim() : undefined,
+      };
+      nextRequests = [effectiveRequest, ...serviceRequests.filter((r) => r.id !== effectiveRequest.id)];
+    }
+
+    const sanitized = sanitizeServiceRequestsList(nextRequests);
+    setServiceRequests(sanitized);
 
     // 1. Broadcast via BroadcastChannel (instant zero-latency on same device/browser)
     try {
       broadcastChannelRef.current?.postMessage({
         type: 'NEW_SERVICE_REQUEST',
-        payload: newRequest,
+        payload: effectiveRequest,
       });
     } catch {}
 
     // 2. Broadcast to Firestore Cloud Sync Document (Full security rules permission)
     try {
       const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
-      const reqsToSave = [newRequest, ...serviceRequests.filter((r) => r.id !== newRequest.id)].slice(0, 60);
+      const reqsToSave = sanitized.slice(0, 60);
       await setDoc(
         syncDocRef,
         {
@@ -1017,17 +1085,17 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
 
     // 3. Also write to serviceRequests collection if permitted
     try {
-      await setDoc(doc(db, 'serviceRequests', newRequest.id), newRequest);
+      await setDoc(doc(db, 'serviceRequests', effectiveRequest.id), effectiveRequest);
     } catch {}
 
     logAuditEvent(
       'SERVICE_REQUEST_CREATED',
-      `Calling bell: ${newRequest.tableNumber} requested "${type}"${note ? ` ("${note}")` : ''}`,
+      `Calling bell: ${effectiveRequest.tableNumber} requested "${type}"${effectiveRequest.note ? ` ("${effectiveRequest.note}")` : ''}`,
       currentTenant.name,
       'info'
     );
 
-    return newRequest;
+    return effectiveRequest;
   };
 
   const claimServiceRequest = async (requestId: string, staffName: string) => {
