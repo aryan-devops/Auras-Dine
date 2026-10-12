@@ -112,7 +112,7 @@ export const KitchenPage: React.FC = () => {
   const readyCount = tenantOrders.filter((o) => o.status === 'ready').length;
 
   return (
-    <div className="min-h-screen bg-[#141815] text-[#FAF8F2] w-full max-w-full overflow-x-hidden p-2.5 sm:p-5 pb-20">
+    <div className="min-h-screen bg-[#141815] text-[#F4F9FD] w-full max-w-full overflow-x-hidden p-2.5 sm:p-5 pb-20">
       <div className="max-w-6xl mx-auto space-y-3.5 sm:space-y-5">
         
         {/* Mobile-First Kitchen Header */}
@@ -260,7 +260,7 @@ export const KitchenPage: React.FC = () => {
               onClick={() => setFilterStatus('pending')}
               className={`py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
                 filterStatus === 'pending'
-                  ? 'bg-[#E3792F] text-white shadow-xs'
+                  ? 'bg-[#1591DC] text-white shadow-xs'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -275,7 +275,7 @@ export const KitchenPage: React.FC = () => {
               onClick={() => setFilterStatus('preparing')}
               className={`py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
                 filterStatus === 'preparing'
-                  ? 'bg-[#30673A] text-white shadow-xs'
+                  ? 'bg-[#2C5EAD] text-white shadow-xs'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -304,20 +304,20 @@ export const KitchenPage: React.FC = () => {
 
         {/* Incoming Order Flash Alert Banner */}
         {incomingAlert && (
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#E3792F]/20 to-amber-500/20 border-2 border-[#E3792F] shadow-lg shadow-[#E3792F]/15 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#1591DC]/20 to-amber-500/20 border-2 border-[#1591DC] shadow-lg shadow-[#1591DC]/15 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#E3792F] text-white flex items-center justify-center shrink-0 shadow-xs animate-bounce">
+              <div className="w-10 h-10 rounded-xl bg-[#1591DC] text-white flex items-center justify-center shrink-0 shadow-xs animate-bounce">
                 <BellRing className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-black uppercase text-[#E3792F] bg-black/50 px-1.5 py-0.2 rounded">
+                  <span className="text-[10px] font-black uppercase text-[#1591DC] bg-black/50 px-1.5 py-0.2 rounded">
                     New Ticket
                   </span>
                   <span className="text-xs font-mono font-bold text-white">
                     {incomingAlert.order.orderNumber}
                   </span>
-                  <span className="text-xs font-extrabold text-[#E9E9C7]">
+                  <span className="text-xs font-extrabold text-[#C4E2F5]">
                     {incomingAlert.order.tableNumber}
                   </span>
                 </div>
@@ -334,7 +334,7 @@ export const KitchenPage: React.FC = () => {
                   updateOrderStatus(incomingAlert.order.id, 'preparing');
                   setIncomingAlert(null);
                 }}
-                className="py-1.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1"
+                className="py-1.5 px-3 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Cook</span>
@@ -355,7 +355,7 @@ export const KitchenPage: React.FC = () => {
         <div>
           {displayedOrders.length === 0 ? (
             <div className="text-center py-14 bg-neutral-900/60 rounded-2xl border border-neutral-800 p-6 flex flex-col items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 text-[#30673A] mx-auto mb-2" />
+              <CheckCircle2 className="w-10 h-10 text-[#2C5EAD] mx-auto mb-2" />
               <h3 className="text-base font-bold glinster-font text-white">
                 All Kitchen Tickets Clear!
               </h3>
@@ -389,9 +389,9 @@ export const KitchenPage: React.FC = () => {
                     key={ord.id}
                     className={`flex flex-col justify-between rounded-2xl bg-neutral-900 border p-3.5 shadow-md transition-all ${
                       ord.status === 'pending'
-                        ? 'border-[#E3792F] shadow-[#E3792F]/10'
+                        ? 'border-[#1591DC] shadow-[#1591DC]/10'
                         : ord.status === 'preparing'
-                        ? 'border-[#30673A] shadow-[#30673A]/10'
+                        ? 'border-[#2C5EAD] shadow-[#2C5EAD]/10'
                         : ord.status === 'ready'
                         ? 'border-[#0284C7] shadow-[#0284C7]/10'
                         : 'border-neutral-800'
@@ -405,7 +405,7 @@ export const KitchenPage: React.FC = () => {
                             <span className="text-sm font-black font-mono text-white">
                               {ord.orderNumber}
                             </span>
-                            <span className="text-xs font-bold text-[#E9E9C7] bg-white/10 px-2 py-0.5 rounded-md">
+                            <span className="text-xs font-bold text-[#C4E2F5] bg-white/10 px-2 py-0.5 rounded-md">
                               {ord.tableNumber}
                             </span>
                           </div>
@@ -429,7 +429,7 @@ export const KitchenPage: React.FC = () => {
 
                       {/* Special Customer Notes */}
                       {ord.specialNotes && (
-                        <div className="my-2 p-2 bg-[#E3792F]/10 border border-[#E3792F]/30 rounded-lg text-xs text-[#E3792F] flex items-center gap-1.5 font-medium">
+                        <div className="my-2 p-2 bg-[#1591DC]/10 border border-[#1591DC]/30 rounded-lg text-xs text-[#1591DC] flex items-center gap-1.5 font-medium">
                           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                           <span>{ord.specialNotes}</span>
                         </div>
@@ -444,13 +444,13 @@ export const KitchenPage: React.FC = () => {
                                 <span
                                   className={`text-[8px] ${
                                     it.foodType === 'veg' || it.foodType === 'vegan'
-                                      ? 'text-[#30673A]'
-                                      : 'text-[#E3792F]'
+                                      ? 'text-[#2C5EAD]'
+                                      : 'text-[#1591DC]'
                                   }`}
                                 >
                                   {it.foodType === 'veg' ? '●' : it.foodType === 'vegan' ? '🌱' : '▲'}
                                 </span>
-                                <span className="text-sm font-mono text-[#E9E9C7]">
+                                <span className="text-sm font-mono text-[#C4E2F5]">
                                   {it.quantity}×
                                 </span>
                                 <span>{it.itemName}</span>
@@ -458,7 +458,7 @@ export const KitchenPage: React.FC = () => {
                             </div>
 
                             {it.variantName && (
-                              <div className="ml-5 text-[10.5px] text-[#30673A] font-semibold">
+                              <div className="ml-5 text-[10.5px] text-[#2C5EAD] font-semibold">
                                 Size: {it.variantName}
                               </div>
                             )}
@@ -470,7 +470,7 @@ export const KitchenPage: React.FC = () => {
                             )}
 
                             {it.specialInstructions && (
-                              <div className="ml-5 text-[10.5px] text-[#E3792F] italic">
+                              <div className="ml-5 text-[10.5px] text-[#1591DC] italic">
                                 &quot;{it.specialInstructions}&quot;
                               </div>
                             )}
@@ -485,7 +485,7 @@ export const KitchenPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => updateOrderStatus(ord.id, 'preparing', 'Chef started cooking')}
-                          className="w-full py-2.5 px-3 rounded-xl bg-[#E3792F] hover:bg-[#c96420] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md active:scale-95"
+                          className="w-full py-2.5 px-3 rounded-xl bg-[#1591DC] hover:bg-[#0D76B6] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md active:scale-95"
                         >
                           <Play className="w-3.5 h-3.5 fill-white" />
                           <span>Accept & Start Cooking</span>
@@ -496,7 +496,7 @@ export const KitchenPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => updateOrderStatus(ord.id, 'ready', 'Plated on pass counter')}
-                          className="w-full py-2.5 px-3 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md active:scale-95"
+                          className="w-full py-2.5 px-3 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md active:scale-95"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Mark Ready on Pass</span>
@@ -557,7 +557,7 @@ export const KitchenPage: React.FC = () => {
                   .find((o) => o.id === selectedOrderDetails)
                   ?.statusHistory.map((h, i) => (
                     <div key={i} className="text-xs p-2 bg-neutral-800 rounded-lg space-y-0.5">
-                      <div className="flex justify-between font-bold text-[#E9E9C7]">
+                      <div className="flex justify-between font-bold text-[#C4E2F5]">
                         <span className="uppercase text-[11px]">{h.status}</span>
                         <span className="font-mono text-neutral-400 text-[10.5px]">
                           {new Date(h.timestamp).toLocaleTimeString()}
