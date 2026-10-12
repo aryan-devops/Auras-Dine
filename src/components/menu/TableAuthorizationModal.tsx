@@ -76,7 +76,7 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md bg-[#FAF8F2] rounded-3xl p-6 shadow-2xl border border-[#30673A]/20 overflow-hidden"
+        className="relative w-full max-w-md bg-[#F4F9FD] rounded-3xl p-6 shadow-2xl border border-[#2C5EAD]/20 overflow-hidden"
       >
         {/* Close Button */}
         <button
@@ -89,8 +89,8 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
         </button>
 
         {/* Brand Monogram Icon */}
-        <div className="w-14 h-14 rounded-2xl bg-[#30673A] text-white flex items-center justify-center mb-4 shadow-md border border-[#E9E9C7]/30">
-          <Utensils className="w-7 h-7 text-[#E9E9C7]" />
+        <div className="w-14 h-14 rounded-2xl bg-[#2C5EAD] text-white flex items-center justify-center mb-4 shadow-md border border-[#C4E2F5]/30">
+          <Utensils className="w-7 h-7 text-[#C4E2F5]" />
         </div>
 
         {/* Heading */}
@@ -98,14 +98,14 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
           Table Authorization
         </h2>
         <p className="text-xs text-neutral-600 mt-1 mb-5 leading-relaxed">
-          Welcome to <span className="font-bold text-[#30673A]">{currentTenant.name}</span>. Enter or select your seated table number to authorize digital ordering and kitchen delivery.
+          Welcome to <span className="font-bold text-[#2C5EAD]">{currentTenant.name}</span>. Enter or select your seated table number to authorize digital ordering and kitchen delivery.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Custom Table Input */}
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1.5 flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5 text-[#E3792F]" />
+              <Hash className="w-3.5 h-3.5 text-[#1591DC]" />
               Write Your Table Number
             </label>
             <div className="relative">
@@ -118,7 +118,7 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
                   setErrorMsg('');
                 }}
                 placeholder="e.g. Table 4, 12, Patio 2, Bar 1..."
-                className="w-full px-4 py-3 rounded-xl bg-white border border-[#30673A]/25 text-[#1E231F] font-bold text-base focus:outline-none focus:ring-2 focus:ring-[#30673A] focus:border-transparent shadow-inner"
+                className="w-full px-4 py-3 rounded-xl bg-white border border-[#2C5EAD]/25 text-[#1E231F] font-bold text-base focus:outline-none focus:ring-2 focus:ring-[#2C5EAD] focus:border-transparent shadow-inner"
               />
             </div>
           </div>
@@ -130,7 +130,7 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
               placeholder="Name"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-white border border-[#30673A]/25 text-[#1E231F] text-base focus:outline-none focus:ring-2 focus:ring-[#30673A] shadow-inner"
+              className="w-full px-4 py-3 rounded-xl bg-white border border-[#2C5EAD]/25 text-[#1E231F] text-base focus:outline-none focus:ring-2 focus:ring-[#2C5EAD] shadow-inner"
               required
             />
             <input
@@ -138,7 +138,7 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
               placeholder="Phone"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-white border border-[#30673A]/25 text-[#1E231F] text-base focus:outline-none focus:ring-2 focus:ring-[#30673A] shadow-inner"
+              className="w-full px-4 py-3 rounded-xl bg-white border border-[#2C5EAD]/25 text-[#1E231F] text-base focus:outline-none focus:ring-2 focus:ring-[#2C5EAD] shadow-inner"
               required
             />
           </div>
@@ -150,7 +150,7 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
           {/* Quick Select Preset Tables */}
           <div>
             <label className="block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-[#30673A]" />
+              <MapPin className="w-3 h-3 text-[#2C5EAD]" />
               Quick Select Available Tables
             </label>
             <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
@@ -164,7 +164,7 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
                     onClick={() => handleSelectPreset(t.tableNumber)}
                     className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#30673A] text-white shadow-xs scale-102'
+                        ? 'bg-[#2C5EAD] text-white shadow-xs scale-102'
                         : 'bg-white hover:bg-neutral-100 text-neutral-700 border border-neutral-200/80'
                     }`}
                   >
@@ -186,7 +186,7 @@ export const TableAuthorizationModal: React.FC<TableAuthorizationModalProps> = (
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 px-5 rounded-xl bg-[#30673A] hover:bg-[#204828] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+              className="flex-1 py-3 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Authorize & Start Dining</span>

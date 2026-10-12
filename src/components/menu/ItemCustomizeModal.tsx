@@ -60,7 +60,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
       aria-labelledby="customize-dish-title"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-lg bg-[#FAF8F2] rounded-t-3xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#30673A]/15">
+      <div className="relative w-full max-w-lg bg-[#F4F9FD] rounded-t-3xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#2C5EAD]/15">
         
         {/* Header with image */}
         <div className="relative p-6 pb-4 bg-white border-b border-neutral-200/70">
@@ -80,7 +80,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
               className="w-20 h-20 shrink-0"
             />
             <div className="pr-8">
-              <span className="text-[11px] font-bold tracking-wider uppercase text-[#30673A]">
+              <span className="text-[11px] font-bold tracking-wider uppercase text-[#2C5EAD]">
                 Customizable Creation
               </span>
               <h2
@@ -89,7 +89,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
               >
                 {item.name}
               </h2>
-              <div className="text-sm font-semibold text-[#E3792F] tabular-nums mt-0.5">
+              <div className="text-sm font-semibold text-[#1591DC] tabular-nums mt-0.5">
                 {currentTenant.currencySymbol}{unitPrice.toFixed(2)}
               </div>
             </div>
@@ -103,7 +103,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
             <div>
               <div className="flex items-center justify-between mb-2.5">
                 <h3 className="text-sm font-bold text-[#1E231F]">Select Portion / Size</h3>
-                <span className="text-xs text-[#E3792F] font-medium">Required</span>
+                <span className="text-xs text-[#1591DC] font-medium">Required</span>
               </div>
               <div className="space-y-2">
                 {item.variants.map((v) => {
@@ -115,7 +115,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
                       onClick={() => setSelectedVariant(v)}
                       className={`w-full p-3 rounded-xl border flex items-center justify-between text-left transition-all ${
                         isChecked
-                          ? 'border-[#30673A] bg-[#30673A]/5 shadow-xs'
+                          ? 'border-[#2C5EAD] bg-[#2C5EAD]/5 shadow-xs'
                           : 'border-neutral-200 hover:border-neutral-300 bg-white'
                       }`}
                     >
@@ -123,7 +123,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
                         <div
                           className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                             isChecked
-                              ? 'border-[#30673A] bg-[#30673A]'
+                              ? 'border-[#2C5EAD] bg-[#2C5EAD]'
                               : 'border-neutral-300'
                           }`}
                         >
@@ -160,7 +160,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
                       onClick={() => toggleAddon(a)}
                       className={`w-full p-3 rounded-xl border flex items-center justify-between text-left transition-all ${
                         isChecked
-                          ? 'border-[#30673A] bg-[#30673A]/5 shadow-xs'
+                          ? 'border-[#2C5EAD] bg-[#2C5EAD]/5 shadow-xs'
                           : 'border-neutral-200 hover:border-neutral-300 bg-white'
                       }`}
                     >
@@ -168,7 +168,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
                         <div
                           className={`w-4 h-4 rounded-md border flex items-center justify-center ${
                             isChecked
-                              ? 'border-[#30673A] bg-[#30673A] text-white'
+                              ? 'border-[#2C5EAD] bg-[#2C5EAD] text-white'
                               : 'border-neutral-300'
                           }`}
                         >
@@ -176,7 +176,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
                         </div>
                         <span className="text-sm font-medium text-[#1E231F]">{a.name}</span>
                       </div>
-                      <span className="text-xs font-semibold text-[#E3792F] tabular-nums">
+                      <span className="text-xs font-semibold text-[#1591DC] tabular-nums">
                         +{currentTenant.currencySymbol}{a.price.toFixed(2)}
                       </span>
                     </button>
@@ -200,7 +200,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
               placeholder="e.g. Mild spice, dressing on the side, no onions..."
-              className="w-full p-3 text-sm rounded-xl bg-white border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-[#30673A]/50 focus:border-[#30673A] resize-none"
+              className="w-full p-3 text-sm rounded-xl bg-white border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/50 focus:border-[#2C5EAD] resize-none"
             />
           </div>
         </div>
@@ -208,7 +208,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
         {/* Footer sticky CTA */}
         <div className="p-4 sm:p-5 bg-white border-t border-neutral-200/80 flex items-center justify-between gap-4">
           {/* Quantity selector */}
-          <div className="flex items-center gap-2 p-1 bg-[#FAF8F2] border border-neutral-200 rounded-full">
+          <div className="flex items-center gap-2 p-1 bg-[#F4F9FD] border border-neutral-200 rounded-full">
             <button
               type="button"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -235,7 +235,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
           <button
             type="button"
             onClick={handleConfirm}
-            className="flex-1 py-3 px-5 rounded-full bg-[#30673A] hover:bg-[#204828] text-white font-semibold text-sm flex items-center justify-between shadow-md transition-all active:scale-[0.98]"
+            className="flex-1 py-3 px-5 rounded-full bg-[#2C5EAD] hover:bg-[#1D4482] text-white font-semibold text-sm flex items-center justify-between shadow-md transition-all active:scale-[0.98]"
           >
             <span>Add to Order</span>
             <span className="font-mono tabular-nums font-bold">
