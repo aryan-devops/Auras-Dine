@@ -12,22 +12,22 @@ export interface SamsungLiveIslandProps {
   cartTotal?: number;
   tableNumber?: string;
   currencySymbol?: string;
-  onOpenTracking: () => void;
-  onOpenServiceModal: () => void;
+  onOpenTracking?: () => void;
+  onOpenServiceModal?: () => void;
   onOpenCart?: () => void;
 }
 
 /**
  * Animated Culinary Badge for Active Cooking Orders
- * Sizzling pan with wafting steam wisps and ambient emerald glow
+ * Sizzling pan with rising steam wisps and ambient emerald glow
  */
 const AnimatedCookingBadge: React.FC = () => (
-  <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20 overflow-hidden">
+  <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20 shadow-inner overflow-hidden">
     {/* Micro steam curls floating up */}
     <div className="absolute -top-1 left-2 flex items-center gap-0.5 pointer-events-none">
-      <span className="w-[1.5px] h-2 bg-white/70 rounded-full animate-steam-1" />
-      <span className="w-[2px] h-2.5 bg-white/90 rounded-full animate-steam-2" />
-      <span className="w-[1.5px] h-1.5 bg-white/60 rounded-full animate-steam-3" />
+      <span className="w-[1.5px] h-2 bg-white/80 rounded-full animate-steam-1" />
+      <span className="w-[2px] h-2.5 bg-white/95 rounded-full animate-steam-2" />
+      <span className="w-[1.5px] h-1.5 bg-white/70 rounded-full animate-steam-3" />
     </div>
 
     {/* Pan icon with subtle sizzle */}
@@ -51,9 +51,9 @@ const AnimatedCookingBadge: React.FC = () => (
  * Swinging pendulum chime with expanding acoustic radar pulse
  */
 const AnimatedBellBadge: React.FC<{ isAlerted: boolean }> = ({ isAlerted }) => (
-  <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20">
+  <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20 shadow-inner">
     {isAlerted && (
-      <span className="absolute inset-0 rounded-xl bg-[#0a7350]/50 animate-radar-wave pointer-events-none" />
+      <span className="absolute inset-0 rounded-full bg-[#0a7350]/60 animate-radar-wave pointer-events-none" />
     )}
     <Bell
       className={`w-4 h-4 text-white ${
@@ -67,11 +67,11 @@ const AnimatedBellBadge: React.FC<{ isAlerted: boolean }> = ({ isAlerted }) => (
  * Animated Cart / Item Badge
  */
 const AnimatedCartBadge: React.FC<{ count: number }> = ({ count }) => (
-  <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#07543a] to-[#0a7350] flex items-center justify-center text-white shrink-0 border border-white/20">
+  <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-[#07543a] to-[#0a7350] flex items-center justify-center text-white shrink-0 border border-white/25 shadow-inner">
     <span className="font-mono font-black text-xs text-white">
       {count}
     </span>
-    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-white/90 animate-ping" />
+    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
   </div>
 );
 
@@ -84,7 +84,6 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
   currencySymbol = '₹',
   onOpenTracking,
   onOpenServiceModal,
-  onOpenCart,
 }) => {
   const hasOrder = Boolean(
     latestOrder &&
@@ -106,8 +105,6 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
 
   // Gestures and isolated scrolling state
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchStartYRef = useRef<number | null>(null);
-  const didSwipeRef = useRef<boolean>(false);
   const lastSwitchTimeRef = useRef<number>(0);
   const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
@@ -123,7 +120,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
 
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
-        navigator.vibrate(18);
+        navigator.vibrate([12, 24]);
       } catch {}
     }
 
@@ -131,18 +128,45 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
 
     setTimeout(() => {
       setIsTransitioning(false);
-      didSwipeRef.current = false;
-    }, 250);
+    }, 240);
   };
 
-  // Attach native non-passive wheel and touchmove listeners to ISOLATE scroll to the bar ONLY
+  // Complete touch and scroll isolation: prevents page from scrolling when touching or scrolling over the bar
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    // Handle mouse wheel / trackpad scroll over the bar
-    const handleNativeWheel = (e: WheelEvent) => {
-      // PREVENT the entire webpage/window from scrolling!
+    let startY = 0;
+    let didSwipe = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      didSwipe = false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      // Unconditionally stop mobile browser viewport from scrolling
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      e.stopPropagation();
+
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+      if (Math.abs(diff) > 8) {
+        didSwipe = true;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (didSwipe) {
+        switchView();
+      }
+      didSwipe = false;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      // Unconditionally stop desktop window from scrolling
       e.preventDefault();
       e.stopPropagation();
 
@@ -151,68 +175,37 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
       }
     };
 
-    // Handle touch move over the bar on mobile
-    const handleNativeTouchMove = (e: TouchEvent) => {
-      if (touchStartYRef.current === null) return;
-      // PREVENT mobile browser viewport from scrolling!
-      if (e.cancelable) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      const currentY = e.touches[0].clientY;
-      const diff = currentY - touchStartYRef.current;
-      if (Math.abs(diff) > 6) {
-        didSwipeRef.current = true;
-      }
-    };
-
-    el.addEventListener('wheel', handleNativeWheel, { passive: false });
-    el.addEventListener('touchmove', handleNativeTouchMove, { passive: false });
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true });
+    el.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
-      el.removeEventListener('wheel', handleNativeWheel);
-      el.removeEventListener('touchmove', handleNativeTouchMove);
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchmove', handleTouchMove);
+      el.removeEventListener('touchend', handleTouchEnd);
+      el.removeEventListener('wheel', handleWheel);
     };
   }, []);
 
-  // Touch start and end for mobile swipe detection
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartYRef.current = e.touches[0].clientY;
-    didSwipeRef.current = false;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartYRef.current !== null && e.changedTouches && e.changedTouches.length > 0) {
-      const endY = e.changedTouches[0].clientY;
-      const diff = endY - touchStartYRef.current;
-      if (Math.abs(diff) > 10) {
-        didSwipeRef.current = true;
-        switchView(diff < 0 ? 'up' : 'down');
-      }
-    }
-    touchStartYRef.current = null;
-    // Release swipe flag after brief buffer to avoid synthetic clicks
-    setTimeout(() => {
-      didSwipeRef.current = false;
-    }, 150);
-  };
-
-  // Tap handler (only fires on clean, stationary tap; never on scroll or swipe)
+  // Tap handler (only toggles views or opens service request, NEVER opens the cart drawer)
   const handleBarClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (didSwipeRef.current || Date.now() - lastSwitchTimeRef.current < 280) {
+    if (Date.now() - lastSwitchTimeRef.current < 280) {
       return;
     }
 
-    if (activeCard === 'dining_order') {
-      if (hasOrder && onOpenTracking) {
-        onOpenTracking();
-      } else if (onOpenCart) {
-        onOpenCart();
+    if (activeCard === 'floor_waiter') {
+      if (onOpenServiceModal) {
+        onOpenServiceModal();
       }
     } else {
-      onOpenServiceModal();
+      if (hasOrder && onOpenTracking) {
+        onOpenTracking();
+      } else {
+        // Tapping order card smoothly switches to waiter view
+        switchView();
+      }
     }
   };
 
@@ -262,7 +255,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
           ) : cartCount > 0 ? (
             <AnimatedCartBadge count={cartCount} />
           ) : (
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20">
               <ReceiptText className="w-4 h-4 text-white" />
             </div>
           )}
@@ -296,8 +289,8 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
             </div>
           </div>
 
-          {/* Right: Subtotal Amount & View indicator dots */}
-          <div className="flex items-center gap-2 shrink-0 pl-1">
+          {/* Right: Subtotal Amount & Morphing 2-view indicator pill */}
+          <div className="flex items-center gap-2.5 shrink-0 pl-1">
             <div className="flex flex-col items-end leading-none">
               <span className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-0.5">
                 Total
@@ -307,17 +300,17 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
               </span>
             </div>
 
-            {/* Micro 2-view indicator dots */}
+            {/* Segmented Morph Indicator */}
             <div
               onClick={(e) => {
                 e.stopPropagation();
                 switchView();
               }}
-              className="flex flex-col gap-1 px-1 py-1 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
-              title="Scroll or tap to switch between Order and Waiter"
+              className="flex items-center gap-1 px-1.5 py-1 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+              title="Scroll or tap to switch to Waiter"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-white" />
-              <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
+              <span className="h-1.5 w-3.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-300" />
+              <span className="h-1.5 w-1.5 bg-white/30 rounded-full transition-all duration-300" />
             </div>
           </div>
         </div>
@@ -346,8 +339,8 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
           </div>
         </div>
 
-        {/* Right: Status Pill & View indicator dots */}
-        <div className="flex items-center gap-2 shrink-0 pl-1">
+        {/* Right: Status Pill & Morphing 2-view indicator pill */}
+        <div className="flex items-center gap-2.5 shrink-0 pl-1">
           {hasActiveRequest ? (
             <span className="text-[10px] font-bold text-white bg-[#07543a] px-2.5 py-1 rounded-full border border-white/30 animate-pulse">
               Alerted
@@ -358,17 +351,17 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
             </span>
           )}
 
-          {/* Micro 2-view indicator dots */}
+          {/* Segmented Morph Indicator */}
           <div
             onClick={(e) => {
               e.stopPropagation();
               switchView();
             }}
-            className="flex flex-col gap-1 px-1 py-1 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
-            title="Scroll or tap to switch between Order and Waiter"
+            className="flex items-center gap-1 px-1.5 py-1 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+            title="Scroll or tap to switch to Order"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
-            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            <span className="h-1.5 w-1.5 bg-white/30 rounded-full transition-all duration-300" />
+            <span className="h-1.5 w-3.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-300" />
           </div>
         </div>
       </div>
@@ -378,14 +371,12 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
   return (
     <div
       ref={containerRef}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
       onClick={handleBarClick}
       style={{ touchAction: 'none' }}
       className="relative w-full max-w-[340px] sm:max-w-[370px] mx-auto select-none pointer-events-auto touch-none"
     >
-      {/* THE SINGLE BAR ONLY - No background layers, no stacked cards behind, no weird shadow */}
-      <div className="relative w-full h-14 sm:h-[54px] px-3.5 sm:px-4 rounded-2xl sm:rounded-[22px] bg-[#041c14] hover:bg-[#06241a] border border-[#07543a]/75 shadow-md shadow-black/25 flex items-center justify-between cursor-pointer transition-colors duration-200 overflow-hidden">
+      {/* THE SINGLE DYNAMIC ISLAND PILL - Luxury finish, zero background layers, zero weird shadows */}
+      <div className="relative w-full h-14 sm:h-[56px] px-3.5 sm:px-4 rounded-full bg-gradient-to-r from-[#031911]/98 via-[#062c1f]/95 to-[#031911]/98 border border-[#0a7350]/60 ring-1 ring-white/10 shadow-[0_8px_30px_rgba(3,25,17,0.45)] backdrop-blur-2xl flex items-center justify-between cursor-pointer transition-transform duration-200 active:scale-[0.99] overflow-hidden">
         {/* Animated view container */}
         <div
           key={activeCard}

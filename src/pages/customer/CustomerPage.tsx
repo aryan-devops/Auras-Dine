@@ -593,9 +593,12 @@ export const CustomerPage: React.FC = () => {
       )}
 
       {/* 5. Sticky Floating Bottom Action Dock with Samsung Dynamic Island */}
-      {/* Only show when an event occurs: items in cart, active live order, or floor waiter paged */}
-      {(hasCart || hasLiveOrder || hasActiveRequest) && (
-        <div className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto animate-in slide-in-from-bottom-5 duration-300">
+      {/* Strictly only shown when items are in cart. When nothing is in cart, completely removed */}
+      {cartCount > 0 && (
+        <div
+          style={{ touchAction: 'none' }}
+          className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto touch-none animate-in fade-in slide-in-from-bottom-6 duration-300"
+        >
           <SamsungLiveIsland
             latestOrder={latestOrder}
             hasActiveRequest={hasActiveRequest}
@@ -605,7 +608,6 @@ export const CustomerPage: React.FC = () => {
             currencySymbol={currentTenant.currencySymbol}
             onOpenTracking={() => setIsTrackingModalOpen(true)}
             onOpenServiceModal={() => setIsServiceModalOpen(true)}
-            onOpenCart={() => setIsCartDrawerOpen(true)}
           />
         </div>
       )}

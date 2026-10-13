@@ -13,7 +13,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
   item,
   onClose,
 }) => {
-  const { currentTenant, addToCart, setIsCartDrawerOpen } = useRestaurant();
+  const { currentTenant, addToCart } = useRestaurant();
 
   if (!item) return null;
 
