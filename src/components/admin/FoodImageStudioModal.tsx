@@ -220,17 +220,17 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-2xl bg-[#F4F9FD] rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#2C5EAD]/20 overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-2xl bg-[#F4F8F6] rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#E6F2ED] overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#2C5EAD]/10 text-[#2C5EAD] font-mono">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#07543a]/10 text-[#07543a] font-mono">
                 Food Image Studio
               </span>
             </div>
-            <h2 id="image-studio-title" className="text-lg sm:text-xl font-bold text-[#1E231F] glinster-font mt-0.5">
+            <h2 id="image-studio-title" className="text-lg sm:text-xl font-bold text-[#151815] glinster-font mt-0.5">
               Food Photography · {itemName}
             </h2>
           </div>
@@ -253,7 +253,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
             onClick={() => handleTabChange('upload')}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
               tab === 'upload'
-                ? 'bg-[#2C5EAD] text-white shadow-xs'
+                ? 'bg-[#07543a] text-white shadow-xs'
                 : 'bg-white hover:bg-neutral-100 text-neutral-600 border border-neutral-200'
             }`}
           >
@@ -266,7 +266,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
             onClick={() => handleTabChange('camera')}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
               tab === 'camera'
-                ? 'bg-[#2C5EAD] text-white shadow-xs'
+                ? 'bg-[#07543a] text-white shadow-xs'
                 : 'bg-white hover:bg-neutral-100 text-neutral-600 border border-neutral-200'
             }`}
           >
@@ -279,11 +279,11 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
             onClick={() => handleTabChange('presets')}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
               tab === 'presets'
-                ? 'bg-[#2C5EAD] text-white shadow-xs'
+                ? 'bg-[#07543a] text-white shadow-xs'
                 : 'bg-white hover:bg-neutral-100 text-neutral-600 border border-neutral-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#1591DC]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#0a7350]" />
             <span>Gourmet Presets</span>
           </button>
         </div>
@@ -303,12 +303,12 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
 
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-[#2C5EAD]/30 hover:border-[#2C5EAD] rounded-2xl p-8 text-center bg-white cursor-pointer transition-colors flex flex-col items-center justify-center group"
+                className="border-2 border-dashed border-[#07543a]/30 hover:border-[#07543a] rounded-2xl p-8 text-center bg-white cursor-pointer transition-colors flex flex-col items-center justify-center group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-[#C4E2F5]/50 text-[#2C5EAD] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <div className="w-14 h-14 rounded-2xl bg-[#E6F2ED] text-[#07543a] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                   <Upload className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm font-bold text-[#1E231F] mb-1">
+                <h4 className="text-sm font-bold text-[#151815] mb-1">
                   Click to Browse or Drop Food Photo Here
                 </h4>
                 <p className="text-xs text-neutral-500 max-w-sm">
@@ -369,14 +369,14 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                       <button
                         type="button"
                         onClick={startCamera}
-                        className="py-2 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-colors cursor-pointer"
+                        className="py-2 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold transition-colors cursor-pointer"
                       >
                         Start Live Camera
                       </button>
                       <button
                         type="button"
                         onClick={() => mobileCameraInputRef.current?.click()}
-                        className="py-2 px-4 rounded-xl bg-[#1591DC] hover:bg-[#0D76B6] text-white text-xs font-bold transition-colors cursor-pointer"
+                        className="py-2 px-4 rounded-xl bg-[#0a7350] hover:bg-[#07543a] text-white text-xs font-bold transition-colors cursor-pointer"
                       >
                         Use Device Camera App
                       </button>
@@ -391,7 +391,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                   <button
                     type="button"
                     onClick={capturePhotoFromVideo}
-                    className="py-3 px-6 rounded-full bg-[#1591DC] hover:bg-[#0D76B6] text-white font-bold text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95 cursor-pointer"
+                    className="py-3 px-6 rounded-full bg-[#07543a] hover:bg-[#053d2a] text-white font-bold text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95 cursor-pointer"
                   >
                     <Camera className="w-4 h-4" />
                     <span>Snap Dish Photo</span>
@@ -416,7 +416,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                     <button
                       type="button"
                       onClick={startCamera}
-                      className="text-xs text-[#2C5EAD] font-bold flex items-center gap-1 hover:underline cursor-pointer"
+                      className="text-xs text-[#07543a] font-bold flex items-center gap-1 hover:underline cursor-pointer"
                     >
                       <RefreshCw className="w-3 h-3" />
                       Retake
@@ -450,7 +450,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                       onClick={() => setPreviewImage(preset.url)}
                       className={`group relative rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-[#2C5EAD] ring-2 ring-[#2C5EAD]/20 scale-102'
+                          ? 'border-[#07543a] ring-2 ring-[#07543a]/20 scale-102'
                           : 'border-transparent hover:border-neutral-300'
                       }`}
                     >
@@ -462,7 +462,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                         />
                       </div>
                       <div className="p-2 bg-white">
-                        <h5 className="text-[11px] font-bold text-[#1E231F] truncate">
+                        <h5 className="text-[11px] font-bold text-[#151815] truncate">
                           {preset.name}
                         </h5>
                         <span className="text-[10px] text-neutral-400 block truncate">
@@ -470,7 +470,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                         </span>
                       </div>
                       {isSelected && (
-                        <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#2C5EAD] text-white flex items-center justify-center shadow-md">
+                        <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#07543a] text-white flex items-center justify-center shadow-md">
                           <Check className="w-3.5 h-3.5" />
                         </div>
                       )}
@@ -512,7 +512,7 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
               type="button"
               onClick={handleSave}
               disabled={!previewImage}
-              className="py-2.5 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5 active:scale-98"
+              className="py-2.5 px-5 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5 active:scale-98"
             >
               <Check className="w-4 h-4" />
               <span>Apply Dish Photo</span>

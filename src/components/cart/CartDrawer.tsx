@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { X, Plus, Minus, Trash2, ArrowRight, Utensils, Sparkles, CheckCircle2 } from 'lucide-react';
+import {
+  X,
+  Trash2,
+  Plus,
+  Minus,
+  Utensils,
+  ArrowRight,
+  CheckCircle2,
+  Sparkles,
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useRestaurant } from '../../context/RestaurantContext';
 
@@ -33,20 +42,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
   if (!isCartDrawerOpen) return null;
 
   const handlePlaceOrder = async () => {
-    if (cart.length === 0) return;
-    setIsSubmitting(true);
+    if (cart.length === 0 || isSubmitting) return;
+
     try {
+      setIsSubmitting(true);
       const order = await createOrder(
         customerName.trim() || 'Guest Diner',
         tableNotes.trim() || undefined
       );
 
-      // Trigger celebratory confetti
+      // Trigger celebratory confetti in Royal Purple & Soft Lavender
       confetti({
         particleCount: 60,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#2C5EAD', '#1591DC', '#C4E2F5'],
+        colors: ['#07543a', '#0a7350', '#E6F2ED', '#FFFFFF'],
       });
 
       setOrderSuccess(order.orderNumber);
@@ -69,20 +79,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
       aria-labelledby="cart-drawer-title"
       className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-md bg-[#F4F9FD] h-full flex flex-col shadow-2xl overflow-hidden border-l border-[#2C5EAD]/15 animate-in slide-in-from-right duration-300">
+      <div className="relative w-full max-w-md bg-[#F4F8F6] h-full flex flex-col shadow-2xl overflow-hidden border-l border-[#07543a]/15 animate-in slide-in-from-right duration-300">
         
         {/* Header */}
         <div className="p-5 bg-white border-b border-neutral-200/80 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#2C5EAD]/10 text-[#2C5EAD] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-[#E6F2ED] text-[#07543a] flex items-center justify-center border border-[#C2DFD4]">
               <Utensils className="w-4 h-4" />
             </div>
             <div>
-              <h2 id="cart-drawer-title" className="text-base font-bold text-[#1E231F] glinster-font">
+              <h2 id="cart-drawer-title" className="text-base font-bold text-[#0D1914] glinster-font">
                 Your Table Order
               </h2>
               <div className="flex items-center gap-2 text-xs text-neutral-500">
-                <span className="font-semibold text-[#2C5EAD]">
+                <span className="font-semibold text-[#07543a]">
                   {currentTable?.tableNumber || 'Table Session'}
                 </span>
                 <span aria-hidden="true">·</span>
@@ -103,14 +113,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
         {/* Content Body */}
         {orderSuccess ? (
           <div className="flex-1 p-8 flex flex-col items-center justify-center text-center bg-white">
-            <div className="w-16 h-16 rounded-full bg-[#2C5EAD]/10 text-[#2C5EAD] flex items-center justify-center mb-4 animate-bounce">
+            <div className="w-16 h-16 rounded-full bg-[#E6F2ED] text-[#07543a] flex items-center justify-center mb-4 animate-bounce border border-[#C2DFD4]">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h3 className="text-xl font-bold text-[#1E231F] glinster-font mb-2">
+            <h3 className="text-xl font-bold text-[#0D1914] glinster-font mb-2">
               Order Sent to Kitchen!
             </h3>
             <p className="text-sm text-neutral-600 mb-2">
-              Your ticket <span className="font-mono font-bold text-[#2C5EAD]">{orderSuccess}</span> has been broadcast directly to the kitchen display.
+              Your ticket <span className="font-mono font-bold text-[#07543a]">#{orderSuccess}</span> has been broadcast directly to the kitchen display.
             </p>
             <p className="text-xs text-neutral-400 mb-6">
               The chefs are preparing your dishes fresh. You can track preparation status live.
@@ -120,17 +130,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
                 handleClose();
                 onTrackOrder?.();
               }}
-              className="w-full py-3 px-6 rounded-full bg-[#2C5EAD] hover:bg-[#1D4482] text-white font-semibold text-sm transition-colors shadow-sm"
+              className="w-full py-3 px-6 rounded-full bg-[#07543a] hover:bg-[#053d2a] text-white font-semibold text-sm transition-colors shadow-sm"
             >
               Track Order Live
             </button>
           </div>
         ) : cart.length === 0 ? (
           <div className="flex-1 p-8 flex flex-col items-center justify-center text-center">
-            <div className="w-14 h-14 rounded-full bg-[#C4E2F5]/50 text-[#2C5EAD] flex items-center justify-center mb-3">
+            <div className="w-14 h-14 rounded-full bg-[#E6F2ED] text-[#07543a] flex items-center justify-center mb-3 border border-[#C2DFD4]">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-[#1E231F] glinster-font mb-1">
+            <h3 className="text-base font-bold text-[#0D1914] glinster-font mb-1">
               Your cart is waiting
             </h3>
             <p className="text-xs text-neutral-500 max-w-xs mb-6">
@@ -138,7 +148,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
             </p>
             <button
               onClick={handleClose}
-              className="py-2.5 px-5 rounded-full bg-[#2C5EAD] text-white text-xs font-semibold hover:bg-[#1D4482] transition-colors"
+              className="py-2.5 px-5 rounded-full bg-[#07543a] text-white text-xs font-semibold hover:bg-[#053d2a] transition-colors"
             >
               Explore Menu
             </button>
@@ -158,20 +168,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
                         <span
                           className={`text-[9px] font-bold ${
                             item.menuItem.foodType === 'veg' || item.menuItem.foodType === 'vegan'
-                              ? 'text-[#2C5EAD]'
-                              : 'text-[#1591DC]'
+                              ? 'text-[#07543a]'
+                              : 'text-[#0a7350]'
                           }`}
                         >
                           {item.menuItem.foodType === 'veg' ? '●' : item.menuItem.foodType === 'vegan' ? '🌱' : '▲'}
                         </span>
-                        <h4 className="text-sm font-bold text-[#1E231F] leading-tight">
+                        <h4 className="text-sm font-bold text-[#0D1914] leading-tight">
                           {item.menuItem.name}
                         </h4>
                       </div>
 
                       {/* Variant name */}
                       {item.selectedVariant && (
-                        <div className="text-xs text-[#2C5EAD] font-medium">
+                        <div className="text-xs text-[#07543a] font-medium">
                           Portion: {item.selectedVariant.name}
                         </div>
                       )}
@@ -202,11 +212,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
 
                   {/* Quantity and Price */}
                   <div className="flex items-center justify-between pt-1 border-t border-neutral-100">
-                    <span className="text-xs font-mono tabular-nums font-bold text-[#1E231F]">
+                    <span className="text-xs font-mono tabular-nums font-bold text-[#0D1914]">
                       {currentTenant.currencySymbol}{item.itemTotal.toFixed(2)}
                     </span>
 
-                    <div className="flex items-center gap-2 bg-[#F4F9FD] border border-neutral-200 rounded-full px-1.5 py-0.5">
+                    <div className="flex items-center gap-2 bg-[#F4F8F6] border border-neutral-200 rounded-full px-1.5 py-0.5">
                       <button
                         onClick={() => updateCartQuantity(item.cartItemId, -1)}
                         className="w-5 h-5 rounded-full flex items-center justify-center text-neutral-600 hover:bg-white"
@@ -244,7 +254,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
             {/* Guest Info & Table Notes */}
             <div className="p-3.5 bg-white rounded-xl border border-neutral-200/80 space-y-2.5">
               <div>
-                <label className="block text-xs font-bold text-[#1E231F] mb-1">
+                <label className="block text-xs font-bold text-[#0D1914] mb-1">
                   Guest Name (Optional)
                 </label>
                 <input
@@ -252,12 +262,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="e.g. Alex"
-                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-neutral-200 bg-[#F4F8F6] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1E231F] mb-1">
+                <label className="block text-xs font-bold text-[#0D1914] mb-1">
                   Table Dining Notes
                 </label>
                 <input
@@ -265,7 +275,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
                   value={tableNotes}
                   onChange={(e) => setTableNotes(e.target.value)}
                   placeholder="e.g. Bring drinks first, anniversary dinner"
-                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-neutral-200 bg-[#F4F8F6] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                 />
               </div>
             </div>
@@ -290,9 +300,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
                   {currentTenant.currencySymbol}{cartServiceCharge.toFixed(2)}
                 </span>
               </div>
-              <div className="pt-2 border-t border-neutral-200 flex justify-between font-bold text-sm text-[#1E231F]">
+              <div className="pt-2 border-t border-neutral-200 flex justify-between font-bold text-sm text-[#0D1914]">
                 <span>Grand Total</span>
-                <span className="font-mono tabular-nums text-base text-[#2C5EAD]">
+                <span className="font-mono tabular-nums text-base text-[#07543a]">
                   {currentTenant.currencySymbol}{cartTotal.toFixed(2)}
                 </span>
               </div>
@@ -307,7 +317,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onTrackOrder }) => {
               type="button"
               onClick={handlePlaceOrder}
               disabled={isSubmitting}
-              className="w-full py-3.5 px-6 rounded-full bg-[#2C5EAD] hover:bg-[#1D4482] text-white font-bold text-sm flex items-center justify-between shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-full bg-[#07543a] hover:bg-[#053d2a] text-white font-bold text-sm flex items-center justify-between shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
             >
               <span>{isSubmitting ? 'Transmitting to Kitchen...' : 'Send Order to Kitchen'}</span>
               <div className="flex items-center gap-2">

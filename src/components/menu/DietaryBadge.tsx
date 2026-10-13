@@ -54,27 +54,27 @@ export const DietaryBadge: React.FC<DietaryBadgeProps> = ({
       {/* Authentic FSSAI-style dietary symbol */}
       {isVeg && (
         <span
-          className={`shrink-0 rounded-[3px] border-[#2C5EAD] bg-white flex items-center justify-center ${boxDimensions}`}
+          className={`shrink-0 rounded-[3px] border-[#16a34a] bg-white flex items-center justify-center ${boxDimensions}`}
         >
-          <span className={`rounded-full bg-[#2C5EAD] ${dotDimensions}`} />
+          <span className={`rounded-full bg-[#16a34a] ${dotDimensions}`} />
         </span>
       )}
 
       {isVegan && (
         <span
-          className={`shrink-0 rounded-[3px] border-[#2C5EAD] bg-white flex items-center justify-center ${boxDimensions}`}
+          className={`shrink-0 rounded-[3px] border-[#16a34a] bg-white flex items-center justify-center ${boxDimensions}`}
         >
-          <span className="text-[10px] leading-none text-[#2C5EAD] font-bold">🌱</span>
+          <span className="text-[10px] leading-none text-[#16a34a] font-bold">🌱</span>
         </span>
       )}
 
       {isNonVeg && (
         <span
-          className={`shrink-0 rounded-[3px] border-[#1591DC] bg-white flex items-center justify-center ${boxDimensions}`}
+          className={`shrink-0 rounded-[3px] border-[#b91c1c] bg-white flex items-center justify-center ${boxDimensions}`}
         >
           {/* Authentic equilateral upward triangle */}
           <span
-            className={`w-0 h-0 border-l-transparent border-r-transparent border-b-[#1591DC] ${triangleDimensions}`}
+            className={`w-0 h-0 border-l-transparent border-r-transparent border-b-[#b91c1c] ${triangleDimensions}`}
           />
         </span>
       )}
@@ -90,7 +90,7 @@ export const DietaryBadge: React.FC<DietaryBadgeProps> = ({
       {showLabel && (
         <span
           className={`text-[11px] font-semibold tracking-tight ${
-            isVeg || isVegan ? 'text-[#2C5EAD]' : isEgg ? 'text-amber-700' : 'text-[#1591DC]'
+            isVeg || isVegan ? 'text-[#16a34a]' : isEgg ? 'text-amber-700' : 'text-[#b91c1c]'
           }`}
         >
           {label}
