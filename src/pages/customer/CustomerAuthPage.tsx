@@ -60,33 +60,43 @@ export const CustomerAuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F9FD] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-[#2C5EAD]/20">
+    <div className="min-h-screen bg-[#F4F8F6] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-[#E6F2ED]">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-[#2C5EAD] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
-            <Utensils className="w-8 h-8 text-[#C4E2F5]" />
-          </div>
-          <h1 className="text-2xl font-bold text-[#1E231F] glinster-font">
+          {tenant.logoUrl ? (
+            <div className="w-16 h-16 rounded-2xl bg-white border border-[#E6F2ED] shadow-md flex items-center justify-center mx-auto mb-3 p-1.5 overflow-hidden">
+              <img
+                src={tenant.logoUrl}
+                alt={tenant.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-[#07543a] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+              <Utensils className="w-8 h-8 text-white" />
+            </div>
+          )}
+          <h1 className="text-2xl font-bold text-[#0D1914] glinster-font">
             {tenant.name}
           </h1>
           <p className="text-xs text-neutral-500 mt-1">{tenant.tagline}</p>
         </div>
 
         {table && (
-          <div className="mb-6 p-3 bg-[#F4F9FD] rounded-2xl border border-neutral-200 flex items-center justify-between text-xs font-semibold text-neutral-700">
+          <div className="mb-6 p-3 bg-[#F4F8F6] rounded-2xl border border-[#E6F2ED] flex items-center justify-between text-xs font-semibold text-neutral-700">
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#1591DC]" />
+              <MapPin className="w-4 h-4 text-[#0a7350]" />
               Seated at:
             </span>
-            <span className="font-bold text-[#2C5EAD] font-mono">{table.tableNumber}</span>
+            <span className="font-bold text-[#07543a] font-mono">{table.tableNumber}</span>
           </div>
         )}
 
         <form onSubmit={handleCheckInAndAuth} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-[#2C5EAD]" />
+              <User className="w-3.5 h-3.5 text-[#07543a]" />
               Your Full Name
             </label>
             <input
@@ -94,14 +104,14 @@ export const CustomerAuthPage: React.FC = () => {
               placeholder="e.g. Alex Johnson"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F4F9FD] border border-neutral-200 text-[#1E231F] text-sm focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]"
+              className="w-full px-4 py-3 rounded-xl bg-[#F4F8F6] border border-[#C2DFD4] text-[#0D1914] text-sm focus:outline-none focus:ring-2 focus:ring-[#07543a]"
               required
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[#2C5EAD]" />
+              <Phone className="w-3.5 h-3.5 text-[#07543a]" />
               Phone Number
             </label>
             <input
@@ -109,7 +119,7 @@ export const CustomerAuthPage: React.FC = () => {
               placeholder="e.g. +1 (555) 000-0000"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F4F9FD] border border-neutral-200 text-[#1E231F] text-sm focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]"
+              className="w-full px-4 py-3 rounded-xl bg-[#F4F8F6] border border-[#C2DFD4] text-[#0D1914] text-sm focus:outline-none focus:ring-2 focus:ring-[#07543a]"
               required
             />
           </div>
@@ -121,9 +131,9 @@ export const CustomerAuthPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 px-5 rounded-2xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
+            className="w-full py-3.5 px-5 rounded-2xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
           >
-            <CheckCircle2 className="w-4 h-4 text-[#C4E2F5]" />
+            <CheckCircle2 className="w-4 h-4 text-white" />
             <span>{isSubmitting ? 'Saving & Authenticating...' : 'Authenticate & Open Menu'}</span>
           </button>
         </form>
