@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Heart,
   Check,
+  ChefHat,
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { DietaryFilter } from '../../components/menu/DietaryFilter';
@@ -77,6 +78,14 @@ export const CustomerPage: React.FC = () => {
     }
     return null;
   }, [orders, activeCustomerOrderId]);
+
+  const hasActivePlacedOrder = useMemo(() => {
+    return Boolean(
+      latestOrder &&
+      latestOrder.status !== 'completed' &&
+      latestOrder.status !== 'cancelled'
+    );
+  }, [latestOrder]);
 
   const hasActiveRequest = useMemo(() => {
     return serviceRequests.some(
@@ -156,6 +165,27 @@ export const CustomerPage: React.FC = () => {
             <span className="hidden xs:inline-block px-2.5 py-1 rounded-full bg-[#E6F2ED] text-[#07543a] text-xs font-bold border border-[#C2DFD4]">
               {currentTenant.isOpen ? 'Open Now' : 'Closed'}
             </span>
+
+            {/* Live Order Tracking Button in Navbar */}
+            {hasActivePlacedOrder && (
+              <button
+                type="button"
+                onClick={() => setIsTrackingModalOpen(true)}
+                title="Track Active Order Live"
+                aria-label="Track Active Order Live"
+                className="relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-[#07543a] to-[#04281c] text-white text-xs font-bold shadow-xs hover:shadow-md hover:from-[#053d2a] hover:to-[#032016] active:scale-95 transition-all shrink-0 cursor-pointer border border-[#0a7350]/60 ring-2 ring-emerald-400/40"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                </span>
+                <ChefHat className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300" />
+                <span className="font-semibold tracking-tight text-[11px] sm:text-xs">Track Order</span>
+                <span className="text-[10px] font-mono bg-white/15 text-emerald-200 px-1.5 py-0.2 rounded-full border border-white/10 hidden sm:inline-block">
+                  #{latestOrder?.orderNumber}
+                </span>
+              </button>
+            )}
 
             {/* Call Waiter Bell Button */}
             <button
@@ -597,8 +627,8 @@ export const CustomerPage: React.FC = () => {
       )}
 
       {/* 5. Sticky Floating Bottom Action Dock with Samsung Dynamic Island */}
-      {/* Strictly only shown when items are in cart OR customer has called the waiter. When nothing is in cart and no call made, completely removed */}
-      {(cartCount > 0 || customerCalledWaiter) && (
+      {/* Strictly only shown when items are in cart OR active order is placed OR customer has called the waiter. When nothing is in cart, no active order, and no call made, completely removed */}
+      {(cartCount > 0 || hasActivePlacedOrder || customerCalledWaiter) && (
         <div
           style={{ touchAction: 'none' }}
           className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto touch-none animate-in fade-in slide-in-from-bottom-6 duration-300"
@@ -613,6 +643,7 @@ export const CustomerPage: React.FC = () => {
             waiterCallPurpose={waiterCallPurpose}
             onOpenTracking={() => setIsTrackingModalOpen(true)}
             onOpenServiceModal={() => setIsServiceModalOpen(true)}
+            onOpenCart={() => setIsCartDrawerOpen(true)}
           />
         </div>
       )}

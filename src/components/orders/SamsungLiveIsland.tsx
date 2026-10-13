@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Bell,
-  ReceiptText,
-} from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Order } from '../../types';
 
 export interface SamsungLiveIslandProps {
@@ -86,6 +83,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
   waiterCallPurpose = 'Table Assistance',
   onOpenTracking,
   onOpenServiceModal,
+  onOpenCart,
 }) => {
   const hasOrder = Boolean(
     latestOrder &&
@@ -197,7 +195,10 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
     };
   }, [canSwitch]);
 
-  // Tap handler (only toggles views if canSwitch, or opens service request, NEVER opens the cart drawer)
+  // Tap handler:
+  // - Floor waiter card: opens service request modal
+  // - Placed order card: opens Live Order Tracking modal
+  // - Cart items card: opens My Cart drawer
   const handleBarClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (Date.now() - lastSwitchTimeRef.current < 280) {
@@ -209,10 +210,15 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
         onOpenServiceModal();
       }
     } else {
-      if (hasOrder && onOpenTracking) {
-        onOpenTracking();
+      if (hasOrder) {
+        if (onOpenTracking) {
+          onOpenTracking();
+        }
+      } else if (cartCount > 0) {
+        if (onOpenCart) {
+          onOpenCart();
+        }
       } else if (canSwitch) {
-        // Tapping order card smoothly switches to waiter view
         switchView();
       }
     }
@@ -256,49 +262,85 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
   // Render content inside the single bar
   const renderCardContent = (cardType: 'dining_order' | 'floor_waiter') => {
     if (cardType === 'dining_order') {
+      // 1. ACTIVE PLACED ORDER VIEW -> Live Cooking & Tracking
+      if (hasOrder) {
+        return (
+          <div className="w-full flex items-center justify-between gap-3 text-white">
+            {/* Left: Animated Culinary Badge */}
+            <AnimatedCookingBadge />
+
+            {/* Middle: Title & Subtitle */}
+            <div className="flex flex-col min-w-0 flex-1 text-left">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="text-white font-extrabold text-xs sm:text-sm tracking-tight truncate">
+                  Dishes Cooking
+                </span>
+                <span className="text-[10px] font-mono text-white bg-[#07543a] px-1.5 py-0.2 rounded-full border border-white/20 shrink-0">
+                  #{latestOrder?.orderNumber || 'ORD'}
+                </span>
+              </div>
+              <div className="text-[10.5px] sm:text-[11px] text-white/75 font-medium truncate flex items-center gap-1">
+                <span className="text-emerald-300 font-bold">Live Tracking</span>
+                <span>·</span>
+                <span className="font-mono font-bold text-white">{timerText}</span>
+                <span className="text-white/60 text-[10px] hidden xs:inline">· Tap to track</span>
+              </div>
+            </div>
+
+            {/* Right: Subtotal Amount & Morphing 2-view indicator pill */}
+            <div className="flex items-center gap-2.5 shrink-0 pl-1">
+              <div className="flex flex-col items-end leading-none">
+                <span className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-0.5">
+                  Total
+                </span>
+                <span className="font-mono tabular-nums text-xs sm:text-sm font-black text-white">
+                  {currencySymbol}{displayTotal.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Segmented Morph Indicator (Only shown if both cart & waiter active) */}
+              {canSwitch && (
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    switchView();
+                  }}
+                  className="flex items-center gap-1 px-1.5 py-1 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                  title="Scroll or tap to switch to Waiter"
+                >
+                  <span className="h-1.5 w-3.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-300" />
+                  <span className="h-1.5 w-1.5 bg-white/30 rounded-full transition-all duration-300" />
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      // 2. PRE-ORDER CART VIEW -> My Cart
       return (
         <div className="w-full flex items-center justify-between gap-3 text-white">
-          {/* Left: Animated Badge */}
-          {hasOrder ? (
-            <AnimatedCookingBadge />
-          ) : cartCount > 0 ? (
-            <AnimatedCartBadge count={cartCount} />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20">
-              <ReceiptText className="w-4 h-4 text-white" />
-            </div>
-          )}
+          {/* Left: Animated Cart Badge */}
+          <AnimatedCartBadge count={cartCount} />
 
           {/* Middle: Title & Subtitle */}
           <div className="flex flex-col min-w-0 flex-1 text-left">
             <div className="flex items-center gap-1.5 truncate">
               <span className="text-white font-extrabold text-xs sm:text-sm tracking-tight truncate">
-                View Dining Order
+                My Cart
               </span>
-              {hasOrder && (
-                <span className="text-[10px] font-mono text-white bg-[#07543a] px-1.5 py-0.2 rounded-full border border-white/20 shrink-0">
-                  #{latestOrder?.orderNumber || 'TGT-904'}
-                </span>
-              )}
+              <span className="text-[10px] font-bold text-emerald-300 bg-white/10 px-1.5 py-0.2 rounded-full border border-white/10 shrink-0">
+                {cartCount} {cartCount === 1 ? 'item' : 'items'}
+              </span>
             </div>
             <div className="text-[10.5px] sm:text-[11px] text-white/75 font-medium truncate flex items-center gap-1">
-              {hasOrder ? (
-                <>
-                  <span className="text-white font-bold">Dishes Cooking</span>
-                  <span>·</span>
-                  <span className="font-mono font-bold text-white">{timerText}</span>
-                </>
-              ) : (
-                <>
-                  <span>{tableNumber ? `Table ${tableNumber}` : 'Table Session'}</span>
-                  <span>·</span>
-                  <span>{cartCount} {cartCount === 1 ? 'item' : 'items'} in cart</span>
-                </>
-              )}
+              <span>{tableNumber ? `Table ${tableNumber}` : 'Table Session'}</span>
+              <span>·</span>
+              <span className="text-emerald-300 font-semibold">Tap to view & order</span>
             </div>
           </div>
 
-          {/* Right: Subtotal Amount & Morphing 2-view indicator pill (only if canSwitch) */}
+          {/* Right: Subtotal Amount & Morphing 2-view indicator pill */}
           <div className="flex items-center gap-2.5 shrink-0 pl-1">
             <div className="flex flex-col items-end leading-none">
               <span className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-0.5">
