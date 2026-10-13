@@ -160,9 +160,9 @@ export interface RestaurantTenant {
   description: string;
   logoUrl?: string;
   coverUrl?: string;
-  primaryColor: string; // e.g. #2C5EAD
-  accentColor: string; // e.g. #1591DC
-  secondaryColor: string; // e.g. #C4E2F5
+  primaryColor: string; // e.g. #07543a
+  accentColor: string; // e.g. #0a7350
+  secondaryColor: string; // e.g. #E6F2ED
   currency: string;
   currencySymbol: string;
   taxRatePercent: number; // e.g. 5%

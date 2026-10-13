@@ -141,6 +141,7 @@ interface RestaurantContextType {
 
   // Tenant settings
   updateTenantSettings: (updates: Partial<RestaurantTenant>) => void;
+  updateTenantById: (tenantId: string, updates: Partial<RestaurantTenant>) => void;
 
   // Super Admin operations
   membershipPlans: MembershipPlan[];
@@ -160,6 +161,10 @@ interface RestaurantContextType {
     planId: '3_months' | '6_months' | '12_months';
     taxRatePercent?: number;
     serviceChargePercent?: number;
+    primaryColor?: string;
+    accentColor?: string;
+    secondaryColor?: string;
+    logoUrl?: string;
   }) => RestaurantTenant;
   archiveTenant: (tenantId: string) => void;
 
@@ -203,14 +208,17 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     if (saved) {
       try {
         const parsed: RestaurantTenant[] = JSON.parse(saved);
-        return parsed.map((t) => ({
-          ...t,
-          currency: 'INR',
-          currencySymbol: '₹',
-          primaryColor: t.primaryColor === '#2C5EAD' || !t.primaryColor ? '#2C5EAD' : t.primaryColor,
-          accentColor: t.accentColor === '#1591DC' || !t.accentColor ? '#1591DC' : t.accentColor,
-          secondaryColor: t.secondaryColor === '#C4E2F5' || !t.secondaryColor ? '#C4E2F5' : t.secondaryColor,
-        }));
+        return parsed.map((t) => {
+          const init = INITIAL_TENANTS.find((it) => it.id === t.id);
+          return {
+            ...t,
+            currency: 'INR',
+            currencySymbol: '₹',
+            primaryColor: (init && init.primaryColor) ? init.primaryColor : (t.primaryColor === '#5D22D1' ? '#07543a' : (t.primaryColor || '#07543a')),
+            accentColor: (init && init.accentColor) ? init.accentColor : (t.accentColor === '#7B3FE4' ? '#0a7350' : (t.accentColor || '#0a7350')),
+            secondaryColor: (init && init.secondaryColor) ? init.secondaryColor : (t.secondaryColor === '#EDE9FE' ? '#E6F2ED' : (t.secondaryColor || '#E6F2ED')),
+          };
+        });
       } catch (e) {
         // Fallback to initial
       }
@@ -1472,6 +1480,13 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     );
   };
 
+  const updateTenantById = (tenantId: string, updates: Partial<RestaurantTenant>) => {
+    setTenants((prev) =>
+      prev.map((t) => (t.id === tenantId ? { ...t, ...updates } : t))
+    );
+  };
+
+
   const logAuditEvent = (
     action: string,
     details: string,
@@ -1601,9 +1616,10 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       tagline: tenantData.tagline || 'Artisanal dining & authentic hospitality',
       cuisine: tenantData.cuisine || 'Modern Contemporary',
       description: `${tenantData.name} offers handcrafted specialties and seasonal dining.`,
-      primaryColor: tenantData.primaryColor || '#2C5EAD',
-      accentColor: tenantData.accentColor || '#1591DC',
-      secondaryColor: tenantData.secondaryColor || '#C4E2F5',
+      logoUrl: tenantData.logoUrl,
+      primaryColor: tenantData.primaryColor || '#07543a',
+      accentColor: tenantData.accentColor || '#0a7350',
+      secondaryColor: tenantData.secondaryColor || '#E6F2ED',
       currency: 'INR',
       currencySymbol: '₹',
       taxRatePercent: tenantData.taxRatePercent ?? 6,
@@ -2147,6 +2163,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         isUniversalQrMode,
         setIsUniversalQrMode,
         updateTenantSettings,
+        updateTenantById,
         membershipPlans: plans,
         updateMembershipPlan,
         updateTenantSubscription,
