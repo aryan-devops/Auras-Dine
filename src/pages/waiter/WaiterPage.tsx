@@ -165,36 +165,36 @@ export const WaiterPage: React.FC = () => {
           label: 'Waiter Call',
           fullTitle: 'Table Assistance / Questions',
           icon: Bell,
-          color: 'text-[#2C5EAD]',
-          bg: 'bg-[#2C5EAD]/10 border-[#2C5EAD]/30',
-          badge: 'bg-[#2C5EAD] text-white',
+          color: 'text-[#07543a]',
+          bg: 'bg-[#07543a]/10 border-[#07543a]/30',
+          badge: 'bg-[#07543a] text-white',
         };
       case 'water':
         return {
           label: 'Water Refill',
           fullTitle: 'Fresh Water Pitcher Request',
           icon: Droplets,
-          color: 'text-[#4BB8FA]',
-          bg: 'bg-[#4BB8FA]/15 border-[#4BB8FA]/30',
-          badge: 'bg-[#4BB8FA] text-white',
+          color: 'text-[#0284C7]',
+          bg: 'bg-[#0284C7]/10 border-[#0284C7]/30',
+          badge: 'bg-[#0284C7] text-white',
         };
       case 'bill':
         return {
           label: 'Request Bill',
           fullTitle: 'Check / Bill Payment Ready',
           icon: Receipt,
-          color: 'text-[#1591DC]',
-          bg: 'bg-[#1591DC]/10 border-[#1591DC]/30',
-          badge: 'bg-[#1591DC] text-white',
+          color: 'text-[#0a7350]',
+          bg: 'bg-[#0a7350]/10 border-[#0a7350]/30',
+          badge: 'bg-[#0a7350] text-white',
         };
       case 'clean':
         return {
           label: 'Table Tidy',
           fullTitle: 'Clear Dishes & Extra Cutlery',
           icon: Sparkles,
-          color: 'text-[#8B5CF6]',
-          bg: 'bg-[#8B5CF6]/10 border-[#8B5CF6]/30',
-          badge: 'bg-[#8B5CF6] text-white',
+          color: 'text-[#047857]',
+          bg: 'bg-[#047857]/10 border-[#047857]/30',
+          badge: 'bg-[#047857] text-white',
         };
       case 'urgent':
         return {
@@ -251,7 +251,7 @@ export const WaiterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F9FD] w-full max-w-full overflow-x-hidden p-2.5 sm:p-5 pb-24">
+    <div className="min-h-screen bg-[#FAF8F5] w-full max-w-full overflow-x-hidden p-2.5 sm:p-5 pb-24">
       <div className="max-w-5xl mx-auto space-y-3.5 sm:space-y-5">
         
         {/* Mobile-First Header Bar */}
@@ -259,23 +259,23 @@ export const WaiterPage: React.FC = () => {
           <div className="flex items-center justify-between gap-2.5 flex-wrap">
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#2C5EAD] text-white">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#07543a] text-white">
                   Floor Service
                 </span>
                 <span className="text-xs text-neutral-500 font-semibold truncate">
                   · {currentTenant.name}
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-flex items-center gap-1 text-[10px] text-[#07543a] bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#07543a] animate-pulse" />
                   Live
                 </span>
               </div>
-              <h1 className="text-lg sm:text-2xl font-black text-[#1E231F] glinster-font tracking-tight mt-0.5">
+              <h1 className="text-lg sm:text-2xl font-black text-[#151815] glinster-font tracking-tight mt-0.5">
                 Waiter Service Portal
               </h1>
               {currentStaffUser ? (
                 <div className="flex items-center gap-2 text-xs text-neutral-600 mt-0.5 truncate">
-                  <span className="font-bold text-[#2C5EAD] flex items-center gap-1 truncate">
+                  <span className="font-bold text-[#07543a] flex items-center gap-1 truncate">
                     <UserCheck className="w-3.5 h-3.5 shrink-0" />
                     {currentStaffUser.name}
                   </span>
@@ -283,7 +283,7 @@ export const WaiterPage: React.FC = () => {
                     @{currentStaffUser.username}
                   </span>
                   {currentStaffUser.station && (
-                    <span className="hidden sm:inline bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                    <span className="hidden sm:inline bg-emerald-50 text-emerald-900 border border-emerald-200 text-[10px] font-semibold px-2 py-0.5 rounded-full">
                       {currentStaffUser.station}
                     </span>
                   )}
@@ -293,7 +293,7 @@ export const WaiterPage: React.FC = () => {
                   <span>Demo Mode</span>
                   <Link
                     to={`/staff-login?hotel=${encodeURIComponent(currentTenant.name)}`}
-                    className="text-[#2C5EAD] hover:underline font-bold inline-flex items-center gap-0.5"
+                    className="text-[#07543a] hover:underline font-bold inline-flex items-center gap-0.5"
                   >
                     <span>Login</span>
                     <ArrowRight className="w-3 h-3" />
@@ -313,11 +313,11 @@ export const WaiterPage: React.FC = () => {
                   await refreshCloudOrders();
                   setTimeout(() => setIsRefreshing(false), 500);
                 }}
-                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#F4F9FD] hover:bg-neutral-100 border border-neutral-200 text-xs font-bold text-neutral-700 flex items-center gap-1.5 transition-colors cursor-pointer active:scale-95 shadow-2xs"
+                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#FAF8F5] hover:bg-neutral-100 border border-neutral-200 text-xs font-bold text-neutral-700 flex items-center gap-1.5 transition-colors cursor-pointer active:scale-95 shadow-2xs"
                 title="Sync from cloud"
                 aria-label="Sync from cloud"
               >
-                <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#2C5EAD]' : ''}`} />
+                <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#07543a]' : ''}`} />
                 <span className="hidden md:inline">{isRefreshing ? 'Syncing...' : 'Sync'}</span>
               </button>
 
@@ -343,7 +343,7 @@ export const WaiterPage: React.FC = () => {
                   waiterAlert.init();
                   setSoundEnabled(!soundEnabled);
                 }}
-                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#F4F9FD] hover:bg-neutral-100 border border-neutral-200 text-xs font-bold text-neutral-700 flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#FAF8F5] hover:bg-neutral-100 border border-neutral-200 text-xs font-bold text-neutral-700 flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
                 title="Toggle Chime Sound"
                 aria-label="Toggle Chime Sound"
               >
@@ -381,13 +381,13 @@ export const WaiterPage: React.FC = () => {
           </div>
 
           {/* Mobile Tab Switcher: Calling Bells / Kitchen Ready Pass / Tables */}
-          <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#F4F9FD] rounded-xl border border-neutral-200/80">
+          <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#FAF8F5] rounded-xl border border-neutral-200/80">
             <button
               type="button"
               onClick={() => setActiveMobileView('calls')}
               className={`py-2 px-1.5 rounded-lg text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeMobileView === 'calls'
-                  ? 'bg-[#2C5EAD] text-white shadow-xs'
+                  ? 'bg-[#07543a] text-white shadow-xs'
                   : 'text-neutral-600 hover:text-neutral-900'
               }`}
             >
@@ -427,7 +427,7 @@ export const WaiterPage: React.FC = () => {
               onClick={() => setActiveMobileView('tables')}
               className={`py-2 px-1.5 rounded-lg text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeMobileView === 'tables'
-                  ? 'bg-[#1E231F] text-white shadow-xs'
+                  ? 'bg-[#151815] text-white shadow-xs'
                   : 'text-neutral-600 hover:text-neutral-900'
               }`}
             >
@@ -446,21 +446,21 @@ export const WaiterPage: React.FC = () => {
 
         {/* Incoming Calling Bell Real-Time Flash Alert Banner */}
         {incomingCallAlert && (
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-[#1591DC] shadow-lg shadow-[#1591DC]/15 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-2 border-[#07543a] shadow-lg shadow-[#07543a]/15 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#1591DC] text-white flex items-center justify-center shrink-0 shadow-xs animate-bounce">
-                <BellRing className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-[#07543a] text-white flex items-center justify-center shrink-0 shadow-xs animate-bounce">
+                <BellRing className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-black uppercase text-white bg-[#1591DC] px-1.5 py-0.2 rounded-full">
+                  <span className="text-[10px] font-black uppercase text-white bg-[#07543a] px-1.5 py-0.2 rounded-full">
                     Calling Now
                   </span>
-                  <span className="text-xs sm:text-sm font-extrabold text-[#1E231F]">
+                  <span className="text-xs sm:text-sm font-extrabold text-[#151815]">
                     {incomingCallAlert.request.tableNumber}
                   </span>
                   <span className="text-xs text-neutral-400">·</span>
-                  <span className="text-xs font-bold text-[#1591DC] truncate">
+                  <span className="text-xs font-bold text-[#07543a] truncate">
                     {getRequestMeta(incomingCallAlert.request.type).label}
                   </span>
                 </div>
@@ -476,7 +476,7 @@ export const WaiterPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleClaim(incomingCallAlert.request.id)}
-                className="py-1.5 px-3 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1"
+                className="py-1.5 px-3 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Claim</span>
@@ -512,7 +512,7 @@ export const WaiterPage: React.FC = () => {
                   onClick={() => setFilterType(tab.id as ServiceRequestType | 'all')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                     filterType === tab.id
-                      ? 'bg-[#2C5EAD] text-white shadow-xs'
+                      ? 'bg-[#07543a] text-white shadow-xs'
                       : 'bg-white hover:bg-neutral-100 text-neutral-600 border border-neutral-200'
                   }`}
                 >
@@ -530,8 +530,8 @@ export const WaiterPage: React.FC = () => {
 
             {displayedRequests.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-2xl border border-neutral-200/90 p-6 shadow-xs flex flex-col items-center justify-center">
-                <CheckCircle2 className="w-10 h-10 text-[#2C5EAD] mx-auto mb-2" />
-                <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                <CheckCircle2 className="w-10 h-10 text-[#07543a] mx-auto mb-2" />
+                <h3 className="text-base font-bold text-[#151815] glinster-font">
                   All Table Calls Clear!
                 </h3>
                 <p className="text-xs text-neutral-500 max-w-xs mx-auto mt-1 mb-4">
@@ -545,9 +545,9 @@ export const WaiterPage: React.FC = () => {
                     await refreshCloudOrders();
                     setTimeout(() => setIsRefreshing(false), 500);
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-[#F4F9FD] hover:bg-neutral-100 border border-neutral-300 text-neutral-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-2xs"
+                  className="px-3.5 py-2 rounded-xl bg-[#FAF8F5] hover:bg-neutral-100 border border-neutral-300 text-neutral-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-2xs"
                 >
-                  <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#2C5EAD]' : ''}`} />
+                  <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#07543a]' : ''}`} />
                   <span>Check Cloud for Table Calls</span>
                 </button>
               </div>
@@ -569,17 +569,17 @@ export const WaiterPage: React.FC = () => {
                         req.type === 'urgent'
                           ? 'border-red-400 bg-red-50/15'
                           : isOverdue
-                          ? 'border-[#1591DC] bg-amber-50/15'
+                          ? 'border-[#0a7350] bg-emerald-50/20'
                           : isClaimed
-                          ? 'border-emerald-300 bg-emerald-50/10'
-                          : 'border-[#2C5EAD]/20'
+                          ? 'border-emerald-300 bg-emerald-50/15'
+                          : 'border-[#07543a]/20'
                       }`}
                     >
                       <div>
                         {/* Card Top: Table Number + Time Ago */}
                         <div className="flex items-center justify-between pb-2.5 border-b border-neutral-100">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-[#1E231F] text-white">
+                            <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-[#151815] text-white">
                               {req.tableNumber}
                             </span>
                             {isOverdue && (
@@ -606,7 +606,7 @@ export const WaiterPage: React.FC = () => {
                             <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
                               Guest Call
                             </div>
-                            <h3 className="text-sm font-extrabold text-[#1E231F] leading-tight truncate">
+                            <h3 className="text-sm font-extrabold text-[#151815] leading-tight truncate">
                               {meta.fullTitle}
                             </h3>
                           </div>
@@ -614,7 +614,7 @@ export const WaiterPage: React.FC = () => {
 
                         {/* Note callout box */}
                         {req.note ? (
-                          <div className="mt-2.5 p-2.5 rounded-xl bg-[#F4F9FD] border border-neutral-200/90 text-xs">
+                          <div className="mt-2.5 p-2.5 rounded-xl bg-[#FAF8F5] border border-neutral-200/90 text-xs">
                             <span className="text-[9.5px] font-bold text-neutral-400 uppercase tracking-wider block">
                               Guest Request Note:
                             </span>
@@ -644,7 +644,7 @@ export const WaiterPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleClaim(req.id)}
-                              className="flex-1 py-2.5 px-3 rounded-xl bg-[#1591DC] hover:bg-[#0D76B6] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                              className="flex-1 py-2.5 px-3 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
                             >
                               <Check className="w-3.5 h-3.5" />
                               <span>Claim Call</span>
@@ -662,7 +662,7 @@ export const WaiterPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleResolve(req.id)}
-                            className="w-full py-2.5 px-3 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+                            className="w-full py-2.5 px-3 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
                           >
                             <CheckCheck className="w-3.5 h-3.5" />
                             <span>Mark Resolved & Closed</span>
@@ -683,7 +683,7 @@ export const WaiterPage: React.FC = () => {
             {readyOrders.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-2xl border border-neutral-200/90 p-6 shadow-xs flex flex-col items-center justify-center">
                 <ChefHat className="w-10 h-10 text-sky-600 mx-auto mb-2" />
-                <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                <h3 className="text-base font-bold text-[#151815] glinster-font">
                   No Food Waiting on Pass Counter
                 </h3>
                 <p className="text-xs text-neutral-500 max-w-xs mx-auto mt-1">
@@ -702,7 +702,7 @@ export const WaiterPage: React.FC = () => {
                         <span className="text-xs font-mono font-black text-sky-700">
                           {ord.orderNumber}
                         </span>
-                        <span className="text-xs font-black bg-[#1E231F] text-white px-2 py-0.5 rounded-lg">
+                        <span className="text-xs font-black bg-[#151815] text-white px-2 py-0.5 rounded-lg">
                           {ord.tableNumber}
                         </span>
                       </div>
@@ -715,7 +715,7 @@ export const WaiterPage: React.FC = () => {
                         ))}
                       </div>
                       {ord.specialNotes && (
-                        <div className="mt-2 text-[11px] text-[#1591DC] font-semibold bg-amber-50 p-2 rounded-lg border border-amber-200/60">
+                        <div className="mt-2 text-[11px] text-[#07543a] font-semibold bg-emerald-50 p-2 rounded-lg border border-emerald-200/60">
                           Note: {ord.specialNotes}
                         </div>
                       )}
@@ -740,7 +740,7 @@ export const WaiterPage: React.FC = () => {
         {activeMobileView === 'tables' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-sm font-black text-[#1E231F] uppercase tracking-wider">
+              <h2 className="text-sm font-black text-[#151815] uppercase tracking-wider">
                 Floor Plan ({tables.length} Tables)
               </h2>
             </div>
@@ -760,14 +760,14 @@ export const WaiterPage: React.FC = () => {
                     key={t.id}
                     className={`p-3 rounded-xl bg-white border shadow-2xs flex flex-col justify-between gap-2 ${
                       callingRequest
-                        ? 'border-[#1591DC] ring-2 ring-[#1591DC]/40 bg-orange-50/30'
+                        ? 'border-[#0a7350] ring-2 ring-[#0a7350]/40 bg-emerald-50/40'
                         : activeTableOrder
-                        ? 'border-[#2C5EAD] bg-emerald-50/25'
+                        ? 'border-[#07543a] bg-emerald-50/25'
                         : 'border-neutral-200'
                     }`}
                   >
                     <div>
-                      <div className="text-xs font-black text-[#1E231F]">
+                      <div className="text-xs font-black text-[#151815]">
                         {t.tableNumber}
                       </div>
                       <div className="text-[10px] text-neutral-400">
@@ -777,12 +777,12 @@ export const WaiterPage: React.FC = () => {
 
                     <div className="pt-1.5 border-t border-neutral-100 text-[10.5px]">
                       {callingRequest ? (
-                        <span className="font-extrabold text-[#1591DC] flex items-center gap-1 animate-pulse">
+                        <span className="font-extrabold text-[#0a7350] flex items-center gap-1 animate-pulse">
                           <Bell className="w-3 h-3" />
                           <span>Call ({callingRequest.type})</span>
                         </span>
                       ) : activeTableOrder ? (
-                        <span className="font-extrabold text-[#2C5EAD] capitalize">
+                        <span className="font-extrabold text-[#07543a] capitalize">
                           {activeTableOrder.status}
                         </span>
                       ) : (

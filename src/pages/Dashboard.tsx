@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { RoleSwitcher } from '../components/common/RoleSwitcher';
+import { AuraDineLogo } from '../components/common/AuraDineLogo';
 
 export const Dashboard: React.FC = () => {
   const sections = [
@@ -21,7 +22,7 @@ export const Dashboard: React.FC = () => {
       path: '/customer',
       icon: LayoutDashboard,
       badge: 'Guest View',
-      color: 'bg-emerald-50 text-[#2C5EAD] border-emerald-200',
+      color: 'bg-[#E6F2ED] text-[#07543a] border-[#C2DFD4]',
     },
     {
       name: 'Waiter Calling Bell Terminal',
@@ -29,7 +30,7 @@ export const Dashboard: React.FC = () => {
       path: '/waiter',
       icon: Bell,
       badge: 'Floor Staff',
-      color: 'bg-amber-50 text-[#1591DC] border-amber-200',
+      color: 'bg-[#E6F2ED] text-[#0a7350] border-[#C2DFD4]',
     },
     {
       name: 'Kitchen Display System (KDS)',
@@ -45,7 +46,7 @@ export const Dashboard: React.FC = () => {
       path: '/staff-login',
       icon: KeyRound,
       badge: 'Auth Portal',
-      color: 'bg-purple-50 text-purple-700 border-purple-200',
+      color: 'bg-emerald-50 text-[#07543a] border-emerald-200',
     },
     {
       name: 'Restaurant Admin Dashboard',
@@ -74,23 +75,28 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F9FD] w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen bg-[#F4F8F6] w-full max-w-full overflow-x-hidden">
       <div className="w-full">
         <RoleSwitcher />
       </div>
 
       <div className="max-w-5xl mx-auto p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#2C5EAD]/10 text-[#2C5EAD] text-xs font-bold border border-[#2C5EAD]/20 mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Aurasdine Multi-Tenant Suite</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-neutral-200/80 shadow-2xs">
+          <div>
+            <AuraDineLogo size="lg" className="mb-2.5" />
+            <h1 className="text-2xl sm:text-3xl font-black text-[#0D1914] glinster-font tracking-tight">
+              Operations & Role Launchpad
+            </h1>
+            <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
+              Select a live terminal view or management console to launch.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-[#1E231F] glinster-font tracking-tight">
-            Operations & Role Launchpad
-          </h1>
-          <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-            Select a live terminal view or management console to launch.
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1.5 rounded-full bg-[#E6F2ED] text-[#07543a] border border-[#C2DFD4] text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#07543a]" />
+              Production Suite Ready
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -100,7 +106,7 @@ export const Dashboard: React.FC = () => {
               <Link
                 key={section.path}
                 to={section.path}
-                className="group p-4 sm:p-5 bg-white border border-[#2C5EAD]/15 hover:border-[#2C5EAD]/40 rounded-2xl sm:rounded-3xl shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-3 active:scale-[0.99] cursor-pointer"
+                className="group p-4 sm:p-5 bg-white border border-[#07543a]/15 hover:border-[#07543a]/40 rounded-2xl sm:rounded-3xl shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-3 active:scale-[0.99] cursor-pointer"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -112,7 +118,7 @@ export const Dashboard: React.FC = () => {
                     </span>
                   </div>
 
-                  <h2 className="text-sm sm:text-base font-extrabold text-[#1E231F] group-hover:text-[#2C5EAD] transition-colors leading-snug">
+                  <h2 className="text-sm sm:text-base font-extrabold text-[#151815] group-hover:text-[#07543a] transition-colors leading-snug">
                     {section.name}
                   </h2>
                   <p className="text-xs text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
@@ -120,7 +126,7 @@ export const Dashboard: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-bold text-[#2C5EAD]">
+                <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-bold text-[#07543a]">
                   <span>Launch Portal</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>

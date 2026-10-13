@@ -10,22 +10,21 @@
   }
 
   :root {
-    --primary-color: #2C5EAD;
-    --primary-color-rgb: 44, 94, 173;
-    --accent-color: #1591DC;
-    --accent-color-rgb: 21, 145, 220;
-    --highlight-color: #4BB8FA;
-    --highlight-color-rgb: 75, 184, 250;
-    --tint-color: #C4E2F5;
-    --tint-color-rgb: 196, 226, 245;
-    --secondary-color: #C4E2F5;
-    --brand-tangerine: #1591DC;
-    --brand-pistachio: #C4E2F5;
-    --brand-retro-green: #2C5EAD;
-    --brand-retro-green-dark: #1D4482;
-    --brand-charcoal: #0F172A;
-    --brand-cream: #F4F9FD;
-    --brand-cream-card: #FFFFFF;
+    --primary-color: #07543a;
+    --primary-color-rgb: 7, 84, 58;
+    --accent-color: #0a7350;
+    --accent-color-rgb: 10, 115, 80;
+    --midnight: #041c14;
+    --midnight-rgb: 4, 28, 20;
+    --midnight-card: #08281d;
+    --soft-lavender: #E6F2ED;
+    --soft-lavender-border: #C2DFD4;
+    --brand-lavender: #E6F2ED;
+    --brand-royal-purple: #07543a;
+    --brand-royal-purple-dark: #053d2a;
+    --brand-midnight: #041c14;
+    --brand-canvas: #F4F8F6;
+    --brand-white: #FFFFFF;
   }
 
   .bg-theme-primary { background-color: var(--primary-color); }
@@ -35,6 +34,36 @@
   .text-theme-accent { color: var(--accent-color); }
   .border-theme-accent { border-color: var(--accent-color); }
 
+  @keyframes steamRise {
+    0% { transform: translateY(0) scale(0.8); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translateY(-24px) scale(1.25); opacity: 0; }
+  }
+
+  @keyframes flameDance {
+    0%, 100% { transform: scale(1) rotate(-1deg); }
+    25% { transform: scale(1.08, 0.95) rotate(2deg); }
+    50% { transform: scale(0.95, 1.1) rotate(-2deg); }
+    75% { transform: scale(1.12, 1.02) rotate(1deg); }
+  }
+
+  @keyframes clocheGlow {
+    0%, 100% { box-shadow: 0 0 15px rgba(7, 84, 58, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(7, 84, 58, 0.6); }
+  }
+
+  @keyframes radarWave {
+    0% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  .animate-steam-1 { animation: steamRise 2.4s ease-out infinite; }
+  .animate-steam-2 { animation: steamRise 2.4s ease-out infinite 0.8s; }
+  .animate-steam-3 { animation: steamRise 2.4s ease-out infinite 1.6s; }
+  .animate-flame { animation: flameDance 1.6s ease-in-out infinite; }
+  .animate-cloche-glow { animation: clocheGlow 2.5s ease-in-out infinite; }
+  .animate-radar-wave { animation: radarWave 2s cubic-bezier(0, 0.2, 0.8, 1) infinite; }
+
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -43,8 +72,8 @@
   }
 
   body {
-    background-color: #F4F9FD;
-    color: #0F172A;
+    background-color: #F4F8F6;
+    color: #0D1914;
     font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
