@@ -104,6 +104,7 @@ interface RestaurantContextType {
   // Service requests (waiter calls)
   serviceRequests: ServiceRequest[];
   createServiceRequest: (type: ServiceRequestType, note?: string) => Promise<ServiceRequest> | void;
+  requestService: (type: ServiceRequestType, note?: string) => Promise<ServiceRequest> | void;
   claimServiceRequest: (requestId: string, staffName: string) => Promise<void> | void;
   resolveServiceRequest: (requestId: string) => Promise<void> | void;
   clearAllServiceRequests: (tenantOnly?: boolean) => Promise<void>;
@@ -2179,6 +2180,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         clearAllOrders,
         serviceRequests,
         createServiceRequest,
+        requestService: createServiceRequest,
         claimServiceRequest,
         resolveServiceRequest,
         clearAllServiceRequests,

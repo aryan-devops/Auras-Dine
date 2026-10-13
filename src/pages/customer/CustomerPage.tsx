@@ -88,10 +88,47 @@ export const CustomerPage: React.FC = () => {
   }, [latestOrder]);
 
   const hasActiveRequest = useMemo(() => {
-    return serviceRequests.some(
-      (r) => r.tableId === currentTable?.id && r.status !== 'resolved'
-    );
-  }, [serviceRequests, currentTable?.id]);
+    return serviceRequests.some((r) => {
+      if (r.status === 'resolved') return false;
+      const isMatchingTable =
+        (currentTable?.id && r.tableId === currentTable.id) ||
+        (currentTable?.tableNumber &&
+          (r.tableNumber || '').toLowerCase().replace(/\s+/g, '') ===
+            currentTable.tableNumber.toLowerCase().replace(/\s+/g, ''));
+      return isMatchingTable;
+    });
+  }, [serviceRequests, currentTable?.id, currentTable?.tableNumber]);
+
+  // Derive active waiter request purpose from active service requests if present
+  const currentActiveServiceReq = useMemo(() => {
+    return serviceRequests.find((r) => {
+      if (r.status === 'resolved') return false;
+      return (
+        (currentTable?.id && r.tableId === currentTable.id) ||
+        (currentTable?.tableNumber &&
+          (r.tableNumber || '').toLowerCase().replace(/\s+/g, '') ===
+            currentTable.tableNumber.toLowerCase().replace(/\s+/g, ''))
+      );
+    });
+  }, [serviceRequests, currentTable?.id, currentTable?.tableNumber]);
+
+  const activePurpose = useMemo(() => {
+    if (currentActiveServiceReq) {
+      switch (currentActiveServiceReq.type) {
+        case 'water':
+          return 'Water Refill';
+        case 'bill':
+          return 'Request the Bill';
+        case 'clean':
+          return 'Clear Table / Cutlery';
+        case 'urgent':
+          return 'Urgent Staff Attention';
+        default:
+          return 'Call Waiter';
+      }
+    }
+    return waiterCallPurpose;
+  }, [currentActiveServiceReq, waiterCallPurpose]);
 
   // Filter items by dietary selection first
   const dietaryFilteredItems = useMemo(() => {
@@ -628,19 +665,19 @@ export const CustomerPage: React.FC = () => {
 
       {/* 5. Sticky Floating Bottom Action Dock with Samsung Dynamic Island */}
       {/* Strictly only shown when items are in cart OR active order is placed OR customer has called the waiter. When nothing is in cart, no active order, and no call made, completely removed */}
-      {(cartCount > 0 || hasActivePlacedOrder || customerCalledWaiter) && (
+      {(cartCount > 0 || hasActivePlacedOrder || customerCalledWaiter || hasActiveRequest) && (
         <div
           style={{ touchAction: 'none' }}
           className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto touch-none animate-in fade-in slide-in-from-bottom-6 duration-300"
         >
           <SamsungLiveIsland
             latestOrder={latestOrder}
-            hasActiveRequest={customerCalledWaiter}
+            hasActiveRequest={customerCalledWaiter || hasActiveRequest}
             cartCount={cartCount}
             cartTotal={cartTotal}
             tableNumber={currentTable?.tableNumber || '4'}
             currencySymbol={currentTenant.currencySymbol}
-            waiterCallPurpose={waiterCallPurpose}
+            waiterCallPurpose={activePurpose}
             onOpenTracking={() => setIsTrackingModalOpen(true)}
             onOpenServiceModal={() => setIsServiceModalOpen(true)}
             onOpenCart={() => setIsCartDrawerOpen(true)}
