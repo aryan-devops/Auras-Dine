@@ -6,6 +6,7 @@ import { useRestaurant } from '../../context/RestaurantContext';
 interface ServiceRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onServiceRequested?: (purpose: string) => void;
 }
 
 const REQUEST_TYPES: {
@@ -55,6 +56,7 @@ const REQUEST_TYPES: {
 export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
   isOpen,
   onClose,
+  onServiceRequested,
 }) => {
   const { currentTenant, currentTable, requestService } = useRestaurant();
   const [selectedType, setSelectedType] = useState<ServiceRequestType>('waiter');
@@ -70,6 +72,9 @@ export const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({
     try {
       await requestService(selectedType, note.trim() || undefined);
       setSubmitted(true);
+      if (onServiceRequested) {
+        onServiceRequested(selectedMeta?.label || 'Table Assistance');
+      }
       setTimeout(() => {
         setSubmitted(false);
         setNote('');

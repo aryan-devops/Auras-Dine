@@ -47,6 +47,10 @@ export const CustomerPage: React.FC = () => {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isTableAuthModalOpen, setIsTableAuthModalOpen] = useState(!isTableAuthorized);
 
+  // Waiter call tracking for customer view
+  const [customerCalledWaiter, setCustomerCalledWaiter] = useState(false);
+  const [waiterCallPurpose, setWaiterCallPurpose] = useState('Table Assistance');
+
   // Added-to-cart toast and cart button ping animation
   const [showAddedToast, setShowAddedToast] = useState(false);
   const [isCartPinging, setIsCartPinging] = useState(false);
@@ -593,19 +597,20 @@ export const CustomerPage: React.FC = () => {
       )}
 
       {/* 5. Sticky Floating Bottom Action Dock with Samsung Dynamic Island */}
-      {/* Strictly only shown when items are in cart. When nothing is in cart, completely removed */}
-      {cartCount > 0 && (
+      {/* Strictly only shown when items are in cart OR customer has called the waiter. When nothing is in cart and no call made, completely removed */}
+      {(cartCount > 0 || customerCalledWaiter) && (
         <div
           style={{ touchAction: 'none' }}
           className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto touch-none animate-in fade-in slide-in-from-bottom-6 duration-300"
         >
           <SamsungLiveIsland
             latestOrder={latestOrder}
-            hasActiveRequest={hasActiveRequest}
+            hasActiveRequest={customerCalledWaiter}
             cartCount={cartCount}
             cartTotal={cartTotal}
             tableNumber={currentTable?.tableNumber || '4'}
             currencySymbol={currentTenant.currencySymbol}
+            waiterCallPurpose={waiterCallPurpose}
             onOpenTracking={() => setIsTrackingModalOpen(true)}
             onOpenServiceModal={() => setIsServiceModalOpen(true)}
           />
@@ -623,6 +628,10 @@ export const CustomerPage: React.FC = () => {
       <ServiceRequestModal
         isOpen={isServiceModalOpen}
         onClose={() => setIsServiceModalOpen(false)}
+        onServiceRequested={(purpose) => {
+          setCustomerCalledWaiter(true);
+          setWaiterCallPurpose(purpose);
+        }}
       />
       <OrderTrackingModal
         isOpen={isTrackingModalOpen}

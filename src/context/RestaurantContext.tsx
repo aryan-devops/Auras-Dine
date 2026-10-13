@@ -590,6 +590,23 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
                 console.warn('Error parsing cloud service requests:', parseErr);
               }
             }
+
+            // 3. Sync tenants globally across all devices (logoUrl, brand, settings)
+            if (data?.tenantsJson) {
+              try {
+                const cloudTenants: RestaurantTenant[] = JSON.parse(data.tenantsJson);
+                if (Array.isArray(cloudTenants) && cloudTenants.length > 0) {
+                  setTenants((prev) => {
+                    return prev.map((localT) => {
+                      const matched = cloudTenants.find((ct) => ct.id === localT.id);
+                      return matched ? { ...localT, ...matched } : localT;
+                    });
+                  });
+                }
+              } catch (parseErr) {
+                console.warn('Error parsing cloud tenants:', parseErr);
+              }
+            }
           }
         },
         (error) => {
@@ -1488,10 +1505,28 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
     );
   };
 
-  const updateTenantById = (tenantId: string, updates: Partial<RestaurantTenant>) => {
-    setTenants((prev) =>
-      prev.map((t) => (t.id === tenantId ? { ...t, ...updates } : t))
-    );
+  const updateTenantById = async (tenantId: string, updates: Partial<RestaurantTenant>) => {
+    let nextTenants: RestaurantTenant[] = [];
+    setTenants((prev) => {
+      nextTenants = prev.map((t) => (t.id === tenantId ? { ...t, ...updates } : t));
+      return nextTenants;
+    });
+
+    // Broadcast globally to all devices visiting this restaurant
+    try {
+      const syncDocRef = doc(db, 'users', CLOUD_SESSION_UID);
+      await setDoc(
+        syncDocRef,
+        {
+          role: 'admin',
+          tenantsJson: JSON.stringify(nextTenants),
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+    } catch (syncErr) {
+      console.warn('Notice: Global tenant sync broadcast note:', syncErr);
+    }
   };
 
 

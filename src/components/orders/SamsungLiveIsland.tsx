@@ -12,6 +12,7 @@ export interface SamsungLiveIslandProps {
   cartTotal?: number;
   tableNumber?: string;
   currencySymbol?: string;
+  waiterCallPurpose?: string;
   onOpenTracking?: () => void;
   onOpenServiceModal?: () => void;
   onOpenCart?: () => void;
@@ -19,7 +20,7 @@ export interface SamsungLiveIslandProps {
 
 /**
  * Animated Culinary Badge for Active Cooking Orders
- * Sizzling pan with rising steam wisps and ambient emerald glow
+ * Sizzling pan with wafting steam wisps and ambient emerald glow
  */
 const AnimatedCookingBadge: React.FC = () => (
   <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-[#07543a] to-[#041c14] flex items-center justify-center text-white shrink-0 border border-white/20 shadow-inner overflow-hidden">
@@ -82,6 +83,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
   cartTotal = 0,
   tableNumber = '4',
   currencySymbol = '₹',
+  waiterCallPurpose = 'Table Assistance',
   onOpenTracking,
   onOpenServiceModal,
 }) => {
@@ -91,17 +93,22 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
     latestOrder.status !== 'cancelled'
   );
 
+  const hasCart = cartCount > 0 || hasOrder;
+  const canSwitch = hasCart && hasActiveRequest;
+
   // Active view: 'dining_order' or 'floor_waiter'
   const [activeCard, setActiveCard] = useState<'dining_order' | 'floor_waiter'>(
-    hasActiveRequest ? 'floor_waiter' : 'dining_order'
+    !hasCart && hasActiveRequest ? 'floor_waiter' : 'dining_order'
   );
 
   // Sync active view when waiter request state changes
   useEffect(() => {
-    if (hasActiveRequest) {
+    if (hasActiveRequest && !hasCart) {
       setActiveCard('floor_waiter');
+    } else if (hasCart && !hasActiveRequest) {
+      setActiveCard('dining_order');
     }
-  }, [hasActiveRequest]);
+  }, [hasActiveRequest, hasCart]);
 
   // Gestures and isolated scrolling state
   const containerRef = useRef<HTMLDivElement>(null);
@@ -109,8 +116,10 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
   const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
-  // Switch between dining order and floor waiter views
+  // Switch between dining order and floor waiter views (only allowed if both exist)
   const switchView = (direction: 'up' | 'down' = 'up') => {
+    if (!canSwitch) return;
+
     const now = Date.now();
     if (now - lastSwitchTimeRef.current < 260) return;
     lastSwitchTimeRef.current = now;
@@ -159,7 +168,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
     };
 
     const handleTouchEnd = () => {
-      if (didSwipe) {
+      if (didSwipe && canSwitch) {
         switchView();
       }
       didSwipe = false;
@@ -170,7 +179,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
       e.preventDefault();
       e.stopPropagation();
 
-      if (Math.abs(e.deltaY) > 5) {
+      if (Math.abs(e.deltaY) > 5 && canSwitch) {
         switchView(e.deltaY > 0 ? 'up' : 'down');
       }
     };
@@ -186,9 +195,9 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
       el.removeEventListener('touchend', handleTouchEnd);
       el.removeEventListener('wheel', handleWheel);
     };
-  }, []);
+  }, [canSwitch]);
 
-  // Tap handler (only toggles views or opens service request, NEVER opens the cart drawer)
+  // Tap handler (only toggles views if canSwitch, or opens service request, NEVER opens the cart drawer)
   const handleBarClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (Date.now() - lastSwitchTimeRef.current < 280) {
@@ -202,7 +211,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
     } else {
       if (hasOrder && onOpenTracking) {
         onOpenTracking();
-      } else {
+      } else if (canSwitch) {
         // Tapping order card smoothly switches to waiter view
         switchView();
       }
@@ -289,7 +298,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
             </div>
           </div>
 
-          {/* Right: Subtotal Amount & Morphing 2-view indicator pill */}
+          {/* Right: Subtotal Amount & Morphing 2-view indicator pill (only if canSwitch) */}
           <div className="flex items-center gap-2.5 shrink-0 pl-1">
             <div className="flex flex-col items-end leading-none">
               <span className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-0.5">
@@ -300,18 +309,20 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
               </span>
             </div>
 
-            {/* Segmented Morph Indicator */}
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                switchView();
-              }}
-              className="flex items-center gap-1 px-1.5 py-1 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-              title="Scroll or tap to switch to Waiter"
-            >
-              <span className="h-1.5 w-3.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-300" />
-              <span className="h-1.5 w-1.5 bg-white/30 rounded-full transition-all duration-300" />
-            </div>
+            {/* Segmented Morph Indicator (Only shown if both cart & waiter active) */}
+            {canSwitch && (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  switchView();
+                }}
+                className="flex items-center gap-1 px-1.5 py-1 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                title="Scroll or tap to switch to Waiter"
+              >
+                <span className="h-1.5 w-3.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-300" />
+                <span className="h-1.5 w-1.5 bg-white/30 rounded-full transition-all duration-300" />
+              </div>
+            )}
           </div>
         </div>
       );
@@ -332,14 +343,16 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
           </div>
           <div className="text-[10.5px] sm:text-[11px] text-white/75 font-medium truncate flex items-center gap-1">
             {hasActiveRequest ? (
-              <span className="text-emerald-300 font-semibold">Staff alerted for Table {tableNumber}</span>
+              <span className="text-emerald-300 font-semibold">
+                {waiterCallPurpose ? `${waiterCallPurpose} requested for Table ${tableNumber}` : `Staff alerted for Table ${tableNumber}`}
+              </span>
             ) : (
               <span>Tap to request table service</span>
             )}
           </div>
         </div>
 
-        {/* Right: Status Pill & Morphing 2-view indicator pill */}
+        {/* Right: Status Pill & Morphing 2-view indicator pill (only if canSwitch) */}
         <div className="flex items-center gap-2.5 shrink-0 pl-1">
           {hasActiveRequest ? (
             <span className="text-[10px] font-bold text-white bg-[#07543a] px-2.5 py-1 rounded-full border border-white/30 animate-pulse">
@@ -351,18 +364,20 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
             </span>
           )}
 
-          {/* Segmented Morph Indicator */}
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              switchView();
-            }}
-            className="flex items-center gap-1 px-1.5 py-1 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-            title="Scroll or tap to switch to Order"
-          >
-            <span className="h-1.5 w-1.5 bg-white/30 rounded-full transition-all duration-300" />
-            <span className="h-1.5 w-3.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-300" />
-          </div>
+          {/* Segmented Morph Indicator (Only shown if both cart & waiter active) */}
+          {canSwitch && (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                switchView();
+              }}
+              className="flex items-center gap-1 px-1.5 py-1 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+              title="Scroll or tap to switch to Order"
+            >
+              <span className="h-1.5 w-1.5 bg-white/30 rounded-full transition-all duration-300" />
+              <span className="h-1.5 w-3.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-300" />
+            </div>
+          )}
         </div>
       </div>
     );
