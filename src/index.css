@@ -57,12 +57,35 @@
     100% { transform: scale(1.8); opacity: 0; }
   }
 
+  @keyframes bellSwing {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(15deg); }
+    40% { transform: rotate(-13deg); }
+    60% { transform: rotate(8deg); }
+    80% { transform: rotate(-5deg); }
+  }
+
+  @keyframes panSizzle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-0.75px) rotate(0.8deg); }
+    50% { transform: translateY(0.5px) rotate(-0.8deg); }
+    75% { transform: translateY(-0.5px) rotate(0.5deg); }
+  }
+
+  @keyframes microFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
   .animate-steam-1 { animation: steamRise 2.4s ease-out infinite; }
   .animate-steam-2 { animation: steamRise 2.4s ease-out infinite 0.8s; }
   .animate-steam-3 { animation: steamRise 2.4s ease-out infinite 1.6s; }
   .animate-flame { animation: flameDance 1.6s ease-in-out infinite; }
   .animate-cloche-glow { animation: clocheGlow 2.5s ease-in-out infinite; }
   .animate-radar-wave { animation: radarWave 2s cubic-bezier(0, 0.2, 0.8, 1) infinite; }
+  .animate-bell-swing { animation: bellSwing 1.5s ease-in-out infinite; transform-origin: top center; }
+  .animate-pan-sizzle { animation: panSizzle 0.8s ease-in-out infinite; }
+  .animate-micro-float { animation: microFloat 2s ease-in-out infinite; }
 
   html {
     -webkit-text-size-adjust: 100%;

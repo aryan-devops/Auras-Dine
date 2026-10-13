@@ -561,7 +561,8 @@ export const CustomerPage: React.FC = () => {
       </main>
 
       {/* 5. Sticky Floating Bottom Action Dock with Samsung Dynamic Island Stack */}
-      {(hasLiveOrder || hasCart || hasActiveRequest || Boolean(currentTable)) && (
+      {/* Only show when an event occurs: items in cart, active live order, or floor waiter paged */}
+      {(hasCart || hasLiveOrder || hasActiveRequest) && (
         <div className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto animate-in slide-in-from-bottom-3 duration-300">
           <SamsungLiveIsland
             latestOrder={latestOrder}

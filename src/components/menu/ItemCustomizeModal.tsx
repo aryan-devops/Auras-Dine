@@ -50,7 +50,6 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
   const handleConfirm = () => {
     addToCart(item, selectedVariant, selectedAddons, quantity, instructions);
     onClose();
-    setIsCartDrawerOpen(true);
   };
 
   return (
