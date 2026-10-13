@@ -26,6 +26,8 @@ import {
   Clock,
   Sparkles,
   Monitor,
+  Image as ImageIcon,
+  Upload,
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { MembershipPlan } from '../../types';
@@ -34,6 +36,7 @@ export const SuperAdminView: React.FC = () => {
   const {
     tenants,
     setCurrentTenantId,
+    updateTenantById,
     membershipPlans,
     updateMembershipPlan,
     updateTenantSubscription,
@@ -42,6 +45,7 @@ export const SuperAdminView: React.FC = () => {
     archiveTenant,
     billingInvoices,
     auditLogs,
+    logAuditEvent,
     platformSettings,
     updatePlatformSettings,
     resetDemoData,
@@ -79,9 +83,15 @@ export const SuperAdminView: React.FC = () => {
   const [newTenantPlan, setNewTenantPlan] = useState<'3_months' | '6_months' | '12_months'>('6_months');
   const [newTenantTax, setNewTenantTax] = useState('6');
   const [newTenantService, setNewTenantService] = useState('5');
-  const [newPrimaryColor, setNewPrimaryColor] = useState('#2C5EAD');
-  const [newAccentColor, setNewAccentColor] = useState('#1591DC');
-  const [newSecondaryColor, setNewSecondaryColor] = useState('#C4E2F5');
+  const [newPrimaryColor, setNewPrimaryColor] = useState('#07543a');
+  const [newAccentColor, setNewAccentColor] = useState('#0a7350');
+  const [newSecondaryColor, setNewSecondaryColor] = useState('#E6F2ED');
+  const [newTenantLogoUrl, setNewTenantLogoUrl] = useState('');
+
+  // Logo Management Modal State
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+  const [logoModalTenantId, setLogoModalTenantId] = useState<string | null>(null);
+  const [editingLogoUrl, setEditingLogoUrl] = useState('');
 
   // Password Management State
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -152,6 +162,13 @@ export const SuperAdminView: React.FC = () => {
     });
   }, [auditLogs, auditFilter]);
 
+  const LOGO_PRESETS = [
+    { label: 'AurasDine Emerald Crest', url: '/aurasdine-emblem-green.png' },
+    { label: 'AurasDine Monogram', url: '/aurasdine-emblem-transparent.png' },
+    { label: 'AurasDine Dark Emblem', url: '/aurasdine-emblem-dark.png' },
+    { label: 'AurasDine Full Brand Mark', url: '/aurasdine-logo.png' },
+  ];
+
   // Handlers
   const handleOnboardSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,6 +183,7 @@ export const SuperAdminView: React.FC = () => {
       planId: newTenantPlan,
       taxRatePercent: parseFloat(newTenantTax) || 6,
       serviceChargePercent: parseFloat(newTenantService) || 5,
+      logoUrl: newTenantLogoUrl.trim() || undefined,
     });
 
     setIsOnboardModalOpen(false);
@@ -175,6 +193,49 @@ export const SuperAdminView: React.FC = () => {
     setNewTenantTagline('');
     setNewTenantAddress('');
     setNewTenantPhone('');
+    setNewTenantLogoUrl('');
+  };
+
+  const handleOpenLogoModal = (tenantId: string) => {
+    const target = tenants.find((t) => t.id === tenantId);
+    setLogoModalTenantId(tenantId);
+    setEditingLogoUrl(target?.logoUrl || '');
+    setIsLogoModalOpen(true);
+  };
+
+  const handleSaveTenantLogo = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!logoModalTenantId) return;
+    const target = tenants.find((t) => t.id === logoModalTenantId);
+    updateTenantById(logoModalTenantId, {
+      logoUrl: editingLogoUrl.trim() || undefined,
+    });
+    logAuditEvent(
+      'Update Restaurant Logo',
+      `Updated logo asset for ${target?.name || logoModalTenantId}`,
+      target?.name,
+      'info'
+    );
+    setIsLogoModalOpen(false);
+    setLogoModalTenantId(null);
+  };
+
+  const handleFileLogoChange = (
+    file: File | null,
+    callback: (dataUrl: string) => void
+  ) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Logo file must be under 5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (typeof event.target?.result === 'string') {
+        callback(event.target.result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRenewSubmit = () => {
@@ -234,13 +295,13 @@ export const SuperAdminView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1E231F] text-[#F4F9FD] p-4 sm:p-6 pb-28">
+    <div className="min-h-screen bg-[#151815] text-[#FAF8F5] p-4 sm:p-6 pb-28">
       {/* Viewport restriction (< 1024px): Desktop-Only Experience Guard (Requirement 5.C) */}
       <div className="lg:hidden flex flex-col items-center justify-center min-h-[75vh] p-6 text-center max-w-md mx-auto my-auto animate-in fade-in">
-        <div className="w-16 h-16 rounded-3xl bg-[#1591DC]/20 border border-[#1591DC]/40 flex items-center justify-center text-[#1591DC] mb-6 shadow-xl">
+        <div className="w-16 h-16 rounded-3xl bg-[#0a7350]/20 border border-[#0a7350]/40 flex items-center justify-center text-[#0a7350] mb-6 shadow-xl">
           <Monitor className="w-8 h-8" />
         </div>
-        <span className="text-[11px] uppercase tracking-widest font-mono font-bold text-[#1591DC] bg-[#1591DC]/10 px-3 py-1 rounded-full border border-[#1591DC]/30 mb-3">
+        <span className="text-[11px] uppercase tracking-widest font-mono font-bold text-[#0a7350] bg-[#0a7350]/10 px-3 py-1 rounded-full border border-[#0a7350]/30 mb-3">
           1024px+ Viewport Required
         </span>
         <h2 className="text-2xl font-bold font-heading glinster-font text-white mb-2">
@@ -256,18 +317,18 @@ export const SuperAdminView: React.FC = () => {
           </div>
           <div className="flex justify-between items-center">
             <span>Access Security:</span>
-            <span className="text-[#2C5EAD] font-bold">Enforced by Server-Side RLS</span>
+            <span className="text-[#07543a] font-bold">Enforced by Server-Side RLS</span>
           </div>
           <div className="flex justify-between items-center">
             <span>Mobile Management:</span>
-            <span className="text-[#F4F9FD] font-semibold">Restaurant Admin Available</span>
+            <span className="text-[#FAF8F5] font-semibold">Restaurant Admin Available</span>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
           <button
             type="button"
             onClick={() => setCurrentRole('restaurant_admin')}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
           >
             Open Restaurant Admin
           </button>
@@ -287,7 +348,7 @@ export const SuperAdminView: React.FC = () => {
         {/* 1. Header Bar */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-neutral-800">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1591DC] to-[#d9661b] text-white flex items-center justify-center font-bold text-xl shadow-lg">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#07543a] to-[#0a7350] text-white flex items-center justify-center font-bold text-xl shadow-lg">
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
@@ -295,7 +356,7 @@ export const SuperAdminView: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-bold glinster-font text-white">
                   Aurasdine · Platform Super Admin
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#1591DC]/20 text-[#1591DC] border border-[#1591DC]/40 font-mono">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#0a7350]/20 text-[#0a7350] border border-[#0a7350]/40 font-mono">
                   Multi-Tenant Root
                 </span>
               </div>
@@ -309,7 +370,7 @@ export const SuperAdminView: React.FC = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setIsOnboardModalOpen(true)}
-              className="py-2 px-3.5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
+              className="py-2 px-3.5 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
             >
               <Plus className="w-4 h-4" />
               <span>Onboard Restaurant</span>
@@ -340,7 +401,7 @@ export const SuperAdminView: React.FC = () => {
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <TrendingUp className="w-3.5 h-3.5 text-[#2C5EAD]" />
+            <TrendingUp className="w-3.5 h-3.5 text-[#07543a]" />
             <span>Overview & KPIs</span>
           </button>
 
@@ -352,7 +413,7 @@ export const SuperAdminView: React.FC = () => {
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <Building2 className="w-3.5 h-3.5 text-[#1591DC]" />
+            <Building2 className="w-3.5 h-3.5 text-[#0a7350]" />
             <span>Tenants Directory ({tenants.length})</span>
           </button>
 
@@ -413,12 +474,12 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Monthly Recurring Revenue (MRR)</span>
-                  <DollarSign className="w-4 h-4 text-[#2C5EAD]" />
+                  <DollarSign className="w-4 h-4 text-[#07543a]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-white mt-2">
                   ₹{estimatedMRR.toFixed(2)}
                 </div>
-                <div className="text-[11px] text-[#2C5EAD] font-semibold mt-1 flex items-center gap-1">
+                <div className="text-[11px] text-[#07543a] font-semibold mt-1 flex items-center gap-1">
                   <ArrowUpRight className="w-3 h-3" />
                   <span>ARR run-rate: ₹{estimatedARR.toFixed(0)}</span>
                 </div>
@@ -427,7 +488,7 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Active SaaS Tenants</span>
-                  <Building2 className="w-4 h-4 text-[#1591DC]" />
+                  <Building2 className="w-4 h-4 text-[#0a7350]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-white mt-2">
                   {activeTenants} / {totalTenants}
@@ -470,12 +531,12 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-white glinster-font flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#2C5EAD]" />
+                    <Building2 className="w-4 h-4 text-[#07543a]" />
                     Restaurant Tenant Roster
                   </h3>
                   <button
                     onClick={() => setActiveTab('tenants')}
-                    className="text-xs text-[#1591DC] hover:underline font-semibold"
+                    className="text-xs text-[#0a7350] hover:underline font-semibold"
                   >
                     View All →
                   </button>
@@ -485,27 +546,48 @@ export const SuperAdminView: React.FC = () => {
                   {tenants.map((t) => (
                     <div
                       key={t.id}
-                      className="p-3 bg-neutral-800/60 rounded-xl flex items-center justify-between text-xs"
+                      className="p-3 bg-neutral-800/60 rounded-xl flex items-center justify-between text-xs gap-3"
                     >
-                      <div>
-                        <div className="font-bold text-white flex items-center gap-2">
-                          <span>{t.name}</span>
-                          <span
-                            className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
-                              t.subscription.status === 'active'
-                                ? 'bg-emerald-900/60 text-emerald-400'
-                                : 'bg-red-900/60 text-red-400'
-                            }`}
-                          >
-                            {t.subscription.status}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-neutral-400">
-                          {t.cuisine} · {t.subscription.planName}
+                      <div className="flex items-center gap-3 min-w-0">
+                        {t.logoUrl ? (
+                          <img
+                            src={t.logoUrl}
+                            alt={t.name}
+                            className="w-9 h-9 rounded-xl object-contain bg-neutral-900 border border-neutral-700/80 p-1 shrink-0"
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded-xl bg-[#07543a]/25 border border-[#07543a]/40 text-[#E6F2ED] font-black flex items-center justify-center shrink-0 glinster-font text-xs">
+                            {t.name.charAt(0)}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-bold text-white flex items-center gap-2 truncate">
+                            <span className="truncate">{t.name}</span>
+                            <span
+                              className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase shrink-0 ${
+                                t.subscription.status === 'active'
+                                  ? 'bg-emerald-900/60 text-emerald-400'
+                                  : 'bg-red-900/60 text-red-400'
+                              }`}
+                            >
+                              {t.subscription.status}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-neutral-400 truncate">
+                            {t.cuisine} · {t.subscription.planName}
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          onClick={() => handleOpenLogoModal(t.id)}
+                          className="px-2 py-1 rounded-lg bg-neutral-700/80 hover:bg-[#07543a] text-neutral-200 hover:text-white text-[11px] font-medium flex items-center gap-1 transition-colors"
+                          title="Manage Restaurant Logo"
+                        >
+                          <ImageIcon className="w-3 h-3 text-[#0a7350]" />
+                          <span className="hidden sm:inline">Logo</span>
+                        </button>
                         <button
                           onClick={() => {
                             setCurrentTenantId(t.id);
@@ -525,12 +607,12 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-white glinster-font flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#1591DC]" />
+                    <Clock className="w-4 h-4 text-[#0a7350]" />
                     Recent Platform Audit Events
                   </h3>
                   <button
                     onClick={() => setActiveTab('audit')}
-                    className="text-xs text-[#1591DC] hover:underline font-semibold"
+                    className="text-xs text-[#0a7350] hover:underline font-semibold"
                   >
                     Full Log →
                   </button>
@@ -543,7 +625,7 @@ export const SuperAdminView: React.FC = () => {
                       className="p-2.5 bg-neutral-800/60 rounded-xl text-xs space-y-1"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold font-mono text-[11px] text-[#C4E2F5]">
+                        <span className="font-bold font-mono text-[11px] text-[#E6F2ED]">
                           {log.action}
                         </span>
                         <span className="text-[10px] text-neutral-500 font-mono">
@@ -583,7 +665,7 @@ export const SuperAdminView: React.FC = () => {
                     placeholder="Search restaurant..."
                     value={searchTenant}
                     onChange={(e) => setSearchTenant(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                    className="pl-8 pr-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                   />
                 </div>
 
@@ -622,18 +704,36 @@ export const SuperAdminView: React.FC = () => {
                       return (
                         <tr key={t.id} className="hover:bg-neutral-800/40 transition-colors">
                           <td className="py-3 px-4">
-                            <div className="font-bold text-white text-sm">
-                              {t.name}
-                            </div>
-                            <div className="text-[11px] font-mono text-neutral-500">
-                              Slug: {t.slug}
+                            <div className="flex items-center gap-3">
+                              {t.logoUrl ? (
+                                <img
+                                  src={t.logoUrl}
+                                  alt={t.name}
+                                  className="w-10 h-10 rounded-xl object-contain bg-neutral-950 border border-neutral-700/80 p-1 shrink-0 shadow-xs"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-xl bg-[#07543a]/25 border border-[#07543a]/40 text-[#E6F2ED] font-black flex items-center justify-center shrink-0 glinster-font text-sm">
+                                  {t.name.charAt(0)}
+                                </div>
+                              )}
+                              <div>
+                                <div className="font-bold text-white text-sm flex items-center gap-1.5">
+                                  <span>{t.name}</span>
+                                  {t.logoUrl && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Custom Logo Configured" />
+                                  )}
+                                </div>
+                                <div className="text-[11px] font-mono text-neutral-500">
+                                  Slug: {t.slug}
+                                </div>
+                              </div>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-neutral-300">
                             {t.cuisine}
                           </td>
                           <td className="py-3 px-4">
-                            <div className="font-mono font-bold text-[#C4E2F5]">
+                            <div className="font-mono font-bold text-[#E6F2ED]">
                               {t.subscription.planName}
                             </div>
                             <div className="text-[11px] text-neutral-400">
@@ -644,8 +744,8 @@ export const SuperAdminView: React.FC = () => {
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                                 isSuspended
-                                  ? 'bg-red-900/40 text-red-400 border border-red-800'
-                                  : 'bg-emerald-900/40 text-emerald-400 border border-emerald-800'
+                                    ? 'bg-red-900/40 text-red-400 border border-red-800'
+                                    : 'bg-emerald-900/40 text-emerald-400 border border-emerald-800'
                               }`}
                             >
                               {t.subscription.status}
@@ -657,6 +757,15 @@ export const SuperAdminView: React.FC = () => {
                           </td>
                           <td className="py-3 px-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => handleOpenLogoModal(t.id)}
+                                className="px-2 py-1 rounded-lg bg-neutral-800 hover:bg-[#07543a] text-neutral-200 hover:text-white text-[11px] font-semibold flex items-center gap-1 transition-colors"
+                                title="Upload & Manage Restaurant Logo"
+                              >
+                                <ImageIcon className="w-3 h-3 text-[#0a7350]" />
+                                <span>Logo</span>
+                              </button>
+
                               <button
                                 onClick={() => {
                                   setCurrentTenantId(t.id);
@@ -673,7 +782,7 @@ export const SuperAdminView: React.FC = () => {
                                   setSelectedTenantForRenew(t.id);
                                   setIsRenewModalOpen(true);
                                 }}
-                                className="px-2 py-1 rounded-lg bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-[11px] font-semibold flex items-center gap-1"
+                                className="px-2 py-1 rounded-lg bg-[#07543a] hover:bg-[#053d2a] text-white text-[11px] font-semibold flex items-center gap-1"
                               >
                                 <Calendar className="w-3 h-3" />
                                 Renew
@@ -747,7 +856,7 @@ export const SuperAdminView: React.FC = () => {
                   key={plan.id}
                   className={`p-6 rounded-2xl bg-neutral-900 border flex flex-col justify-between ${
                     plan.recommended
-                      ? 'border-[#2C5EAD] ring-1 ring-[#2C5EAD]'
+                      ? 'border-[#07543a] ring-1 ring-[#07543a]'
                       : 'border-neutral-800'
                   }`}
                 >
@@ -757,7 +866,7 @@ export const SuperAdminView: React.FC = () => {
                         {plan.name}
                       </h3>
                       {plan.recommended && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#2C5EAD] text-white font-bold">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#07543a] text-white font-bold">
                           Featured
                         </span>
                       )}
@@ -772,14 +881,14 @@ export const SuperAdminView: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="text-xs text-[#C4E2F5] font-semibold mt-1">
+                    <div className="text-xs text-[#E6F2ED] font-semibold mt-1">
                       Up to {plan.maxTables >= 999 ? 'Unlimited' : plan.maxTables} Dining Tables
                     </div>
 
                     <div className="my-4 pt-4 border-t border-neutral-800 space-y-2">
                       {plan.features.map((feat, i) => (
                         <div key={i} className="flex items-center gap-2 text-xs text-neutral-300">
-                          <CheckCircle className="w-3.5 h-3.5 text-[#2C5EAD] shrink-0" />
+                          <CheckCircle className="w-3.5 h-3.5 text-[#07543a] shrink-0" />
                           <span>{feat}</span>
                         </div>
                       ))}
@@ -855,7 +964,7 @@ export const SuperAdminView: React.FC = () => {
                           <div>{inv.planName}</div>
                           <div className="text-[10px] text-neutral-500">{inv.billingPeriod}</div>
                         </td>
-                        <td className="py-3 px-4 font-mono font-bold text-[#C4E2F5]">
+                        <td className="py-3 px-4 font-mono font-bold text-[#E6F2ED]">
                           ₹{inv.amount.toFixed(2)}
                         </td>
                         <td className="py-3 px-4">
@@ -917,14 +1026,14 @@ export const SuperAdminView: React.FC = () => {
                             ? 'bg-red-500'
                             : log.severity === 'warning'
                             ? 'bg-amber-500'
-                            : 'bg-[#2C5EAD]'
+                            : 'bg-[#07543a]'
                         }`}
                       />
                       <span className="font-mono font-bold text-xs text-white">
                         {log.action}
                       </span>
                       {log.tenantName && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-[#C4E2F5] font-semibold">
+                        <span className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-[#E6F2ED] font-semibold">
                           {log.tenantName}
                         </span>
                       )}
@@ -976,7 +1085,7 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400 text-xs">
                   <span>Realtime WebSocket Channels</span>
-                  <Radio className="w-4 h-4 text-[#2C5EAD]" />
+                  <Radio className="w-4 h-4 text-[#07543a]" />
                 </div>
                 <div className="text-2xl font-mono font-black text-white mt-2">
                   {healthStatus.realtimeConnections}
@@ -989,7 +1098,7 @@ export const SuperAdminView: React.FC = () => {
               <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400 text-xs">
                   <span>Storage Egress Bandwidth</span>
-                  <Activity className="w-4 h-4 text-[#1591DC]" />
+                  <Activity className="w-4 h-4 text-[#0a7350]" />
                 </div>
                 <div className="text-2xl font-mono font-black text-white mt-2">
                   {healthStatus.storageBandwidthMB} MB
@@ -1019,7 +1128,7 @@ export const SuperAdminView: React.FC = () => {
             {/* Global Broadcast Announcement Setting */}
             <div className="p-5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-4">
               <h3 className="text-sm font-bold text-white glinster-font flex items-center gap-2">
-                <Radio className="w-4 h-4 text-[#1591DC]" />
+                <Radio className="w-4 h-4 text-[#0a7350]" />
                 Platform-Wide Announcement Banner
               </h3>
               <p className="text-xs text-neutral-400">
@@ -1039,7 +1148,7 @@ export const SuperAdminView: React.FC = () => {
                         },
                       })
                     }
-                    className="w-4 h-4 rounded text-[#2C5EAD]"
+                    className="w-4 h-4 rounded text-[#07543a]"
                   />
                   <span className="text-xs font-bold text-white">
                     Enable Live Broadcast Announcement
@@ -1061,7 +1170,7 @@ export const SuperAdminView: React.FC = () => {
                         },
                       })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                    className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                   />
                 </div>
               </div>
@@ -1100,7 +1209,7 @@ export const SuperAdminView: React.FC = () => {
                   placeholder="e.g. Botanica Osteria"
                   value={newTenantName}
                   onChange={(e) => setNewTenantName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-white focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                 />
               </div>
 
@@ -1178,6 +1287,63 @@ export const SuperAdminView: React.FC = () => {
                 </div>
               </div>
 
+              {/* Brand Logo Upload */}
+              <div className="p-3 bg-neutral-800/70 rounded-xl border border-neutral-700/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-bold text-neutral-300">
+                    Restaurant Brand Logo (Optional)
+                  </label>
+                  {newTenantLogoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setNewTenantLogoUrl('')}
+                      className="text-[11px] text-red-400 hover:text-red-300 font-semibold cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-xl bg-neutral-900 border border-neutral-700 flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner">
+                    {newTenantLogoUrl ? (
+                      <img
+                        src={newTenantLogoUrl}
+                        alt="Preview"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <ImageIcon className="w-6 h-6 text-neutral-500" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-semibold cursor-pointer shadow-xs transition-colors">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload Logo File</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) =>
+                          handleFileLogoChange(
+                            e.target.files?.[0] || null,
+                            setNewTenantLogoUrl
+                          )
+                        }
+                      />
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Or paste image URL (https://...)"
+                      value={newTenantLogoUrl}
+                      onChange={(e) => setNewTenantLogoUrl(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-white text-[11px] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-300 mb-1">
@@ -1240,7 +1406,7 @@ export const SuperAdminView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white font-bold"
+                  className="py-2 px-5 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white font-bold"
                 >
                   Onboard & Provision
                 </button>
@@ -1272,7 +1438,7 @@ export const SuperAdminView: React.FC = () => {
                   onClick={() => setSelectedPlanForRenew(p.id)}
                   className={`w-full p-3 rounded-xl border flex items-center justify-between text-left transition-colors ${
                     selectedPlanForRenew === p.id
-                      ? 'border-[#2C5EAD] bg-[#2C5EAD]/20'
+                      ? 'border-[#07543a] bg-[#07543a]/20'
                       : 'border-neutral-800 bg-neutral-800/40 hover:bg-neutral-800'
                   }`}
                 >
@@ -1282,7 +1448,7 @@ export const SuperAdminView: React.FC = () => {
                       {p.durationMonths} months duration
                     </div>
                   </div>
-                  <span className="font-mono font-bold text-[#C4E2F5]">
+                  <span className="font-mono font-bold text-[#E6F2ED]">
                     ₹{p.price}
                   </span>
                 </button>
@@ -1300,7 +1466,7 @@ export const SuperAdminView: React.FC = () => {
               <button
                 type="button"
                 onClick={handleRenewSubmit}
-                className="py-2 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold"
+                className="py-2 px-5 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold"
               >
                 Execute Renewal
               </button>
@@ -1357,7 +1523,7 @@ export const SuperAdminView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-4 rounded-xl bg-[#2C5EAD] text-white font-bold"
+                  className="py-2 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white font-bold"
                 >
                   Save Tier
                 </button>
@@ -1417,12 +1583,220 @@ export const SuperAdminView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-5 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold"
+                  className="py-2 px-5 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold"
                 >
                   Reset Password
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: RESTAURANT LOGO STUDIO */}
+      {isLogoModalOpen && logoModalTenantId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl bg-neutral-900 rounded-3xl p-6 sm:p-7 border border-neutral-700 text-white shadow-2xl space-y-5">
+            <button
+              onClick={() => {
+                setIsLogoModalOpen(false);
+                setLogoModalTenantId(null);
+              }}
+              className="absolute top-4 right-4 p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#07543a]/25 text-[#E6F2ED] border border-[#07543a]/40 text-[10px] font-bold uppercase tracking-wider mb-2">
+                <ImageIcon className="w-3 h-3 text-[#0a7350]" />
+                <span>Super Admin · Restaurant Brand Asset</span>
+              </div>
+              <h3 className="text-xl font-bold glinster-font text-white">
+                Restaurant Brand Logo Studio
+              </h3>
+              <p className="text-xs text-neutral-400 mt-0.5">
+                Configure official high-resolution logo for{' '}
+                <strong className="text-white">
+                  {tenants.find((t) => t.id === logoModalTenantId)?.name}
+                </strong>
+                . Appears on customer digital menus, 3D tabletop stands, and check-in portals.
+              </p>
+            </div>
+
+            {/* Live Dual Preview: Dark Surface vs Light Surface */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-neutral-300">
+                Live Brand Previews
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Light Surface / Customer Menu Preview */}
+                <div className="p-3.5 bg-white rounded-2xl border border-[#C2DFD4] text-[#0D1914] flex flex-col justify-between shadow-xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#07543a] mb-2">
+                    Customer Menu Banner (Light)
+                  </span>
+                  <div className="flex items-center gap-2.5 my-2">
+                    <div className="w-12 h-12 rounded-xl bg-white border border-[#07543a]/20 shadow-xs flex items-center justify-center p-1 overflow-hidden shrink-0">
+                      {editingLogoUrl ? (
+                        <img
+                          src={editingLogoUrl}
+                          alt="Preview"
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#07543a] rounded-lg flex items-center justify-center text-white font-black glinster-font text-xs">
+                          {tenants.find((t) => t.id === logoModalTenantId)?.name.charAt(0) || 'A'}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-black truncate glinster-font text-[#0D1914]">
+                        {tenants.find((t) => t.id === logoModalTenantId)?.name}
+                      </div>
+                      <div className="text-[10px] text-neutral-500 truncate">
+                        {tenants.find((t) => t.id === logoModalTenantId)?.tagline}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[9px] text-[#07543a] font-semibold">
+                    ✓ Verified Customer View
+                  </span>
+                </div>
+
+                {/* Dark Surface / Admin & Stand Studio Preview */}
+                <div className="p-3.5 bg-neutral-950 rounded-2xl border border-neutral-800 text-white flex flex-col justify-between shadow-xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#0a7350] mb-2">
+                    Acrylic Stand / Dark UI
+                  </span>
+                  <div className="flex items-center gap-2.5 my-2">
+                    <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-700 shadow-inner flex items-center justify-center p-1 overflow-hidden shrink-0">
+                      {editingLogoUrl ? (
+                        <img
+                          src={editingLogoUrl}
+                          alt="Preview"
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-neutral-800 rounded-lg flex items-center justify-center text-neutral-400 font-black glinster-font text-xs">
+                          {tenants.find((t) => t.id === logoModalTenantId)?.name.charAt(0) || 'A'}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-black truncate glinster-font text-white">
+                        {tenants.find((t) => t.id === logoModalTenantId)?.name}
+                      </div>
+                      <div className="text-[10px] text-neutral-400 truncate">
+                        Table Stand Center Mark
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[9px] text-neutral-400 font-semibold">
+                    ✓ High-Contrast Branding
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Upload Options */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-neutral-300">
+                Upload New Logo Asset
+              </label>
+
+              {/* Local File Upload Button / Dropzone */}
+              <label className="flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-[#07543a]/60 bg-neutral-800/40 hover:bg-neutral-800/80 hover:border-[#07543a] transition-all cursor-pointer group text-center">
+                <Upload className="w-4 h-4 text-[#0a7350] group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-semibold text-neutral-200">
+                  Select image file from computer (PNG, JPG, SVG, WebP up to 5MB)
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    handleFileLogoChange(e.target.files?.[0] || null, setEditingLogoUrl)
+                  }
+                />
+              </label>
+
+              {/* Remote URL input */}
+              <div>
+                <label className="block text-[11px] text-neutral-400 mb-1">
+                  Or enter direct Image URL
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://images.example.com/logo.png"
+                  value={editingLogoUrl}
+                  onChange={(e) => setEditingLogoUrl(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#07543a]"
+                />
+              </div>
+
+              {/* Curated Brand Presets */}
+              <div>
+                <label className="block text-[11px] text-neutral-400 mb-1.5">
+                  Or choose verified AurasDine brand asset preset:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {LOGO_PRESETS.map((p) => (
+                    <button
+                      key={p.url}
+                      type="button"
+                      onClick={() => setEditingLogoUrl(p.url)}
+                      className={`p-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center gap-1.5 ${
+                        editingLogoUrl === p.url
+                          ? 'bg-[#07543a]/30 border-[#07543a] text-white shadow-xs'
+                          : 'bg-neutral-800/60 border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                      }`}
+                    >
+                      <img
+                        src={p.url}
+                        alt={p.label}
+                        className="w-8 h-8 object-contain rounded-md bg-neutral-900 p-0.5"
+                      />
+                      <span className="text-[10px] font-semibold leading-tight line-clamp-1">
+                        {p.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between pt-3 border-t border-neutral-800">
+              <button
+                type="button"
+                onClick={() => setEditingLogoUrl('')}
+                className="text-xs font-semibold text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+              >
+                Clear Logo (Use Monogram)
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLogoModalOpen(false);
+                    setLogoModalTenantId(null);
+                  }}
+                  className="py-2 px-4 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSaveTenantLogo()}
+                  className="py-2.5 px-6 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  <span>Save Restaurant Logo</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

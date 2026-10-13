@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { FoodType, MenuItem, MenuCategory, StaffMember, StaffRole } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
+import { AuraDineLogo } from "../../components/common/AuraDineLogo";
 import { TableQrCard } from '../../components/qr/TableQrCard';
 import { FoodImageStudioModal } from '../../components/admin/FoodImageStudioModal';
 
@@ -251,6 +252,7 @@ export const AdminPage: React.FC = () => {
   // Settings State
   const [restaurantName, setRestaurantName] = useState(currentTenant.name);
   const [tagline, setTagline] = useState(currentTenant.tagline);
+  const [restaurantLogoUrl, setRestaurantLogoUrl] = useState(currentTenant.logoUrl || '');
   const [taxRate, setTaxRate] = useState(String(currentTenant.taxRatePercent));
   const [serviceCharge, setServiceCharge] = useState(String(currentTenant.serviceChargePercent));
   const [isOpen, setIsOpen] = useState(currentTenant.isOpen);
@@ -434,6 +436,7 @@ export const AdminPage: React.FC = () => {
     updateTenantSettings({
       name: restaurantName,
       tagline,
+      logoUrl: restaurantLogoUrl.trim() || undefined,
       taxRatePercent: parseFloat(taxRate) || 0,
       serviceChargePercent: parseFloat(serviceCharge) || 0,
       isOpen,
@@ -443,35 +446,48 @@ export const AdminPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F9FD] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FAF8F5] flex flex-col justify-between">
       <div className="p-4 sm:p-6 pb-24 flex-1">
         <div className="max-w-7xl mx-auto space-y-6">
           
           {/* Hotel Admin Header Banner */}
           <div className="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#2C5EAD] text-white">
-                  Hotel Admin Portal
-                </span>
-                <span className="text-xs text-neutral-400">· {currentTenant.slug}</span>
-              </div>
-              <h1 className="text-2xl font-black text-[#1E231F] glinster-font">
-                {currentTenant.name}
-              </h1>
-              <p className="text-xs text-neutral-500">{currentTenant.tagline} ({currentTenant.address})</p>
-              {currentStaffUser && (
-                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#2C5EAD] font-semibold">
-                  <UserCheck className="w-3.5 h-3.5" />
-                  <span>Logged in as: {currentStaffUser.name} (@{currentStaffUser.username})</span>
+            <div className="flex items-start gap-4">
+              {currentTenant.logoUrl ? (
+                <div className="w-12 h-12 rounded-2xl bg-white border border-[#07543a]/25 shadow-xs p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                  <img
+                    src={currentTenant.logoUrl}
+                    alt={currentTenant.name}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
+              ) : (
+                <AuraDineLogo size="md" variant="emblem" />
               )}
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#07543a] text-white">
+                    Hotel Admin Portal
+                  </span>
+                  <span className="text-xs text-neutral-400">· {currentTenant.slug}</span>
+                </div>
+                <h1 className="text-2xl font-black text-[#151815] glinster-font">
+                  {currentTenant.name}
+                </h1>
+                <p className="text-xs text-neutral-500">{currentTenant.tagline} ({currentTenant.address})</p>
+                {currentStaffUser && (
+                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#07543a] font-semibold">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span>Logged in as: {currentStaffUser.name} (@{currentStaffUser.username})</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setCurrentRole('customer')}
-                className="py-2 px-3.5 rounded-xl bg-[#F4F9FD] hover:bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="py-2 px-3.5 rounded-xl bg-[#FAF8F5] hover:bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>View Customer Menu</span>
@@ -487,7 +503,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('menu')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'menu'
-                ? 'bg-[#2C5EAD] text-white'
+                ? 'bg-[#07543a] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -498,14 +514,14 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('categories')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'categories'
-                ? 'bg-[#2C5EAD] text-white'
+                ? 'bg-[#07543a] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
             <FolderPlus className="w-3.5 h-3.5" />
             <span>Categories</span>
             <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums font-bold ${
-              activeTab === 'categories' ? 'bg-white/20 text-white' : 'bg-[#C4E2F5]/50 text-[#2C5EAD]'
+              activeTab === 'categories' ? 'bg-white/20 text-white' : 'bg-[#EAE8D5]/50 text-[#07543a]'
             }`}>
               {scopedCategories.length}
             </span>
@@ -514,7 +530,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('tables')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'tables'
-                ? 'bg-[#2C5EAD] text-white'
+                ? 'bg-[#07543a] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -525,7 +541,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('analytics')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'analytics'
-                ? 'bg-[#2C5EAD] text-white'
+                ? 'bg-[#07543a] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -536,7 +552,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('settings')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'settings'
-                ? 'bg-[#2C5EAD] text-white'
+                ? 'bg-[#07543a] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -547,7 +563,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('staff')}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === 'staff'
-                ? 'bg-[#2C5EAD] text-white'
+                ? 'bg-[#07543a] text-white'
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
@@ -563,7 +579,7 @@ export const AdminPage: React.FC = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
+                <h2 className="text-lg font-bold text-[#151815] glinster-font">
                   Dishes & Beverage Catalogue ({menuItems.length})
                 </h2>
                 <p className="text-xs text-neutral-500">
@@ -580,7 +596,7 @@ export const AdminPage: React.FC = () => {
                     setFormDescription('');
                     setIsAddingItem(true);
                   }}
-                  className="py-2.5 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  className="py-2.5 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Dish</span>
@@ -592,10 +608,10 @@ export const AdminPage: React.FC = () => {
             {isAddingItem && (
               <form
                 onSubmit={handleSaveItem}
-                className="p-5 bg-white rounded-2xl border border-[#2C5EAD]/20 shadow-sm space-y-4"
+                className="p-5 bg-white rounded-2xl border border-[#07543a]/20 shadow-sm space-y-4"
               >
                 <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                  <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                  <h3 className="text-base font-bold text-[#151815] glinster-font">
                     {editingItemId ? 'Edit Menu Item' : 'New Dish Configuration'}
                   </h3>
                   <button
@@ -618,7 +634,7 @@ export const AdminPage: React.FC = () => {
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="e.g. Pistachio Smoked Paneer Tikka"
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                     />
                   </div>
 
@@ -629,7 +645,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                     >
                       {categories.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -649,7 +665,7 @@ export const AdminPage: React.FC = () => {
                       required
                       value={formPrice}
                       onChange={(e) => setFormPrice(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-mono focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] font-mono focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                     />
                   </div>
 
@@ -661,7 +677,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={formFoodType}
                       onChange={(e) => setFormFoodType(e.target.value as FoodType)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-semibold text-[#2C5EAD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] font-semibold text-[#07543a] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                     >
                       <option value="veg">● Vegetarian (Pure Veg)</option>
                       <option value="vegan">🌱 100% Plant-Based Vegan</option>
@@ -678,7 +694,7 @@ export const AdminPage: React.FC = () => {
                       type="number"
                       value={formPrepTime}
                       onChange={(e) => setFormPrepTime(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                     />
                   </div>
 
@@ -690,16 +706,16 @@ export const AdminPage: React.FC = () => {
                       type="number"
                       value={formCalories}
                       onChange={(e) => setFormCalories(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                     />
                   </div>
                 </div>
 
                 {/* Food Photography Studio Section */}
-                <div className="p-3.5 bg-[#F4F9FD] rounded-2xl border border-neutral-200/90 space-y-2">
+                <div className="p-3.5 bg-[#FAF8F5] rounded-2xl border border-neutral-200/90 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="block font-bold text-neutral-800 text-xs flex items-center gap-1.5">
-                      <Camera className="w-3.5 h-3.5 text-[#2C5EAD]" />
+                      <Camera className="w-3.5 h-3.5 text-[#07543a]" />
                       Dish Photograph (Upload File, Take Camera Photo, or Presets)
                     </label>
                     {formImagePath && (
@@ -734,7 +750,7 @@ export const AdminPage: React.FC = () => {
                             setSelectedDishForImage(null);
                             setIsImageStudioOpen(true);
                           }}
-                          className="py-1.5 px-3 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                          className="py-1.5 px-3 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                         >
                           <Camera className="w-3.5 h-3.5" />
                           <span>{formImagePath ? 'Change Dish Photo' : 'Upload or Take Photo'}</span>
@@ -746,9 +762,9 @@ export const AdminPage: React.FC = () => {
                             setSelectedDishForImage(null);
                             setIsImageStudioOpen(true);
                           }}
-                          className="py-1.5 px-3 rounded-xl bg-white hover:bg-neutral-100 text-[#2C5EAD] border border-[#2C5EAD]/30 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="py-1.5 px-3 rounded-xl bg-white hover:bg-neutral-100 text-[#07543a] border border-[#07543a]/30 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
-                          <Sparkles className="w-3.5 h-3.5 text-[#1591DC]" />
+                          <Sparkles className="w-3.5 h-3.5 text-[#0a7350]" />
                           <span>Gourmet Presets</span>
                         </button>
                       </div>
@@ -770,7 +786,7 @@ export const AdminPage: React.FC = () => {
                     value={formDescription}
                     onChange={(e) => setFormDescription(e.target.value)}
                     placeholder="Artisanal description of flavors, seasonings, and textures..."
-                    className="w-full p-2.5 text-xs rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                    className="w-full p-2.5 text-xs rounded-xl border border-neutral-200 bg-[#FAF8F5] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                   />
                 </div>
 
@@ -783,7 +799,7 @@ export const AdminPage: React.FC = () => {
                     value={formAllergens}
                     onChange={(e) => setFormAllergens(e.target.value)}
                     placeholder="e.g. Contains Dairy, Nuts, Gluten"
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-neutral-200 bg-[#F4F9FD] focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-neutral-200 bg-[#FAF8F5] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                   />
                 </div>
 
@@ -793,7 +809,7 @@ export const AdminPage: React.FC = () => {
                       type="checkbox"
                       checked={formIsRecommended}
                       onChange={(e) => setFormIsRecommended(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#2C5EAD]"
+                      className="w-4 h-4 rounded text-[#07543a]"
                     />
                     <span className="font-semibold text-neutral-700">Chef&apos;s Recommendation</span>
                   </label>
@@ -803,9 +819,9 @@ export const AdminPage: React.FC = () => {
                       type="checkbox"
                       checked={formIsMustTry}
                       onChange={(e) => setFormIsMustTry(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#1591DC]"
+                      className="w-4 h-4 rounded text-[#0a7350]"
                     />
-                    <span className="font-semibold text-[#1591DC]">Must-Try Signature</span>
+                    <span className="font-semibold text-[#0a7350]">Must-Try Signature</span>
                   </label>
                 </div>
 
@@ -819,7 +835,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="py-2 px-5 rounded-xl bg-[#2C5EAD] text-white text-xs font-bold hover:bg-[#1D4482]"
+                    className="py-2 px-5 rounded-xl bg-[#07543a] text-white text-xs font-bold hover:bg-[#053d2a]"
                   >
                     {editingItemId ? 'Update Dish' : 'Publish to Digital Menu'}
                   </button>
@@ -831,7 +847,7 @@ export const AdminPage: React.FC = () => {
             <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F4F9FD] border-b border-neutral-200 text-neutral-600 font-bold uppercase tracking-wider text-[10px]">
+                  <thead className="bg-[#FAF8F5] border-b border-neutral-200 text-neutral-600 font-bold uppercase tracking-wider text-[10px]">
                     <tr>
                       <th className="py-3 px-4">Photo</th>
                       <th className="py-3 px-4">Dish</th>
@@ -875,7 +891,7 @@ export const AdminPage: React.FC = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4 font-bold text-[#1E231F]">
+                          <td className="py-3 px-4 font-bold text-[#151815]">
                             <div>{item.name}</div>
                             <div className="text-[11px] font-normal text-neutral-400 line-clamp-1 max-w-xs">
                               {item.description}
@@ -888,8 +904,8 @@ export const AdminPage: React.FC = () => {
                             <span
                               className={`font-semibold inline-flex items-center gap-1 ${
                                 item.foodType === 'veg' || item.foodType === 'vegan'
-                                  ? 'text-[#2C5EAD]'
-                                  : 'text-[#1591DC]'
+                                  ? 'text-[#07543a]'
+                                  : 'text-[#0a7350]'
                               }`}
                             >
                               <span>
@@ -908,7 +924,7 @@ export const AdminPage: React.FC = () => {
                                 onClick={() => toggleItemFlag(item.id, 'isRecommended')}
                                 className={`p-1 rounded-md text-[10px] font-semibold cursor-pointer ${
                                   item.isRecommended
-                                    ? 'bg-[#2C5EAD] text-white'
+                                    ? 'bg-[#07543a] text-white'
                                     : 'bg-neutral-100 text-neutral-400 hover:text-neutral-700'
                                 }`}
                                 title="Toggle Chef Recommendation"
@@ -920,7 +936,7 @@ export const AdminPage: React.FC = () => {
                                 onClick={() => toggleItemFlag(item.id, 'isMustTry')}
                                 className={`p-1 rounded-md text-[10px] font-semibold cursor-pointer ${
                                   item.isMustTry
-                                    ? 'bg-[#1591DC] text-white'
+                                    ? 'bg-[#0a7350] text-white'
                                     : 'bg-neutral-100 text-neutral-400 hover:text-neutral-700'
                                 }`}
                                 title="Toggle Must-Try"
@@ -977,7 +993,7 @@ export const AdminPage: React.FC = () => {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
+                <h2 className="text-lg font-bold text-[#151815] glinster-font">
                   Food Categories & Sections ({scopedCategories.length})
                 </h2>
                 <p className="text-xs text-neutral-500">
@@ -988,7 +1004,7 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenAddCategory}
-                className="py-2.5 px-4 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer self-start sm:self-auto"
+                className="py-2.5 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer self-start sm:self-auto"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Food Category</span>
@@ -1004,7 +1020,7 @@ export const AdminPage: React.FC = () => {
                   value={categorySearchQuery}
                   onChange={(e) => setCategorySearchQuery(e.target.value)}
                   placeholder="Search categories..."
-                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                 />
               </div>
               <div className="text-xs text-neutral-500 font-medium">
@@ -1023,7 +1039,7 @@ export const AdminPage: React.FC = () => {
                   >
                     <div className="flex items-start gap-3.5">
                       {/* Rounded Category Avatar */}
-                      <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 bg-[#C4E2F5]/20 ring-2 ring-[#C4E2F5] shadow-xs">
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 bg-[#EAE8D5]/20 ring-2 ring-[#EAE8D5] shadow-xs">
                         <img
                           src={cat.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'}
                           alt={cat.name}
@@ -1036,10 +1052,10 @@ export const AdminPage: React.FC = () => {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <h3 className="text-sm font-bold text-[#1E231F] truncate group-hover:text-[#2C5EAD] transition-colors">
+                          <h3 className="text-sm font-bold text-[#151815] truncate group-hover:text-[#07543a] transition-colors">
                             {cat.name}
                           </h3>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#C4E2F5]/40 text-[#2C5EAD] font-bold shrink-0">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#EAE8D5]/40 text-[#07543a] font-bold shrink-0">
                             {itemCount} {itemCount === 1 ? 'dish' : 'dishes'}
                           </span>
                         </div>
@@ -1065,7 +1081,7 @@ export const AdminPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleOpenEditCategory(cat)}
-                          className="p-1.5 rounded-lg text-neutral-500 hover:text-[#2C5EAD] hover:bg-[#F4F9FD] border border-neutral-200 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-neutral-500 hover:text-[#07543a] hover:bg-[#FAF8F5] border border-neutral-200 transition-colors cursor-pointer"
                           title="Edit Category"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -1095,7 +1111,7 @@ export const AdminPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleOpenAddCategory}
-                  className="py-2 px-4 rounded-xl bg-[#2C5EAD] text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                  className="py-2 px-4 rounded-xl bg-[#07543a] text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add First Category</span>
@@ -1110,7 +1126,7 @@ export const AdminPage: React.FC = () => {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
+                <h2 className="text-lg font-bold text-[#151815] glinster-font">
                   Floor Tables & Cryptographic QR Codes ({tables.length} tables)
                 </h2>
                 <p className="text-xs text-neutral-500">
@@ -1122,7 +1138,7 @@ export const AdminPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentRole('qr_stand')}
-                  className="py-2 px-3.5 rounded-xl bg-[#1591DC] hover:bg-[#0D76B6] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  className="py-2 px-3.5 rounded-xl bg-[#0a7350] hover:bg-[#07543a] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Launch Table Stand Studio</span>
@@ -1150,7 +1166,7 @@ export const AdminPage: React.FC = () => {
                   </select>
                   <button
                     type="submit"
-                    className="py-2 px-3.5 rounded-xl bg-[#2C5EAD] text-white text-xs font-bold hover:bg-[#1D4482] shrink-0"
+                    className="py-2 px-3.5 rounded-xl bg-[#07543a] text-white text-xs font-bold hover:bg-[#053d2a] shrink-0"
                   >
                     + Add Table
                   </button>
@@ -1179,7 +1195,7 @@ export const AdminPage: React.FC = () => {
         {/* TAB 3: ANALYTICS */}
         {activeTab === 'analytics' && (
           <div className="space-y-6">
-            <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
+            <h2 className="text-lg font-bold text-[#151815] glinster-font">
               Daily Restaurant Performance & Volume
             </h2>
 
@@ -1188,12 +1204,12 @@ export const AdminPage: React.FC = () => {
               <div className="p-4 bg-white rounded-2xl border border-neutral-200/80 shadow-2xs">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Total Revenue</span>
-                  <DollarSign className="w-4 h-4 text-[#2C5EAD]" />
+                  <DollarSign className="w-4 h-4 text-[#07543a]" />
                 </div>
-                <div className="text-2xl font-black font-mono tabular-nums text-[#1E231F] mt-2">
+                <div className="text-2xl font-black font-mono tabular-nums text-[#151815] mt-2">
                   {currentTenant.currencySymbol}{totalSales.toFixed(2)}
                 </div>
-                <div className="text-[11px] text-[#2C5EAD] font-semibold mt-1">
+                <div className="text-[11px] text-[#07543a] font-semibold mt-1">
                   Active orders & completed
                 </div>
               </div>
@@ -1201,9 +1217,9 @@ export const AdminPage: React.FC = () => {
               <div className="p-4 bg-white rounded-2xl border border-neutral-200/80 shadow-2xs">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Orders Today</span>
-                  <ShoppingBag className="w-4 h-4 text-[#1591DC]" />
+                  <ShoppingBag className="w-4 h-4 text-[#0a7350]" />
                 </div>
-                <div className="text-2xl font-black font-mono tabular-nums text-[#1E231F] mt-2">
+                <div className="text-2xl font-black font-mono tabular-nums text-[#151815] mt-2">
                   {tenantOrders.length}
                 </div>
                 <div className="text-[11px] text-neutral-500 mt-1">
@@ -1216,7 +1232,7 @@ export const AdminPage: React.FC = () => {
                   <span className="text-xs font-semibold">Avg. Order Value</span>
                   <TrendingUp className="w-4 h-4 text-[#0284C7]" />
                 </div>
-                <div className="text-2xl font-black font-mono tabular-nums text-[#1E231F] mt-2">
+                <div className="text-2xl font-black font-mono tabular-nums text-[#151815] mt-2">
                   {currentTenant.currencySymbol}{avgOrderValue.toFixed(2)}
                 </div>
                 <div className="text-[11px] text-neutral-500 mt-1">
@@ -1227,12 +1243,12 @@ export const AdminPage: React.FC = () => {
               <div className="p-4 bg-white rounded-2xl border border-neutral-200/80 shadow-2xs">
                 <div className="flex items-center justify-between text-neutral-400">
                   <span className="text-xs font-semibold">Membership Plan</span>
-                  <Calendar className="w-4 h-4 text-[#8B5CF6]" />
+                  <Calendar className="w-4 h-4 text-[#07543a]" />
                 </div>
-                <div className="text-base font-bold text-[#1E231F] mt-2">
+                <div className="text-base font-bold text-[#151815] mt-2">
                   {currentTenant.subscription.planName}
                 </div>
-                <div className="text-[11px] text-[#2C5EAD] font-semibold mt-1">
+                <div className="text-[11px] text-[#07543a] font-semibold mt-1">
                   Expires: {new Date(currentTenant.subscription.expiryDate).toLocaleDateString()}
                 </div>
               </div>
@@ -1240,17 +1256,17 @@ export const AdminPage: React.FC = () => {
 
             {/* Orders Breakdown List */}
             <div className="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-2xs space-y-4">
-              <h3 className="text-sm font-bold text-[#1E231F] glinster-font">
+              <h3 className="text-sm font-bold text-[#151815] glinster-font">
                 Recent Orders Stream
               </h3>
               <div className="space-y-2">
                 {tenantOrders.map((ord) => (
                   <div
                     key={ord.id}
-                    className="p-3 bg-[#F4F9FD] rounded-xl flex items-center justify-between text-xs"
+                    className="p-3 bg-[#FAF8F5] rounded-xl flex items-center justify-between text-xs"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="font-mono font-bold text-[#2C5EAD]">
+                      <span className="font-mono font-bold text-[#07543a]">
                         {ord.orderNumber}
                       </span>
                       <span className="font-semibold text-neutral-700">
@@ -1288,7 +1304,7 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'settings' && (
           <div className="max-w-2xl bg-white rounded-2xl border border-neutral-200/80 p-6 shadow-2xs space-y-5">
             <div>
-              <h2 className="text-lg font-bold text-[#1E231F] glinster-font">
+              <h2 className="text-lg font-bold text-[#151815] glinster-font">
                 Restaurant Settings & Tax Rules
               </h2>
               <p className="text-xs text-neutral-500">
@@ -1305,7 +1321,7 @@ export const AdminPage: React.FC = () => {
                   type="text"
                   value={restaurantName}
                   onChange={(e) => setRestaurantName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] text-sm font-semibold"
+                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] text-sm font-semibold"
                 />
               </div>
 
@@ -1317,8 +1333,74 @@ export const AdminPage: React.FC = () => {
                   type="text"
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD]"
+                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5]"
                 />
+              </div>
+
+              {/* Restaurant Logo Settings */}
+              <div className="p-3.5 bg-[#FAF8F5] rounded-xl border border-neutral-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-bold text-neutral-700">
+                    Restaurant Brand Logo
+                  </label>
+                  {restaurantLogoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setRestaurantLogoUrl('')}
+                      className="text-[11px] text-red-500 hover:text-red-600 font-semibold cursor-pointer"
+                    >
+                      Remove Logo
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-xl bg-white border border-neutral-200 shadow-xs flex items-center justify-center p-1 overflow-hidden shrink-0">
+                    {restaurantLogoUrl ? (
+                      <img
+                        src={restaurantLogoUrl}
+                        alt="Restaurant Logo"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <ImageIcon className="w-6 h-6 text-neutral-400" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-semibold cursor-pointer transition-colors shadow-2xs">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload Logo File</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert('Logo file must be under 5MB');
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            if (typeof ev.target?.result === 'string') {
+                              setRestaurantLogoUrl(ev.target.result);
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Or paste image URL (https://...)"
+                      value={restaurantLogoUrl}
+                      onChange={(e) => setRestaurantLogoUrl(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-neutral-200 text-neutral-800 text-[11px] focus:outline-none focus:ring-1 focus:ring-[#07543a]"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -1331,7 +1413,7 @@ export const AdminPage: React.FC = () => {
                     step="0.5"
                     value={taxRate}
                     onChange={(e) => setTaxRate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] font-mono"
                   />
                 </div>
                 <div>
@@ -1343,7 +1425,7 @@ export const AdminPage: React.FC = () => {
                     step="0.5"
                     value={serviceCharge}
                     onChange={(e) => setServiceCharge(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#F4F9FD] font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 bg-[#FAF8F5] font-mono"
                   />
                 </div>
               </div>
@@ -1354,7 +1436,7 @@ export const AdminPage: React.FC = () => {
                     type="checkbox"
                     checked={isOpen}
                     onChange={(e) => setIsOpen(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#2C5EAD]"
+                    className="w-4 h-4 rounded text-[#07543a]"
                   />
                   <div>
                     <span className="font-bold text-neutral-800 block">
@@ -1369,7 +1451,7 @@ export const AdminPage: React.FC = () => {
 
               <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
                 {settingsSaved ? (
-                  <span className="text-xs text-[#2C5EAD] font-semibold flex items-center gap-1">
+                  <span className="text-xs text-[#07543a] font-semibold flex items-center gap-1">
                     <Check className="w-3.5 h-3.5" />
                     Settings saved successfully!
                   </span>
@@ -1379,7 +1461,7 @@ export const AdminPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="py-2.5 px-6 rounded-xl bg-[#2C5EAD] hover:bg-[#1D4482] text-white font-bold text-xs shadow-sm transition-colors"
+                  className="py-2.5 px-6 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white font-bold text-xs shadow-sm transition-colors"
                 >
                   Save Settings
                 </button>
@@ -1395,10 +1477,10 @@ export const AdminPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-black text-[#1E231F] glinster-font">
+                  <h2 className="text-xl font-black text-[#151815] glinster-font">
                     Staff & Operations Management
                   </h2>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-[#2C5EAD]/10 text-[#2C5EAD]">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-[#07543a]/10 text-[#07543a]">
                     {scopedStaffMembers.length} Members
                   </span>
                 </div>
@@ -1419,7 +1501,7 @@ export const AdminPage: React.FC = () => {
                   setShowNewStaffPassword(false);
                   setIsAddStaffOpen(true);
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#2C5EAD] hover:bg-[#1D4482] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Staff Member</span>
@@ -1435,7 +1517,7 @@ export const AdminPage: React.FC = () => {
                     <Users className="w-3.5 h-3.5" />
                   </div>
                 </div>
-                <div className="mt-2 text-2xl font-black text-[#1E231F] glinster-font">
+                <div className="mt-2 text-2xl font-black text-[#151815] glinster-font">
                   {scopedStaffMembers.length}
                 </div>
                 <span className="text-[10px] text-neutral-400">Scoped to {currentTenant.name}</span>
@@ -1444,11 +1526,11 @@ export const AdminPage: React.FC = () => {
               <div className="bg-white p-3.5 rounded-2xl border border-neutral-200/80 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold text-neutral-500">Dining Waiters</span>
-                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#2C5EAD] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#07543a] flex items-center justify-center">
                     <UserCheck className="w-3.5 h-3.5" />
                   </div>
                 </div>
-                <div className="mt-2 text-2xl font-black text-[#2C5EAD] glinster-font">
+                <div className="mt-2 text-2xl font-black text-[#07543a] glinster-font">
                   {scopedStaffMembers.filter((s) => s.role === 'waiter').length}
                 </div>
                 <span className="text-[10px] text-emerald-600/80 font-medium">Floor & Table Service</span>
@@ -1474,7 +1556,7 @@ export const AdminPage: React.FC = () => {
                     <ShieldCheck className="w-3.5 h-3.5" />
                   </div>
                 </div>
-                <div className="mt-2 text-2xl font-black text-[#1E231F] glinster-font">
+                <div className="mt-2 text-2xl font-black text-[#151815] glinster-font">
                   {scopedStaffMembers.filter((s) => s.status === 'active').length}
                 </div>
                 <span className="text-[10px] text-teal-600/80 font-medium">Ready for duty</span>
@@ -1490,7 +1572,7 @@ export const AdminPage: React.FC = () => {
                   placeholder="Search staff by name, @username, or station..."
                   value={staffSearchQuery}
                   onChange={(e) => setStaffSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD] transition-all"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a] transition-all"
                 />
                 {staffSearchQuery && (
                   <button
@@ -1504,12 +1586,12 @@ export const AdminPage: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-2">
                 {/* Role Filter Pills */}
-                <div className="flex items-center bg-[#F4F9FD] p-1 rounded-xl border border-neutral-200/80 text-xs">
+                <div className="flex items-center bg-[#FAF8F5] p-1 rounded-xl border border-neutral-200/80 text-xs">
                   <button
                     onClick={() => setStaffRoleFilter('all')}
                     className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
                       staffRoleFilter === 'all'
-                        ? 'bg-white shadow-2xs text-[#1E231F] font-bold'
+                        ? 'bg-white shadow-2xs text-[#151815] font-bold'
                         : 'text-neutral-500 hover:text-neutral-900'
                     }`}
                   >
@@ -1519,7 +1601,7 @@ export const AdminPage: React.FC = () => {
                     onClick={() => setStaffRoleFilter('waiter')}
                     className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
                       staffRoleFilter === 'waiter'
-                        ? 'bg-white shadow-2xs text-[#2C5EAD] font-bold'
+                        ? 'bg-white shadow-2xs text-[#07543a] font-bold'
                         : 'text-neutral-500 hover:text-neutral-900'
                     }`}
                   >
@@ -1539,7 +1621,7 @@ export const AdminPage: React.FC = () => {
                     onClick={() => setStaffRoleFilter('admin')}
                     className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
                       staffRoleFilter === 'admin'
-                        ? 'bg-white shadow-2xs text-purple-700 font-bold'
+                        ? 'bg-white shadow-2xs text-[#07543a] font-bold'
                         : 'text-neutral-500 hover:text-neutral-900'
                     }`}
                   >
@@ -1551,7 +1633,7 @@ export const AdminPage: React.FC = () => {
                 <select
                   value={staffStatusFilter}
                   onChange={(e) => setStaffStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                  className="px-2.5 py-1.5 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200/80 text-neutral-700 font-medium focus:outline-none focus:border-[#2C5EAD]"
+                  className="px-2.5 py-1.5 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200/80 text-neutral-700 font-medium focus:outline-none focus:border-[#07543a]"
                 >
                   <option value="all">All Statuses</option>
                   <option value="active">Active Only</option>
@@ -1577,7 +1659,7 @@ export const AdminPage: React.FC = () => {
                 <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-400 mx-auto flex items-center justify-center mb-3">
                   <Users className="w-6 h-6" />
                 </div>
-                <h3 className="text-sm font-bold text-[#1E231F]">No staff members found</h3>
+                <h3 className="text-sm font-bold text-[#151815]">No staff members found</h3>
                 <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
                   {staffSearchQuery || staffRoleFilter !== 'all' || staffStatusFilter !== 'all'
                     ? 'No staff members match your active filters. Try adjusting your search query or reset the filters.'
@@ -1590,7 +1672,7 @@ export const AdminPage: React.FC = () => {
                       setStaffRoleFilter('all');
                       setStaffStatusFilter('all');
                     }}
-                    className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-[#2C5EAD] bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
+                    className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-[#07543a] bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
                   >
                     Clear Filters
                   </button>
@@ -1623,15 +1705,15 @@ export const AdminPage: React.FC = () => {
                         : staff.role === 'admin'
                         ? {
                             label: 'Restaurant Admin',
-                            bg: 'bg-purple-50 text-purple-800 border-purple-200/80',
+                            bg: 'bg-emerald-50 text-emerald-900 border-emerald-200/80',
                             icon: ShieldCheck,
-                            avatarBg: 'bg-gradient-to-br from-purple-500 to-purple-700 text-white',
+                            avatarBg: 'bg-gradient-to-br from-[#07543a] to-[#0a7350] text-white',
                           }
                         : {
                             label: 'Floor Waiter',
-                            bg: 'bg-emerald-50 text-[#2C5EAD] border-emerald-200/80',
+                            bg: 'bg-emerald-50 text-[#07543a] border-emerald-200/80',
                             icon: UtensilsCrossed,
-                            avatarBg: 'bg-gradient-to-br from-emerald-600 to-[#1D4482] text-white',
+                            avatarBg: 'bg-gradient-to-br from-[#07543a] to-[#0a7350] text-white',
                           };
 
                     const RoleIcon = roleBadgeConfig.icon;
@@ -1661,7 +1743,7 @@ export const AdminPage: React.FC = () => {
                                 {initials}
                               </div>
                               <div className="min-w-0">
-                                <h3 className="text-sm font-bold text-[#1E231F] truncate leading-tight">
+                                <h3 className="text-sm font-bold text-[#151815] truncate leading-tight">
                                   {staff.name}
                                 </h3>
                                 <div className="flex items-center gap-1.5 mt-0.5">
@@ -1678,13 +1760,13 @@ export const AdminPage: React.FC = () => {
                               title={`Click to ${staff.status === 'active' ? 'deactivate' : 'activate'}`}
                               className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer transition-colors shrink-0 ${
                                 staff.status === 'active'
-                                  ? 'bg-emerald-50 text-[#2C5EAD] border border-emerald-200/80 hover:bg-emerald-100'
+                                  ? 'bg-emerald-50 text-[#07543a] border border-emerald-200/80 hover:bg-emerald-100'
                                   : 'bg-neutral-100 text-neutral-500 border border-neutral-200 hover:bg-neutral-200'
                               }`}
                             >
                               <span
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  staff.status === 'active' ? 'bg-[#2C5EAD] animate-pulse' : 'bg-neutral-400'
+                                  staff.status === 'active' ? 'bg-[#07543a] animate-pulse' : 'bg-neutral-400'
                                 }`}
                               />
                               <span className="capitalize">{staff.status}</span>
@@ -1703,7 +1785,7 @@ export const AdminPage: React.FC = () => {
                             </div>
 
                             {staff.station && (
-                              <div className="text-xs text-neutral-600 bg-[#F4F9FD] px-2.5 py-1.5 rounded-xl border border-neutral-200/60 flex items-center gap-1.5">
+                              <div className="text-xs text-neutral-600 bg-[#FAF8F5] px-2.5 py-1.5 rounded-xl border border-neutral-200/60 flex items-center gap-1.5">
                                 <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider shrink-0">
                                   Station:
                                 </span>
@@ -1777,7 +1859,7 @@ export const AdminPage: React.FC = () => {
                     <KeyRound className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                    <h3 className="text-base font-bold text-[#151815] glinster-font">
                       Reset Staff Password
                     </h3>
                     <p className="text-xs text-neutral-500">
@@ -1794,7 +1876,7 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Staff preview chip */}
-              <div className="p-3 bg-[#F4F9FD] rounded-xl border border-neutral-200/80 flex items-center justify-between text-xs">
+              <div className="p-3 bg-[#FAF8F5] rounded-xl border border-neutral-200/80 flex items-center justify-between text-xs">
                 <div>
                   <div className="font-bold text-neutral-800">{resetPasswordStaff.name}</div>
                   <div className="text-neutral-500 font-mono text-[11px]">@{resetPasswordStaff.username}</div>
@@ -1828,7 +1910,7 @@ export const AdminPage: React.FC = () => {
                       setNewPasswordInput(pass);
                       setIsCopied(false);
                     }}
-                    className="text-[11px] font-bold text-[#2C5EAD] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-bold text-[#07543a] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <Shuffle className="w-3 h-3" />
                     <span>Auto-Generate</span>
@@ -1844,7 +1926,7 @@ export const AdminPage: React.FC = () => {
                       setIsCopied(false);
                     }}
                     placeholder="Enter new password (min 6 characters)"
-                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                     <button
@@ -1898,7 +1980,7 @@ export const AdminPage: React.FC = () => {
                       setResetSuccessMessage('');
                     }, 1200);
                   }}
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#2C5EAD] hover:bg-[#1D4482] disabled:opacity-50 rounded-xl transition-all shadow-xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#07543a] hover:bg-[#053d2a] disabled:opacity-50 rounded-xl transition-all shadow-xs cursor-pointer"
                 >
                   Save & Update Password
                 </button>
@@ -1913,11 +1995,11 @@ export const AdminPage: React.FC = () => {
             <div className="bg-white rounded-2xl max-w-lg w-full p-6 border border-neutral-200 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-[#2C5EAD]">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-[#07543a]">
                     <Users className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                    <h3 className="text-base font-bold text-[#151815] glinster-font">
                       Add New Staff Member
                     </h3>
                     <p className="text-xs text-neutral-500">
@@ -1967,7 +2049,7 @@ export const AdminPage: React.FC = () => {
                           );
                         }
                       }}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                       required
                     />
                   </div>
@@ -1981,7 +2063,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="e.g. david.server"
                       value={newStaffUsername}
                       onChange={(e) => setNewStaffUsername(e.target.value.toLowerCase().replace(/\s+/g, '.'))}
-                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                       required
                     />
                   </div>
@@ -1995,7 +2077,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={newStaffRole}
                       onChange={(e) => setNewStaffRole(e.target.value as StaffRole)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                     >
                       <option value="waiter">Floor Waiter / Server</option>
                       <option value="kitchen">Kitchen Staff / Chef</option>
@@ -2012,7 +2094,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="e.g. Main Dining Floor (Tables 1-5)"
                       value={newStaffStation}
                       onChange={(e) => setNewStaffStation(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                     />
                   </div>
                 </div>
@@ -2027,7 +2109,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="+1 (555) 000-0000"
                       value={newStaffPhone}
                       onChange={(e) => setNewStaffPhone(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                     />
                   </div>
 
@@ -2040,7 +2122,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="staff@restaurant.com"
                       value={newStaffEmail}
                       onChange={(e) => setNewStaffEmail(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                     />
                   </div>
                 </div>
@@ -2054,7 +2136,7 @@ export const AdminPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setNewStaffPassword(generateSecurePassword())}
-                      className="text-[11px] font-bold text-[#2C5EAD] hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] font-bold text-[#07543a] hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <Shuffle className="w-3 h-3" />
                       <span>Auto-Generate</span>
@@ -2066,7 +2148,7 @@ export const AdminPage: React.FC = () => {
                       placeholder="Password"
                       value={newStaffPassword}
                       onChange={(e) => setNewStaffPassword(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#F4F9FD] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2C5EAD]/20 focus:border-[#2C5EAD]"
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#07543a]/20 focus:border-[#07543a]"
                       required
                     />
                     <button
@@ -2089,7 +2171,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-bold text-white bg-[#2C5EAD] hover:bg-[#1D4482] rounded-xl transition-all shadow-xs cursor-pointer"
+                    className="px-5 py-2 text-xs font-bold text-white bg-[#07543a] hover:bg-[#053d2a] rounded-xl transition-all shadow-xs cursor-pointer"
                   >
                     Register Staff Member
                   </button>
@@ -2132,11 +2214,11 @@ export const AdminPage: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-[#2C5EAD]/10 text-[#2C5EAD] flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-[#07543a]/10 text-[#07543a] flex items-center justify-center font-bold">
                   <FolderPlus className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1E231F] glinster-font">
+                  <h3 className="text-base font-bold text-[#151815] glinster-font">
                     {editingCategory ? 'Edit Food Category' : 'Create New Food Category'}
                   </h3>
                   <p className="text-xs text-neutral-500">
@@ -2156,7 +2238,7 @@ export const AdminPage: React.FC = () => {
                     value={categoryFormName}
                     onChange={(e) => setCategoryFormName(e.target.value)}
                     placeholder="e.g., Artisanal Pizzas, Handcrafted Mocktails"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                   />
                 </div>
 
@@ -2169,20 +2251,20 @@ export const AdminPage: React.FC = () => {
                     value={categoryFormDescription}
                     onChange={(e) => setCategoryFormDescription(e.target.value)}
                     placeholder="e.g., 48-hour fermented sourdough with buffalo mozzarella and herbs"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD] resize-none"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#07543a] resize-none"
                   />
                 </div>
 
                 {/* Image Upload & Preview Section */}
-                <div className="p-3.5 rounded-2xl bg-[#F4F9FD] border border-[#C4E2F5]/80 space-y-3">
+                <div className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#EAE8D5]/80 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#2C5EAD]">Category Photo (Rounded Preview)</span>
+                    <span className="text-xs font-bold text-[#07543a]">Category Photo (Rounded Preview)</span>
                     <span className="text-[10px] text-neutral-400">Live Zomato Style</span>
                   </div>
 
                   <div className="flex items-center gap-4">
                     {/* Live Circular Preview */}
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden shrink-0 ring-3 ring-[#2C5EAD] ring-offset-2 shadow-md bg-neutral-100">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden shrink-0 ring-3 ring-[#07543a] ring-offset-2 shadow-md bg-neutral-100">
                       <img
                         src={categoryFormImageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'}
                         alt="Category Preview"
@@ -2196,7 +2278,7 @@ export const AdminPage: React.FC = () => {
                     <div className="flex-1 space-y-2">
                       {/* File Upload Button */}
                       <div>
-                        <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-neutral-50 border border-[#2C5EAD]/40 text-[#2C5EAD] text-xs font-bold shadow-2xs cursor-pointer transition-colors">
+                        <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-neutral-50 border border-[#07543a]/40 text-[#07543a] text-xs font-bold shadow-2xs cursor-pointer transition-colors">
                           <Upload className="w-3.5 h-3.5" />
                           <span>Upload Photo from Device</span>
                           <input
@@ -2216,7 +2298,7 @@ export const AdminPage: React.FC = () => {
                           value={categoryFormImageUrl}
                           onChange={(e) => setCategoryFormImageUrl(e.target.value)}
                           placeholder="Or paste public image URL..."
-                          className="w-full px-3 py-1.5 text-xs rounded-lg bg-white border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#2C5EAD]"
+                          className="w-full px-3 py-1.5 text-xs rounded-lg bg-white border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                         />
                       </div>
                     </div>
@@ -2235,7 +2317,7 @@ export const AdminPage: React.FC = () => {
                           onClick={() => setCategoryFormImageUrl(preset.url)}
                           className={`group shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-medium transition-colors cursor-pointer ${
                             categoryFormImageUrl === preset.url
-                              ? 'bg-[#2C5EAD] text-white border-[#2C5EAD]'
+                              ? 'bg-[#07543a] text-white border-[#07543a]'
                               : 'bg-white hover:bg-neutral-50 text-neutral-700 border-neutral-200'
                           }`}
                         >
@@ -2264,7 +2346,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl text-xs font-bold bg-[#2C5EAD] hover:bg-[#1D4482] text-white shadow-sm transition-colors cursor-pointer flex items-center gap-1.5"
+                    className="px-5 py-2 rounded-xl text-xs font-bold bg-[#07543a] hover:bg-[#053d2a] text-white shadow-sm transition-colors cursor-pointer flex items-center gap-1.5"
                   >
                     <Check className="w-4 h-4" />
                     <span>{editingCategory ? 'Update Category' : 'Save Category'}</span>
@@ -2283,7 +2365,7 @@ export const AdminPage: React.FC = () => {
                 <Trash2 className="w-6 h-6" />
               </div>
 
-              <h3 className="text-base font-bold text-center text-[#1E231F] glinster-font mb-1.5">
+              <h3 className="text-base font-bold text-center text-[#151815] glinster-font mb-1.5">
                 Delete &quot;{categoryDeleteTarget.name}&quot;?
               </h3>
               <p className="text-xs text-neutral-500 text-center leading-relaxed mb-4">
