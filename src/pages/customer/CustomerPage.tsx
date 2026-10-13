@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   ShoppingCart,
@@ -6,6 +6,7 @@ import {
   Sparkles,
   CheckCircle2,
   Heart,
+  Check,
 } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { DietaryFilter } from '../../components/menu/DietaryFilter';
@@ -31,6 +32,7 @@ export const CustomerPage: React.FC = () => {
     cartCount,
     cartTotal,
     setIsCartDrawerOpen,
+    lastAddedItem,
     orders,
     activeCustomerOrderId,
     isTableAuthorized,
@@ -45,21 +47,32 @@ export const CustomerPage: React.FC = () => {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isTableAuthModalOpen, setIsTableAuthModalOpen] = useState(!isTableAuthorized);
 
-  // Active placed order for this table/session if any
+  // Added-to-cart toast and cart button ping animation
+  const [showAddedToast, setShowAddedToast] = useState(false);
+  const [isCartPinging, setIsCartPinging] = useState(false);
+
+  useEffect(() => {
+    if (lastAddedItem) {
+      setShowAddedToast(true);
+      setIsCartPinging(true);
+      const timer = setTimeout(() => {
+        setShowAddedToast(false);
+        setIsCartPinging(false);
+      }, 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [lastAddedItem]);
+
+  // Active placed order for this session ONLY (no fallback to dummy table 4 orders)
   const latestOrder = useMemo(() => {
     if (activeCustomerOrderId) {
-      return orders.find((o) => o.id === activeCustomerOrderId) || null;
+      const found = orders.find((o) => o.id === activeCustomerOrderId);
+      if (found && found.status !== 'completed' && found.status !== 'cancelled') {
+        return found;
+      }
     }
-    return (
-      orders.find(
-        (o) =>
-          o.tenantId === currentTenant.id &&
-          o.tableId === currentTable?.id &&
-          o.status !== 'completed' &&
-          o.status !== 'cancelled'
-      ) || null
-    );
-  }, [orders, activeCustomerOrderId, currentTenant.id, currentTable?.id]);
+    return null;
+  }, [orders, activeCustomerOrderId]);
 
   const hasActiveRequest = useMemo(() => {
     return serviceRequests.some(
@@ -164,7 +177,9 @@ export const CustomerPage: React.FC = () => {
               onClick={() => setIsCartDrawerOpen(true)}
               title="Open Cart"
               aria-label="Open Cart"
-              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full text-white bg-[#07543a] hover:bg-[#053d2a] active:scale-95 transition-all flex items-center justify-center shadow-xs shrink-0 cursor-pointer"
+              className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-full text-white bg-[#07543a] hover:bg-[#053d2a] active:scale-95 transition-all flex items-center justify-center shadow-xs shrink-0 cursor-pointer ${
+                isCartPinging ? 'scale-110 ring-4 ring-[#07543a]/30 animate-pulse' : ''
+              }`}
             >
               <ShoppingCart className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
               {cartCount > 0 && (
@@ -560,10 +575,27 @@ export const CustomerPage: React.FC = () => {
         )}
       </main>
 
-      {/* 5. Sticky Floating Bottom Action Dock with Samsung Dynamic Island Stack */}
+      {/* Added to Order Animated Floating Toast Notification */}
+      {showAddedToast && lastAddedItem && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center gap-2.5 bg-[#07543a] text-white px-4 py-2 rounded-full shadow-xl border border-white/20 backdrop-blur-md">
+            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              <Check className="w-3.5 h-3.5 text-white stroke-[3] animate-bounce" />
+            </div>
+            <span className="text-xs font-bold tracking-tight">
+              Added &quot;{lastAddedItem.name}&quot; to order
+            </span>
+            <span className="text-[10px] font-mono bg-white/20 px-2 py-0.5 rounded-full font-bold">
+              Cart: {cartCount}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Sticky Floating Bottom Action Dock with Samsung Dynamic Island */}
       {/* Only show when an event occurs: items in cart, active live order, or floor waiter paged */}
       {(hasCart || hasLiveOrder || hasActiveRequest) && (
-        <div className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto animate-in slide-in-from-bottom-3 duration-300">
+        <div className="fixed bottom-4 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-sm mx-auto pointer-events-auto animate-in slide-in-from-bottom-5 duration-300">
           <SamsungLiveIsland
             latestOrder={latestOrder}
             hasActiveRequest={hasActiveRequest}

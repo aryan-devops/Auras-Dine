@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Bell,
-  ChevronUp,
   ReceiptText,
 } from 'lucide-react';
 import { Order } from '../../types';
@@ -93,168 +92,131 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
     latestOrder.status !== 'cancelled'
   );
 
-  // Active stack card: 'dining_order' or 'floor_waiter'
+  // Active view: 'dining_order' or 'floor_waiter'
   const [activeCard, setActiveCard] = useState<'dining_order' | 'floor_waiter'>(
     hasActiveRequest ? 'floor_waiter' : 'dining_order'
   );
-  const backCard = activeCard === 'dining_order' ? 'floor_waiter' : 'dining_order';
 
-  // Align active card when request state changes
+  // Sync active view when waiter request state changes
   useEffect(() => {
     if (hasActiveRequest) {
       setActiveCard('floor_waiter');
     }
   }, [hasActiveRequest]);
 
-  // Touch & Swipe gesture state
-  const [dragY, setDragY] = useState<number>(0);
-  const [isFlipping, setIsFlipping] = useState<boolean>(false);
-
+  // Gestures and isolated scrolling state
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef<number | null>(null);
   const didSwipeRef = useRef<boolean>(false);
-  const lastActionTimeRef = useRef<number>(0);
-  const lastWheelTimeRef = useRef<number>(0);
+  const lastSwitchTimeRef = useRef<number>(0);
+  const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
-  // Attach native non-passive touchmove listener to completely prevent mobile page scroll
+  // Switch between dining order and floor waiter views
+  const switchView = (direction: 'up' | 'down' = 'up') => {
+    const now = Date.now();
+    if (now - lastSwitchTimeRef.current < 260) return;
+    lastSwitchTimeRef.current = now;
+
+    setSlideDirection(direction);
+    setIsTransitioning(true);
+
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try {
+        navigator.vibrate(18);
+      } catch {}
+    }
+
+    setActiveCard((prev) => (prev === 'dining_order' ? 'floor_waiter' : 'dining_order'));
+
+    setTimeout(() => {
+      setIsTransitioning(false);
+      didSwipeRef.current = false;
+    }, 250);
+  };
+
+  // Attach native non-passive wheel and touchmove listeners to ISOLATE scroll to the bar ONLY
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    const onNativeTouchMove = (e: TouchEvent) => {
-      // Prevent browser viewport from scrolling when interacting with island
-      if (e.cancelable) {
-        e.preventDefault();
+    // Handle mouse wheel / trackpad scroll over the bar
+    const handleNativeWheel = (e: WheelEvent) => {
+      // PREVENT the entire webpage/window from scrolling!
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (Math.abs(e.deltaY) > 5) {
+        switchView(e.deltaY > 0 ? 'up' : 'down');
       }
     };
 
-    el.addEventListener('touchmove', onNativeTouchMove, { passive: false });
+    // Handle touch move over the bar on mobile
+    const handleNativeTouchMove = (e: TouchEvent) => {
+      if (touchStartYRef.current === null) return;
+      // PREVENT mobile browser viewport from scrolling!
+      if (e.cancelable) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - touchStartYRef.current;
+      if (Math.abs(diff) > 6) {
+        didSwipeRef.current = true;
+      }
+    };
+
+    el.addEventListener('wheel', handleNativeWheel, { passive: false });
+    el.addEventListener('touchmove', handleNativeTouchMove, { passive: false });
+
     return () => {
-      el.removeEventListener('touchmove', onNativeTouchMove);
+      el.removeEventListener('wheel', handleNativeWheel);
+      el.removeEventListener('touchmove', handleNativeTouchMove);
     };
   }, []);
 
-  // Trigger smooth card flip animation
-  const triggerFlip = () => {
-    if (isFlipping) return;
-    setIsFlipping(true);
-    lastActionTimeRef.current = Date.now();
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      try {
-        navigator.vibrate([15, 30]);
-      } catch {}
-    }
-    setTimeout(() => {
-      setActiveCard((prev) => (prev === 'dining_order' ? 'floor_waiter' : 'dining_order'));
-      setDragY(0);
-      setIsFlipping(false);
-      // Keep a small buffer before re-enabling click
-      setTimeout(() => {
-        didSwipeRef.current = false;
-      }, 100);
-    }, 280);
-  };
-
-  // Wheel / Scroll Gesture Handler (cycles stack when scrolled up or down)
-  const handleWheel = (e: React.WheelEvent) => {
-    const now = Date.now();
-    if (now - lastWheelTimeRef.current < 350) return;
-    if (Math.abs(e.deltaY) > 8) {
-      lastWheelTimeRef.current = now;
-      triggerFlip();
-    }
-  };
-
-  // Touch handlers for mobile swipe
+  // Touch start and end for mobile swipe detection
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (isFlipping) return;
     touchStartYRef.current = e.touches[0].clientY;
     didSwipeRef.current = false;
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartYRef.current === null || isFlipping) return;
-    const currentY = e.touches[0].clientY;
-    const diff = currentY - touchStartYRef.current;
-    if (Math.abs(diff) > 5) {
-      didSwipeRef.current = true;
-    }
-    // Track upward swipe (negative) or downward movement
-    setDragY(Math.max(-45, Math.min(25, diff)));
-  };
-
-  const handleTouchEnd = () => {
-    if (isFlipping || touchStartYRef.current === null) {
-      touchStartYRef.current = null;
-      setDragY(0);
-      return;
-    }
-
-    if (dragY < -12 || dragY > 14) {
-      // Swiped up or down -> Flip the card!
-      didSwipeRef.current = true;
-      triggerFlip();
-    } else {
-      setDragY(0);
-      setTimeout(() => {
-        didSwipeRef.current = false;
-      }, 50);
-    }
-    touchStartYRef.current = null;
-  };
-
-  // Mouse drag handlers for desktop swipe testing
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isFlipping) return;
-    touchStartYRef.current = e.clientY;
-    setIsMouseDown(true);
-    didSwipeRef.current = false;
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isMouseDown || touchStartYRef.current === null || isFlipping) return;
-    const diff = e.clientY - touchStartYRef.current;
-    if (Math.abs(diff) > 5) {
-      didSwipeRef.current = true;
-    }
-    setDragY(Math.max(-45, Math.min(25, diff)));
-  };
-
-  const handleMouseUp = () => {
-    if (!isMouseDown) return;
-    setIsMouseDown(false);
-    if (dragY < -12 || dragY > 14) {
-      didSwipeRef.current = true;
-      triggerFlip();
-    } else {
-      setDragY(0);
-      setTimeout(() => {
-        didSwipeRef.current = false;
-      }, 50);
-    }
-    touchStartYRef.current = null;
-  };
-
-  // Front card tap handler (opens modal/cart only on a clean tap, NOT on swipe or flip)
-  const handleFrontCardClick = () => {
-    if (isFlipping || didSwipeRef.current || Date.now() - lastActionTimeRef.current < 350) {
-      return;
-    }
-    if (Math.abs(dragY) < 4) {
-      if (activeCard === 'dining_order') {
-        if (hasOrder && onOpenTracking) {
-          onOpenTracking();
-        } else if (onOpenCart) {
-          onOpenCart();
-        }
-      } else {
-        onOpenServiceModal();
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartYRef.current !== null && e.changedTouches && e.changedTouches.length > 0) {
+      const endY = e.changedTouches[0].clientY;
+      const diff = endY - touchStartYRef.current;
+      if (Math.abs(diff) > 10) {
+        didSwipeRef.current = true;
+        switchView(diff < 0 ? 'up' : 'down');
       }
     }
+    touchStartYRef.current = null;
+    // Release swipe flag after brief buffer to avoid synthetic clicks
+    setTimeout(() => {
+      didSwipeRef.current = false;
+    }, 150);
   };
 
-  // Dynamic cooking timer calculation
+  // Tap handler (only fires on clean, stationary tap; never on scroll or swipe)
+  const handleBarClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (didSwipeRef.current || Date.now() - lastSwitchTimeRef.current < 280) {
+      return;
+    }
+
+    if (activeCard === 'dining_order') {
+      if (hasOrder && onOpenTracking) {
+        onOpenTracking();
+      } else if (onOpenCart) {
+        onOpenCart();
+      }
+    } else {
+      onOpenServiceModal();
+    }
+  };
+
+  // Dynamic cooking timer
   const [timerSeconds, setTimerSeconds] = useState<number>(60);
   useEffect(() => {
     if (!latestOrder?.createdAt) {
@@ -289,7 +251,7 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
     ? latestOrder?.grandTotal || cartTotal
     : cartTotal;
 
-  // Render card internal layout
+  // Render content inside the single bar
   const renderCardContent = (cardType: 'dining_order' | 'floor_waiter') => {
     if (cardType === 'dining_order') {
       return (
@@ -334,14 +296,29 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
             </div>
           </div>
 
-          {/* Right: Subtotal Amount */}
-          <div className="flex flex-col items-end shrink-0 pl-1">
-            <span className="text-[9px] uppercase tracking-wider text-white/60 font-semibold leading-none">
-              Total
-            </span>
-            <span className="font-mono tabular-nums text-xs sm:text-sm font-black text-white leading-tight">
-              {currencySymbol}{displayTotal.toFixed(2)}
-            </span>
+          {/* Right: Subtotal Amount & View indicator dots */}
+          <div className="flex items-center gap-2 shrink-0 pl-1">
+            <div className="flex flex-col items-end leading-none">
+              <span className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-0.5">
+                Total
+              </span>
+              <span className="font-mono tabular-nums text-xs sm:text-sm font-black text-white">
+                {currencySymbol}{displayTotal.toFixed(2)}
+              </span>
+            </div>
+
+            {/* Micro 2-view indicator dots */}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                switchView();
+              }}
+              className="flex flex-col gap-1 px-1 py-1 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
+              title="Scroll or tap to switch between Order and Waiter"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
+            </div>
           </div>
         </div>
       );
@@ -369,8 +346,8 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
           </div>
         </div>
 
-        {/* Right: Status Pill */}
-        <div className="flex items-center shrink-0 pl-1">
+        {/* Right: Status Pill & View indicator dots */}
+        <div className="flex items-center gap-2 shrink-0 pl-1">
           {hasActiveRequest ? (
             <span className="text-[10px] font-bold text-white bg-[#07543a] px-2.5 py-1 rounded-full border border-white/30 animate-pulse">
               Alerted
@@ -380,6 +357,19 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
               Call Server
             </span>
           )}
+
+          {/* Micro 2-view indicator dots */}
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              switchView();
+            }}
+            className="flex flex-col gap-1 px-1 py-1 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
+            title="Scroll or tap to switch between Order and Waiter"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+          </div>
         </div>
       </div>
     );
@@ -388,53 +378,23 @@ export const SamsungLiveIsland: React.FC<SamsungLiveIslandProps> = ({
   return (
     <div
       ref={containerRef}
-      onWheel={handleWheel}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onClick={handleBarClick}
       style={{ touchAction: 'none' }}
-      className="relative w-full max-w-[340px] sm:max-w-[380px] mx-auto select-none py-2 pointer-events-auto touch-none transition-all duration-300"
+      className="relative w-full max-w-[340px] sm:max-w-[370px] mx-auto select-none pointer-events-auto touch-none"
     >
-      {/* Micro Swipe / Switch Hint Pill on top edge */}
-      <div
-        onClick={triggerFlip}
-        className="absolute -top-1.5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-[#07543a] border border-white/20 px-2 py-0.5 rounded-full text-[9px] font-bold text-white tracking-wider uppercase cursor-pointer z-30 active:scale-95 transition-transform"
-        title="Swipe up or down to switch cards"
-      >
-        <ChevronUp className="w-2.5 h-2.5 text-white animate-bounce" />
-        <span>Swipe to switch</span>
-      </div>
-
-      {/* 3D Physical Stack Container (Clean, no weird bottom shadow) */}
-      <div className="relative w-full h-14 sm:h-[58px]">
-        {/* 3D Stack: Back Card (visibly peeking out directly above the front card) */}
+      {/* THE SINGLE BAR ONLY - No background layers, no stacked cards behind, no weird shadow */}
+      <div className="relative w-full h-14 sm:h-[54px] px-3.5 sm:px-4 rounded-2xl sm:rounded-[22px] bg-[#041c14] hover:bg-[#06241a] border border-[#07543a]/75 shadow-md shadow-black/25 flex items-center justify-between cursor-pointer transition-colors duration-200 overflow-hidden">
+        {/* Animated view container */}
         <div
-          onClick={triggerFlip}
-          className={`absolute inset-0 px-3.5 sm:px-4 rounded-[22px] bg-[#052218] border border-white/10 flex items-center justify-between cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isFlipping
-              ? 'z-30 scale-100 translate-y-0 opacity-100'
-              : 'z-10 -translate-y-3.5 sm:-translate-y-4 scale-[0.93] opacity-80 hover:opacity-95'
-          }`}
-          title="Tap or swipe to bring to front"
-        >
-          {renderCardContent(backCard)}
-        </div>
-
-        {/* 3D Stack: Front Card (Interactive with Swipe Up/Down, Wheel Scroll, and Tap) */}
-        <div
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onMouseDown={handleMouseDown}
-          onClick={handleFrontCardClick}
-          style={{
-            transform: isFlipping
-              ? 'translateY(-45px) scale(0.91)'
-              : `translateY(${dragY}px) scale(${1 - Math.abs(dragY) * 0.002})`,
-            opacity: isFlipping ? 0.4 : 1,
-            touchAction: 'none',
-          }}
-          className={`relative w-full h-full px-3.5 sm:px-4 rounded-[22px] bg-[#041c14] hover:bg-[#06241a] border border-[#07543a]/70 flex items-center justify-between cursor-pointer select-none transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isFlipping ? 'z-10' : 'z-20'
+          key={activeCard}
+          className={`w-full flex items-center justify-between ${
+            isTransitioning
+              ? slideDirection === 'up'
+                ? 'animate-in slide-in-from-bottom-3 fade-in duration-200'
+                : 'animate-in slide-in-from-top-3 fade-in duration-200'
+              : 'animate-in fade-in duration-150'
           }`}
         >
           {renderCardContent(activeCard)}

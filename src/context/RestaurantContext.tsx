@@ -90,6 +90,7 @@ interface RestaurantContextType {
   clearCart: () => void;
   isCartDrawerOpen: boolean;
   setIsCartDrawerOpen: (open: boolean) => void;
+  lastAddedItem: { name: string; quantity: number; timestamp: number } | null;
 
   // Orders
   orders: Order[];
@@ -323,6 +324,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
   });
 
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  const [lastAddedItem, setLastAddedItem] = useState<{ name: string; quantity: number; timestamp: number } | null>(null);
 
   // 7. Orders
   const [orders, setOrders] = useState<Order[]>(() => {
@@ -766,6 +768,12 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
       };
       setCart((prev) => [...prev, newItem]);
     }
+
+    setLastAddedItem({
+      name: item.name,
+      quantity,
+      timestamp: Date.now(),
+    });
   };
 
   const updateCartQuantity = (cartItemId: string, delta: number) => {
@@ -2126,6 +2134,7 @@ export const RestaurantProvider: React.FC<{ children: ReactNode }> = ({ children
         clearCart,
         isCartDrawerOpen,
         setIsCartDrawerOpen,
+        lastAddedItem,
         orders,
         activeCustomerOrderId,
         setActiveCustomerOrderId,
