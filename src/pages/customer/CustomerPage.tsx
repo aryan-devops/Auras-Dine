@@ -203,14 +203,14 @@ export const CustomerPage: React.FC = () => {
               {currentTenant.isOpen ? 'Open Now' : 'Closed'}
             </span>
 
-            {/* Live Order Tracking Button in Navbar */}
+            {/* Live Order Tracking Button in Navbar (Hidden on phone view to keep mobile navbar clean) */}
             {hasActivePlacedOrder && (
               <button
                 type="button"
                 onClick={() => setIsTrackingModalOpen(true)}
                 title="Track Active Order Live"
                 aria-label="Track Active Order Live"
-                className="relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-[#07543a] to-[#04281c] text-white text-xs font-bold shadow-xs hover:shadow-md hover:from-[#053d2a] hover:to-[#032016] active:scale-95 transition-all shrink-0 cursor-pointer border border-[#0a7350]/60 ring-2 ring-emerald-400/40"
+                className="hidden sm:flex relative items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-[#07543a] to-[#04281c] text-white text-xs font-bold shadow-xs hover:shadow-md hover:from-[#053d2a] hover:to-[#032016] active:scale-95 transition-all shrink-0 cursor-pointer border border-[#0a7350]/60 ring-2 ring-emerald-400/40"
               >
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -218,7 +218,7 @@ export const CustomerPage: React.FC = () => {
                 </span>
                 <ChefHat className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300" />
                 <span className="font-semibold tracking-tight text-[11px] sm:text-xs">Track Order</span>
-                <span className="text-[10px] font-mono bg-white/15 text-emerald-200 px-1.5 py-0.2 rounded-full border border-white/10 hidden sm:inline-block">
+                <span className="text-[10px] font-mono bg-white/15 text-emerald-200 px-1.5 py-0.2 rounded-full border border-white/10 hidden md:inline-block">
                   #{latestOrder?.orderNumber}
                 </span>
               </button>
