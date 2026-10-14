@@ -41,12 +41,14 @@ import {
   Lock,
   Shuffle,
   Upload,
+  SlidersHorizontal,
 } from 'lucide-react';
-import { FoodType, MenuItem, MenuCategory, StaffMember, StaffRole } from '../../types';
+import { FoodType, MenuItem, MenuCategory, StaffMember, StaffRole, MenuItemVariant, MenuItemAddon } from '../../types';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { AuraDineLogo } from "../../components/common/AuraDineLogo";
 import { TableQrCard } from '../../components/qr/TableQrCard';
 import { FoodImageStudioModal } from '../../components/admin/FoodImageStudioModal';
+import { DishCustomizationModal } from '../../components/admin/DishCustomizationModal';
 
 export const AdminPage: React.FC = () => {
   const {
@@ -203,6 +205,7 @@ export const AdminPage: React.FC = () => {
   // Filter & Search in menu
   const [menuFilter, setMenuFilter] = useState<'all' | 'available' | 'sold_out' | 'specials' | 'must_try' | 'recommended'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [menuDietaryFilter, setMenuDietaryFilter] = useState<'all' | FoodType>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Bulk Selection
@@ -230,6 +233,12 @@ export const AdminPage: React.FC = () => {
     new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10)
   );
   const [formIsBestseller, setFormIsBestseller] = useState(false);
+
+  // Customization State (Variants / Sizes & Add-ons)
+  const [formVariants, setFormVariants] = useState<MenuItemVariant[]>([]);
+  const [formAddons, setFormAddons] = useState<MenuItemAddon[]>([]);
+  const [showCustomizationInForm, setShowCustomizationInForm] = useState(false);
+  const [customizingDish, setCustomizingDish] = useState<MenuItem | null>(null);
 
   // Inline Category Creator Modal/Popover
   const [isInlineCategoryOpen, setIsInlineCategoryOpen] = useState(false);
@@ -261,6 +270,7 @@ export const AdminPage: React.FC = () => {
   // Filtered menu items
   const filteredMenuItems = menuItems.filter((item) => {
     if (categoryFilter !== 'all' && item.categoryId !== categoryFilter) return false;
+    if (menuDietaryFilter !== 'all' && item.foodType !== menuDietaryFilter) return false;
     if (menuFilter === 'available' && !item.isAvailable) return false;
     if (menuFilter === 'sold_out' && item.isAvailable) return false;
     if (menuFilter === 'specials' && !item.isTodaySpecial) return false;
@@ -268,7 +278,11 @@ export const AdminPage: React.FC = () => {
     if (menuFilter === 'recommended' && !item.isRecommended) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      return item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q);
+      return (
+        item.name.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        (item.allergenInformation && item.allergenInformation.toLowerCase().includes(q))
+      );
     }
     return true;
   });
@@ -282,6 +296,22 @@ export const AdminPage: React.FC = () => {
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) return;
+
+    const cleanVariants = formVariants
+      .filter((v) => v.name.trim().length > 0)
+      .map((v) => ({
+        id: v.id || `v-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        name: v.name.trim(),
+        priceDelta: Number(v.priceDelta) || 0,
+      }));
+
+    const cleanAddons = formAddons
+      .filter((a) => a.name.trim().length > 0)
+      .map((a) => ({
+        id: a.id || `a-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        name: a.name.trim(),
+        price: Math.max(0, Number(a.price) || 0),
+      }));
 
     if (editingItemId) {
       updateMenuItem(editingItemId, {
@@ -300,6 +330,8 @@ export const AdminPage: React.FC = () => {
         specialStartDate: formIsTodaySpecial ? formSpecialStartDate : undefined,
         specialEndDate: formIsTodaySpecial ? formSpecialEndDate : undefined,
         isBestseller: formIsBestseller,
+        variants: cleanVariants.length > 0 ? cleanVariants : undefined,
+        addons: cleanAddons.length > 0 ? cleanAddons : undefined,
       });
       setEditingItemId(null);
     } else {
@@ -322,6 +354,8 @@ export const AdminPage: React.FC = () => {
         prepTimeMinutes: parseInt(formPrepTime) || 15,
         calories: parseInt(formCalories) || 400,
         allergenInformation: formAllergens.trim() || undefined,
+        variants: cleanVariants.length > 0 ? cleanVariants : undefined,
+        addons: cleanAddons.length > 0 ? cleanAddons : undefined,
       });
     }
 
@@ -329,6 +363,9 @@ export const AdminPage: React.FC = () => {
     setFormName('');
     setFormDescription('');
     setFormImagePath('');
+    setFormVariants([]);
+    setFormAddons([]);
+    setShowCustomizationInForm(false);
     setIsAddingItem(false);
   };
 
@@ -349,7 +386,20 @@ export const AdminPage: React.FC = () => {
     setFormSpecialStartDate(item.specialStartDate || new Date().toISOString().slice(0, 10));
     setFormSpecialEndDate(item.specialEndDate || new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
     setFormIsBestseller(Boolean(item.isBestseller));
+    const itemVars = item.variants ? JSON.parse(JSON.stringify(item.variants)) : [];
+    const itemAdds = item.addons ? JSON.parse(JSON.stringify(item.addons)) : [];
+    setFormVariants(itemVars);
+    setFormAddons(itemAdds);
+    setShowCustomizationInForm(itemVars.length > 0 || itemAdds.length > 0);
     setIsAddingItem(true);
+  };
+
+  const handleQuickSaveCustomization = (
+    dishId: string,
+    variants: MenuItemVariant[] | undefined,
+    addons: MenuItemAddon[] | undefined
+  ) => {
+    updateMenuItem(dishId, { variants, addons });
   };
 
   const handleInlineAddCategory = (e: React.FormEvent) => {
@@ -484,10 +534,10 @@ export const AdminPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-100">
               <button
                 onClick={() => setCurrentRole('customer')}
-                className="py-2 px-3.5 rounded-xl bg-[#FAF8F5] hover:bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="flex-1 sm:flex-initial py-2 px-3.5 rounded-xl bg-[#FAF8F5] hover:bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>View Customer Menu</span>
@@ -496,94 +546,234 @@ export const AdminPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex items-center justify-between bg-white p-1 rounded-2xl border border-neutral-200/80 shadow-2xs">
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setActiveTab('menu')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
-              activeTab === 'menu'
-                ? 'bg-[#07543a] text-white'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <UtensilsCrossed className="w-3.5 h-3.5" />
-            <span>Menu Dishes</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('categories')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
-              activeTab === 'categories'
-                ? 'bg-[#07543a] text-white'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <FolderPlus className="w-3.5 h-3.5" />
-            <span>Categories</span>
-            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums font-bold ${
-              activeTab === 'categories' ? 'bg-white/20 text-white' : 'bg-[#EAE8D5]/50 text-[#07543a]'
-            }`}>
-              {scopedCategories.length}
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab('tables')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-              activeTab === 'tables'
-                ? 'bg-[#07543a] text-white'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <QrCode className="w-3.5 h-3.5" />
-            <span>Tables & QR Codes</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-              activeTab === 'analytics'
-                ? 'bg-[#07543a] text-white'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>Sales & Analytics</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-              activeTab === 'settings'
-                ? 'bg-[#07543a] text-white'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span>Settings</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('staff')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-              activeTab === 'staff'
-                ? 'bg-[#07543a] text-white'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Staff Management</span>
-          </button>
+          {/* Phone-Friendly Mobile Navigation Grid (All 6 sections visible without horizontal scrolling!) */}
+          <div className="md:hidden bg-white p-2.5 rounded-2xl border border-neutral-200/80 shadow-2xs space-y-2">
+            <div className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 px-1 flex items-center justify-between">
+              <span>Restaurant Admin Hub</span>
+              <span className="text-[#07543a] font-bold">
+                {activeTab === 'menu' && 'Menu Dishes'}
+                {activeTab === 'categories' && 'Categories'}
+                {activeTab === 'tables' && 'Tables & QR'}
+                {activeTab === 'analytics' && 'Analytics'}
+                {activeTab === 'staff' && 'Staff Management'}
+                {activeTab === 'settings' && 'Settings'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                onClick={() => setActiveTab('menu')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                  activeTab === 'menu'
+                    ? 'bg-[#07543a] text-white shadow-xs'
+                    : 'bg-[#FAF8F5] text-neutral-700 hover:bg-neutral-100 border border-neutral-200/70'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <UtensilsCrossed className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Menu Dishes</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                  activeTab === 'menu' ? 'bg-white/20 text-white' : 'bg-neutral-200/70 text-neutral-800'
+                }`}>
+                  {menuItems.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('categories')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                  activeTab === 'categories'
+                    ? 'bg-[#07543a] text-white shadow-xs'
+                    : 'bg-[#FAF8F5] text-neutral-700 hover:bg-neutral-100 border border-neutral-200/70'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <FolderPlus className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Categories</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                  activeTab === 'categories' ? 'bg-white/20 text-white' : 'bg-neutral-200/70 text-neutral-800'
+                }`}>
+                  {scopedCategories.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('tables')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                  activeTab === 'tables'
+                    ? 'bg-[#07543a] text-white shadow-xs'
+                    : 'bg-[#FAF8F5] text-neutral-700 hover:bg-neutral-100 border border-neutral-200/70'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <QrCode className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Tables & QR</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                  activeTab === 'tables' ? 'bg-white/20 text-white' : 'bg-neutral-200/70 text-neutral-800'
+                }`}>
+                  {tables.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                  activeTab === 'analytics'
+                    ? 'bg-[#07543a] text-white shadow-xs'
+                    : 'bg-[#FAF8F5] text-neutral-700 hover:bg-neutral-100 border border-neutral-200/70'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <TrendingUp className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Analytics</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                  activeTab === 'analytics' ? 'bg-white/20 text-white' : 'bg-neutral-200/70 text-neutral-800'
+                }`}>
+                  {tenantOrders.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('staff')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                  activeTab === 'staff'
+                    ? 'bg-[#07543a] text-white shadow-xs'
+                    : 'bg-[#FAF8F5] text-neutral-700 hover:bg-neutral-100 border border-neutral-200/70'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Staff Mgmt</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                  activeTab === 'staff' ? 'bg-white/20 text-white' : 'bg-neutral-200/70 text-neutral-800'
+                }`}>
+                  {scopedStaffMembers.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                  activeTab === 'settings'
+                    ? 'bg-[#07543a] text-white shadow-xs'
+                    : 'bg-[#FAF8F5] text-neutral-700 hover:bg-neutral-100 border border-neutral-200/70'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Settings className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Settings</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                  activeTab === 'settings' ? 'bg-white/20 text-white' : 'bg-neutral-200/70 text-neutral-800'
+                }`}>
+                  ⚙
+                </span>
+              </button>
+            </div>
           </div>
-          <LogoutButton />
-        </div>
+
+          {/* Desktop Navigation Tabs */}
+          <div className="hidden md:flex items-center justify-between bg-white p-1 rounded-2xl border border-neutral-200/80 shadow-2xs">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+              <button
+                onClick={() => setActiveTab('menu')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
+                  activeTab === 'menu' ? 'bg-[#07543a] text-white' : 'text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <UtensilsCrossed className="w-3.5 h-3.5" />
+                <span>Menu Dishes</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums font-bold ${
+                  activeTab === 'menu' ? 'bg-white/20 text-white' : 'bg-[#EAE8D5]/50 text-[#07543a]'
+                }`}>
+                  {menuItems.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('categories')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
+                  activeTab === 'categories' ? 'bg-[#07543a] text-white' : 'text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <FolderPlus className="w-3.5 h-3.5" />
+                <span>Categories</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums font-bold ${
+                  activeTab === 'categories' ? 'bg-white/20 text-white' : 'bg-[#EAE8D5]/50 text-[#07543a]'
+                }`}>
+                  {scopedCategories.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('tables')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeTab === 'tables' ? 'bg-[#07543a] text-white' : 'text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <QrCode className="w-3.5 h-3.5" />
+                <span>Tables & QR Codes</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums font-bold ${
+                  activeTab === 'tables' ? 'bg-white/20 text-white' : 'bg-[#EAE8D5]/50 text-[#07543a]'
+                }`}>
+                  {tables.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeTab === 'analytics' ? 'bg-[#07543a] text-white' : 'text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>Sales & Analytics</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('staff')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeTab === 'staff' ? 'bg-[#07543a] text-white' : 'text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>Staff Management</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums font-bold ${
+                  activeTab === 'staff' ? 'bg-white/20 text-white' : 'bg-[#EAE8D5]/50 text-[#07543a]'
+                }`}>
+                  {scopedStaffMembers.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeTab === 'settings' ? 'bg-[#07543a] text-white' : 'text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>Settings</span>
+              </button>
+            </div>
+          </div>
 
         {/* TAB 1: MENU MANAGEMENT */}
         {activeTab === 'menu' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+          <div className="space-y-4 sm:space-y-6">
+            {/* Top Bar with Title, Subtitle, and Create Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-[#151815] glinster-font">
-                  Dishes & Beverage Catalogue ({menuItems.length})
-                </h2>
-                <p className="text-xs text-neutral-500">
-                  Classify dietary profiles, toggle live availability, and configure prices
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg sm:text-xl font-bold text-[#151815] glinster-font">
+                    Dishes & Beverage Catalogue ({filteredMenuItems.length})
+                  </h2>
+                  {filteredMenuItems.length !== menuItems.length && (
+                    <span className="text-[11px] font-semibold text-neutral-400">
+                      (filtered from {menuItems.length})
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Classify dietary profiles, toggle live availability, configure prices & portion customizations
                 </p>
               </div>
 
@@ -594,9 +784,13 @@ export const AdminPage: React.FC = () => {
                     setEditingItemId(null);
                     setFormName('');
                     setFormDescription('');
+                    setFormImagePath('');
+                    setFormVariants([]);
+                    setFormAddons([]);
+                    setShowCustomizationInForm(false);
                     setIsAddingItem(true);
                   }}
-                  className="py-2.5 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  className="py-2.5 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer w-full sm:w-auto"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Dish</span>
@@ -608,22 +802,23 @@ export const AdminPage: React.FC = () => {
             {isAddingItem && (
               <form
                 onSubmit={handleSaveItem}
-                className="p-5 bg-white rounded-2xl border border-[#07543a]/20 shadow-sm space-y-4"
+                className="p-4 sm:p-5 bg-white rounded-2xl border border-[#07543a]/25 shadow-sm space-y-4"
               >
                 <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                  <h3 className="text-base font-bold text-[#151815] glinster-font">
-                    {editingItemId ? 'Edit Menu Item' : 'New Dish Configuration'}
+                  <h3 className="text-base font-bold text-[#151815] glinster-font flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#07543a]" />
+                    <span>{editingItemId ? 'Edit Menu Item' : 'New Dish Configuration'}</span>
                   </h3>
                   <button
                     type="button"
                     onClick={() => setIsAddingItem(false)}
-                    className="p-1 rounded-full text-neutral-400 hover:text-neutral-700"
+                    className="p-1.5 rounded-full text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4 text-xs">
                   <div>
                     <label className="block font-bold text-neutral-700 mb-1">
                       Dish Name *
@@ -803,6 +998,229 @@ export const AdminPage: React.FC = () => {
                   />
                 </div>
 
+                {/* Interactive Customizations (Variants & Addons) in Form */}
+                <div className="p-3.5 bg-[#FAF8F5] rounded-2xl border border-neutral-200/90 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#07543a]" />
+                      <span className="font-bold text-neutral-800 text-xs">
+                        Dish Customization & Extras (Portion Sizes & Add-ons)
+                      </span>
+                      {(formVariants.length > 0 || formAddons.length > 0) && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#EAE8D5] text-[#07543a] font-bold">
+                          {formVariants.length} Sizes · {formAddons.length} Extras
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomizationInForm(!showCustomizationInForm)}
+                      className="text-xs font-bold text-[#07543a] hover:underline cursor-pointer"
+                    >
+                      {showCustomizationInForm ? 'Hide Options' : 'Configure Sizes & Add-ons'}
+                    </button>
+                  </div>
+
+                  {showCustomizationInForm && (
+                    <div className="space-y-4 pt-2 border-t border-neutral-200/70">
+                      {/* 1. Portion Sizes / Variants */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-xs font-bold text-neutral-700">
+                              1. Portion Sizes / Serving Variants:
+                            </span>
+                            <p className="text-[11px] text-neutral-400">
+                              e.g. Regular Portion (+{currentTenant.currencySymbol}0.00), Large / Sharing Platter (+{currentTenant.currencySymbol}5.50)
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newId = `v-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+                              setFormVariants((prev) => [
+                                ...prev,
+                                { id: newId, name: prev.length === 0 ? 'Regular' : '', priceDelta: 0 },
+                              ]);
+                            }}
+                            className="text-xs font-bold text-[#07543a] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Add Size</span>
+                          </button>
+                        </div>
+
+                        {/* Quick presets */}
+                        <div className="flex flex-wrap gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormVariants([
+                                { id: `v-${Date.now()}-1`, name: 'Regular Portion', priceDelta: 0 },
+                                { id: `v-${Date.now()}-2`, name: 'Large / Sharing', priceDelta: 5.5 },
+                              ])
+                            }
+                            className="px-2 py-0.5 text-[10px] font-semibold bg-white hover:bg-neutral-100 text-[#07543a] rounded-lg border border-[#07543a]/20 cursor-pointer"
+                          >
+                            + Preset: Regular / Large
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormVariants([
+                                { id: `v-${Date.now()}-1`, name: 'Half Plate', priceDelta: 0 },
+                                { id: `v-${Date.now()}-2`, name: 'Full Plate', priceDelta: 4.5 },
+                              ])
+                            }
+                            className="px-2 py-0.5 text-[10px] font-semibold bg-white hover:bg-neutral-100 text-[#07543a] rounded-lg border border-[#07543a]/20 cursor-pointer"
+                          >
+                            + Preset: Half / Full
+                          </button>
+                        </div>
+
+                        {formVariants.map((v, idx) => (
+                          <div key={v.id || idx} className="flex items-center gap-2 bg-white p-2 rounded-xl border border-neutral-200">
+                            <input
+                              type="text"
+                              placeholder="Size Name (e.g. Regular)"
+                              value={v.name}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setFormVariants((prev) =>
+                                  prev.map((item, i) => (i === idx ? { ...item, name: val } : item))
+                                );
+                              }}
+                              className="flex-1 px-2.5 py-1 text-xs rounded-lg border border-neutral-200 bg-[#FAF8F5]"
+                            />
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-[11px] text-neutral-400">+{currentTenant.currencySymbol}</span>
+                              <input
+                                type="number"
+                                step="0.50"
+                                placeholder="0.00"
+                                value={v.priceDelta}
+                                onChange={(e) => {
+                                  const val = parseFloat(e.target.value) || 0;
+                                  setFormVariants((prev) =>
+                                    prev.map((item, i) => (i === idx ? { ...item, priceDelta: val } : item))
+                                  );
+                                }}
+                                className="w-20 px-2 py-1 text-xs rounded-lg border border-neutral-200 bg-[#FAF8F5] font-mono"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setFormVariants((prev) => prev.filter((_, i) => i !== idx))}
+                              className="p-1 text-neutral-400 hover:text-red-600 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* 2. Add-on Extras */}
+                      <div className="space-y-2 pt-2 border-t border-neutral-200/50">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-xs font-bold text-neutral-700">
+                              2. Add-on Extras & Toppings:
+                            </span>
+                            <p className="text-[11px] text-neutral-400">
+                              e.g. Extra Truffle Aioli (+{currentTenant.currencySymbol}1.50), Garlic Butter Naan (+{currentTenant.currencySymbol}2.50)
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newId = `a-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+                              setFormAddons((prev) => [...prev, { id: newId, name: '', price: 1.5 }]);
+                            }}
+                            className="text-xs font-bold text-[#07543a] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Add Extra</span>
+                          </button>
+                        </div>
+
+                        {/* Quick presets */}
+                        <div className="flex flex-wrap gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newId = `a-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+                              setFormAddons((prev) => [...prev, { id: newId, name: 'Extra Dip / Sauce', price: 1.5 }]);
+                            }}
+                            className="px-2 py-0.5 text-[10px] font-semibold bg-white hover:bg-neutral-100 text-[#07543a] rounded-lg border border-[#07543a]/20 cursor-pointer"
+                          >
+                            + Extra Dip (+{currentTenant.currencySymbol}1.50)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newId = `a-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+                              setFormAddons((prev) => [...prev, { id: newId, name: 'Extra Melted Cheese', price: 2.0 }]);
+                            }}
+                            className="px-2 py-0.5 text-[10px] font-semibold bg-white hover:bg-neutral-100 text-[#07543a] rounded-lg border border-[#07543a]/20 cursor-pointer"
+                          >
+                            + Extra Cheese (+{currentTenant.currencySymbol}2.00)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newId = `a-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+                              setFormAddons((prev) => [...prev, { id: newId, name: 'Garlic Butter Naan', price: 2.5 }]);
+                            }}
+                            className="px-2 py-0.5 text-[10px] font-semibold bg-white hover:bg-neutral-100 text-[#07543a] rounded-lg border border-[#07543a]/20 cursor-pointer"
+                          >
+                            + Garlic Naan (+{currentTenant.currencySymbol}2.50)
+                          </button>
+                        </div>
+
+                        {formAddons.map((addon, idx) => (
+                          <div key={addon.id || idx} className="flex items-center gap-2 bg-white p-2 rounded-xl border border-neutral-200">
+                            <input
+                              type="text"
+                              placeholder="Add-on Name (e.g. Extra Truffle Aioli)"
+                              value={addon.name}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setFormAddons((prev) =>
+                                  prev.map((item, i) => (i === idx ? { ...item, name: val } : item))
+                                );
+                              }}
+                              className="flex-1 px-2.5 py-1 text-xs rounded-lg border border-neutral-200 bg-[#FAF8F5]"
+                            />
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-[11px] text-neutral-400">{currentTenant.currencySymbol}</span>
+                              <input
+                                type="number"
+                                step="0.25"
+                                placeholder="1.50"
+                                value={addon.price}
+                                onChange={(e) => {
+                                  const val = parseFloat(e.target.value) || 0;
+                                  setFormAddons((prev) =>
+                                    prev.map((item, i) => (i === idx ? { ...item, price: val } : item))
+                                  );
+                                }}
+                                className="w-20 px-2 py-1 text-xs rounded-lg border border-neutral-200 bg-[#FAF8F5] font-mono"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setFormAddons((prev) => prev.filter((_, i) => i !== idx))}
+                              className="p-1 text-neutral-400 hover:text-red-600 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex items-center gap-6 pt-2 text-xs">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -829,13 +1247,13 @@ export const AdminPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsAddingItem(false)}
-                    className="py-2 px-4 rounded-xl border border-neutral-200 text-neutral-600 text-xs font-semibold hover:bg-neutral-50"
+                    className="py-2 px-4 rounded-xl border border-neutral-200 text-neutral-600 text-xs font-semibold hover:bg-neutral-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="py-2 px-5 rounded-xl bg-[#07543a] text-white text-xs font-bold hover:bg-[#053d2a]"
+                    className="py-2 px-5 rounded-xl bg-[#07543a] text-white text-xs font-bold hover:bg-[#053d2a] cursor-pointer"
                   >
                     {editingItemId ? 'Update Dish' : 'Publish to Digital Menu'}
                   </button>
@@ -843,8 +1261,328 @@ export const AdminPage: React.FC = () => {
               </form>
             )}
 
-            {/* Menu Items Table */}
-            <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-2xs overflow-hidden">
+            {/* Menu Search & Filter Controls */}
+            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200/80 shadow-2xs space-y-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search dishes by name, ingredients, or allergens..."
+                  className="w-full pl-9 pr-9 py-2 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#07543a]"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 p-1 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filters bar */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                {/* Category select */}
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="px-2.5 py-1.5 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 text-neutral-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#07543a] cursor-pointer"
+                >
+                  <option value="all">All Categories ({menuItems.length})</option>
+                  {categories.map((c) => {
+                    const count = menuItems.filter((i) => i.categoryId === c.id).length;
+                    return (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+
+                {/* Dietary select */}
+                <select
+                  value={menuDietaryFilter}
+                  onChange={(e) => setMenuDietaryFilter(e.target.value as 'all' | FoodType)}
+                  className="px-2.5 py-1.5 text-xs rounded-xl bg-[#FAF8F5] border border-neutral-200 text-neutral-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#07543a] cursor-pointer"
+                >
+                  <option value="all">All Dietary Types</option>
+                  <option value="veg">● Vegetarian Only</option>
+                  <option value="vegan">🌱 100% Vegan Only</option>
+                  <option value="non_veg">▲ Non-Veg Only</option>
+                  <option value="egg">🥚 Eggitarian Only</option>
+                </select>
+
+                {/* Availability Filter */}
+                <div className="flex items-center bg-[#FAF8F5] p-1 rounded-xl border border-neutral-200 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setMenuFilter('all')}
+                    className={`px-2 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      menuFilter === 'all' ? 'bg-white shadow-2xs text-[#151815] font-bold' : 'text-neutral-500'
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMenuFilter('available')}
+                    className={`px-2 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      menuFilter === 'available' ? 'bg-white shadow-2xs text-emerald-700 font-bold' : 'text-neutral-500'
+                    }`}
+                  >
+                    In Stock
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMenuFilter('sold_out')}
+                    className={`px-2 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      menuFilter === 'sold_out' ? 'bg-white shadow-2xs text-red-700 font-bold' : 'text-neutral-500'
+                    }`}
+                  >
+                    Sold Out
+                  </button>
+                </div>
+
+                {/* Reset Filters button */}
+                {(searchQuery || categoryFilter !== 'all' || menuDietaryFilter !== 'all' || menuFilter !== 'all') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setMenuDietaryFilter('all');
+                      setMenuFilter('all');
+                    }}
+                    className="px-2.5 py-1 text-xs text-[#07543a] bg-emerald-50 hover:bg-emerald-100 rounded-xl font-bold transition-colors cursor-pointer"
+                  >
+                    Reset Filters
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Empty state when no dishes match */}
+            {filteredMenuItems.length === 0 && (
+              <div className="bg-white rounded-2xl border border-neutral-200/80 p-8 sm:p-12 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-400 mx-auto flex items-center justify-center mb-3">
+                  <UtensilsCrossed className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-bold text-[#151815]">No dishes found</h3>
+                <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
+                  No menu items matched your active search or filters. Try adjusting your search query or reset filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setCategoryFilter('all');
+                    setMenuDietaryFilter('all');
+                    setMenuFilter('all');
+                  }}
+                  className="mt-4 px-4 py-2 text-xs font-semibold text-[#07543a] bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+
+            {/* PHONE VIEW: MOBILE CARDS LIST (Clean, thumb-friendly, no sideways scroll) */}
+            <div className="block md:hidden space-y-3">
+              {filteredMenuItems.map((item) => {
+                const category = categories.find((c) => c.id === item.categoryId);
+                const hasCustomizations =
+                  (item.variants && item.variants.length > 0) ||
+                  (item.addons && item.addons.length > 0);
+
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-2xl border border-neutral-200/90 p-3.5 shadow-2xs space-y-3 transition-all"
+                  >
+                    {/* Top Row: Thumbnail + Title + Category + Price */}
+                    <div className="flex items-start gap-3">
+                      <div
+                        onClick={() => {
+                          setSelectedDishForImage(item);
+                          setFormImagePath(item.imagePath || '');
+                          setIsImageStudioOpen(true);
+                        }}
+                        className="relative w-16 h-16 rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200 shrink-0 cursor-pointer shadow-2xs group/mthumb"
+                        title="Tap to change or capture photo"
+                      >
+                        {item.imagePath ? (
+                          <img
+                            src={item.imagePath}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-neutral-400 bg-neutral-50">
+                            <Camera className="w-5 h-5" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/mthumb:opacity-100 transition-opacity text-white">
+                          <Camera className="w-4 h-4" />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1.5">
+                          <div className="min-w-0">
+                            {/* Dietary Badge & Category Pill */}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span
+                                className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                                  item.foodType === 'veg'
+                                    ? 'bg-emerald-50 text-[#07543a] border border-emerald-200'
+                                    : item.foodType === 'vegan'
+                                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                                    : item.foodType === 'egg'
+                                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                    : 'bg-red-50 text-red-700 border border-red-200'
+                                }`}
+                              >
+                                <span>
+                                  {item.foodType === 'veg'
+                                    ? '●'
+                                    : item.foodType === 'vegan'
+                                    ? '🌱'
+                                    : item.foodType === 'egg'
+                                    ? '🥚'
+                                    : '▲'}
+                                </span>
+                                <span className="uppercase text-[9px]">{item.foodType}</span>
+                              </span>
+                              <span className="text-[10px] font-medium text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-md truncate max-w-[120px]">
+                                {category?.name || 'Mains'}
+                              </span>
+                            </div>
+                            <h4 className="font-bold text-sm text-[#151815] mt-1 line-clamp-1">
+                              {item.name}
+                            </h4>
+                          </div>
+
+                          <div className="font-mono font-bold text-sm text-[#07543a] shrink-0">
+                            {currentTenant.currencySymbol}{item.basePrice.toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    {item.description && (
+                      <p className="text-xs text-neutral-500 line-clamp-2 leading-relaxed">
+                        {item.description}
+                      </p>
+                    )}
+
+                    {/* Badges & Customization Indicator */}
+                    <div className="flex items-center justify-between gap-1.5 flex-wrap pt-0.5 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleItemFlag(item.id, 'isRecommended')}
+                          className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-colors ${
+                            item.isRecommended
+                              ? 'bg-[#07543a] text-white shadow-2xs'
+                              : 'bg-neutral-100 text-neutral-500 hover:text-neutral-800'
+                          }`}
+                        >
+                          👨‍🍳 Chef
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggleItemFlag(item.id, 'isMustTry')}
+                          className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-colors ${
+                            item.isMustTry
+                              ? 'bg-[#0a7350] text-white shadow-2xs'
+                              : 'bg-neutral-100 text-neutral-500 hover:text-neutral-800'
+                          }`}
+                        >
+                          ⭐ Must-Try
+                        </button>
+                      </div>
+
+                      {/* Customize dish button / badge */}
+                      <button
+                        type="button"
+                        onClick={() => setCustomizingDish(item)}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors ${
+                          hasCustomizations
+                            ? 'bg-[#EAE8D5]/70 text-[#07543a] border border-[#07543a]/25 hover:bg-[#EAE8D5]'
+                            : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                        }`}
+                      >
+                        <Sparkles className="w-3 h-3 text-[#0a7350]" />
+                        <span>
+                          {hasCustomizations
+                            ? `${item.variants?.length || 0} Sizes · ${item.addons?.length || 0} Extras`
+                            : '+ Add Customization'}
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Action Bar: In Stock Toggle + Edit / Duplicate / Delete */}
+                    <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleItemAvailability(item.id)}
+                        className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                          item.isAvailable
+                            ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'bg-red-50 hover:bg-red-100 text-red-700 border border-red-200'
+                        }`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            item.isAvailable ? 'bg-emerald-500' : 'bg-red-500'
+                          }`}
+                        />
+                        <span>{item.isAvailable ? 'In Stock (Live)' : 'Sold Out'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => startEditItem(item)}
+                        className="py-2 px-3 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-neutral-700 font-semibold text-xs flex items-center gap-1 cursor-pointer"
+                        title="Edit Dish"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDuplicate(item.id)}
+                        className="p-2 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-neutral-600 cursor-pointer"
+                        title="Duplicate Dish"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm(`Delete "${item.name}"?`)) {
+                            deleteMenuItem(item.id);
+                          }
+                        }}
+                        className="p-2 rounded-xl border border-neutral-200 hover:bg-red-50 text-neutral-400 hover:text-red-600 cursor-pointer"
+                        title="Delete Dish"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* DESKTOP VIEW: MENU ITEMS TABLE */}
+            <div className="hidden md:block bg-white rounded-2xl border border-neutral-200/80 shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#FAF8F5] border-b border-neutral-200 text-neutral-600 font-bold uppercase tracking-wider text-[10px]">
@@ -855,13 +1593,17 @@ export const AdminPage: React.FC = () => {
                       <th className="py-3 px-4">Dietary Type</th>
                       <th className="py-3 px-4">Price</th>
                       <th className="py-3 px-4">Badges</th>
+                      <th className="py-3 px-4">Customizations</th>
                       <th className="py-3 px-4">In Stock</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-100">
-                    {menuItems.map((item) => {
+                    {filteredMenuItems.map((item) => {
                       const category = categories.find((c) => c.id === item.categoryId);
+                      const hasCustomizations =
+                        (item.variants && item.variants.length > 0) ||
+                        (item.addons && item.addons.length > 0);
 
                       return (
                         <tr key={item.id} className="hover:bg-neutral-50/70 transition-colors">
@@ -948,6 +1690,25 @@ export const AdminPage: React.FC = () => {
                           <td className="py-3 px-4">
                             <button
                               type="button"
+                              onClick={() => setCustomizingDish(item)}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 transition-colors cursor-pointer ${
+                                hasCustomizations
+                                  ? 'bg-[#EAE8D5]/70 text-[#07543a] border border-[#07543a]/25 hover:bg-[#EAE8D5]'
+                                  : 'bg-neutral-100 text-neutral-500 hover:text-neutral-800'
+                              }`}
+                              title="Configure sizes and add-ons for this dish"
+                            >
+                              <Sparkles className="w-3 h-3 text-[#0a7350]" />
+                              <span>
+                                {hasCustomizations
+                                  ? `${item.variants?.length || 0} Sizes · ${item.addons?.length || 0} Extras`
+                                  : '+ Add Options'}
+                              </span>
+                            </button>
+                          </td>
+                          <td className="py-3 px-4">
+                            <button
+                              type="button"
                               onClick={() => toggleItemAvailability(item.id)}
                               className={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-colors ${
                                 item.isAvailable
@@ -963,15 +1724,27 @@ export const AdminPage: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => startEditItem(item)}
-                                className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-500 hover:text-neutral-900 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
                                 title="Edit item"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 type="button"
-                                onClick={() => deleteMenuItem(item.id)}
-                                className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors"
+                                onClick={() => handleDuplicate(item.id)}
+                                className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
+                                title="Duplicate item"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Delete "${item.name}"?`)) {
+                                    deleteMenuItem(item.id);
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors cursor-pointer"
                                 title="Delete item"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1004,7 +1777,7 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenAddCategory}
-                className="py-2.5 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer self-start sm:self-auto"
+                className="py-2.5 px-4 rounded-xl bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer w-full sm:w-auto"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Food Category</span>
@@ -1134,30 +1907,30 @@ export const AdminPage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setCurrentRole('qr_stand')}
-                  className="py-2 px-3.5 rounded-xl bg-[#0a7350] hover:bg-[#07543a] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  className="py-2.5 px-3.5 rounded-xl bg-[#0a7350] hover:bg-[#07543a] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer w-full sm:w-auto"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Launch Table Stand Studio</span>
                 </button>
 
                 {/* Add Table Mini Form */}
-                <form onSubmit={handleAddTableSubmit} className="flex items-center gap-2">
+                <form onSubmit={handleAddTableSubmit} className="flex items-center gap-2 w-full sm:w-auto">
                   <input
                     type="text"
                     required
                     placeholder="Table Name (e.g. Patio 3)"
                     value={newTableNumber}
                     onChange={(e) => setNewTableNumber(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-xl border border-neutral-200 bg-white"
+                    className="flex-1 sm:w-44 px-3 py-2 text-xs rounded-xl border border-neutral-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                   />
                   <select
                     value={newTableCapacity}
                     onChange={(e) => setNewTableCapacity(e.target.value)}
-                    className="px-2.5 py-2 text-xs rounded-xl border border-neutral-200 bg-white"
+                    className="px-2.5 py-2 text-xs rounded-xl border border-neutral-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#07543a]"
                   >
                     <option value="2">2 Seats</option>
                     <option value="4">4 Seats</option>
@@ -1166,9 +1939,9 @@ export const AdminPage: React.FC = () => {
                   </select>
                   <button
                     type="submit"
-                    className="py-2 px-3.5 rounded-xl bg-[#07543a] text-white text-xs font-bold hover:bg-[#053d2a] shrink-0"
+                    className="py-2 px-3.5 rounded-xl bg-[#07543a] text-white text-xs font-bold hover:bg-[#053d2a] shrink-0 cursor-pointer"
                   >
-                    + Add Table
+                    + Add
                   </button>
                 </form>
               </div>
@@ -1302,7 +2075,7 @@ export const AdminPage: React.FC = () => {
 
         {/* TAB 4: SETTINGS */}
         {activeTab === 'settings' && (
-          <div className="max-w-2xl bg-white rounded-2xl border border-neutral-200/80 p-6 shadow-2xs space-y-5">
+          <div className="max-w-2xl bg-white rounded-2xl border border-neutral-200/80 p-4 sm:p-6 shadow-2xs space-y-5">
             <div>
               <h2 className="text-lg font-bold text-[#151815] glinster-font">
                 Restaurant Settings & Tax Rules
@@ -1501,7 +2274,7 @@ export const AdminPage: React.FC = () => {
                   setShowNewStaffPassword(false);
                   setIsAddStaffOpen(true);
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#07543a] hover:bg-[#053d2a] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Staff Member</span>
@@ -2196,6 +2969,15 @@ export const AdminPage: React.FC = () => {
               setFormImagePath(newImg);
             }
           }}
+        />
+
+        {/* DISH CUSTOMIZATION MODAL */}
+        <DishCustomizationModal
+          isOpen={Boolean(customizingDish)}
+          dish={customizingDish}
+          currencySymbol={currentTenant.currencySymbol}
+          onClose={() => setCustomizingDish(null)}
+          onSave={handleQuickSaveCustomization}
         />
 
         {/* ADD / EDIT CATEGORY MODAL */}
